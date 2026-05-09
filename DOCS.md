@@ -975,11 +975,11 @@ npx tsc --noEmit && npx vite build
 - **K-Means** 视频已配置 B站 BV号（BV1sM4y1U7Ph），如有更合适的可替换。
 - **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
 
-### 13.4 最近更新（2026-05-09）
+### 13.4 最近更新（2026-05-10）
 
 | 提交 | 内容 |
 |------|------|
-| 当前工作区 | 基础课微课化改造：14 个 lesson 小节 + 二级可折叠 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
+| `f02b858` | 基础课微课化：14 个 lesson 小节 + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
 | `e78e7b0` | 2 门基础概念课（ML 入门+数据评估）+ 3 个交互演示组件 + CoursePage 改造 + 17 道新测验题 |
 | `b12387b` | K-Means 视频补充；ProgressPage 学习诊断（代码/概念能力分析+个性化推荐理由） |
 | `9214825` | 修复图表点击白屏 Bug；新增 ErrorBoundary + notMerge 渲染优化 |
@@ -1047,10 +1047,10 @@ npm run test:watch # 监听模式
 | **v2.5.1** | AI 可信度提升：诊断依据卡片 + 硬规则防幻觉 + Zod 校验所有 AI JSON 输出；文档版本统一 |
 | **v2.5.2** | 内页视觉统一：算法页分段学习路径 + 练习页步骤流水线/分层提示/错误分类 + 学习中心仪表盘 + 后台玻璃风格 |
 | **v2.7.0** | 基础课微课化：14 个 lesson 小节 + 二级 Sidebar 学习路径导航 + 5 个交互任务组件 + lesson 进度存储 |
-| **v2.7.0** | 2 门基础概念课（ML 入门+数据评估）+ 3 个交互演示 + CoursePage 改造 + 17 道新测验题 + AI 课程类型适配 |
+| **v2.6.0** | 2 门基础概念课（ML 入门+数据评估）+ 3 个交互演示 + CoursePage 改造 + 17 道新测验题 + AI 课程类型适配 |
 | **v2.5.3** | K-Means 视频补充 + ProgressPage 学习诊断（代码能力/概念理解分析 + 个性化推荐理由） |
 
 ---
 
 > 文档生成日期：2026-05-10
-> 项目版本：2.6.0
+> 项目版本：2.7.0
