@@ -975,6 +975,9 @@ npx tsc --noEmit && npx vite build
 
 | 提交 | 内容 |
 |------|------|
+| `777eb74` | 首页视觉统一：移除突兀深蓝块，粒子颜色柔化，全页面流畅过渡 |
+| `15d67ba` | 粒子动态背景 + 鼠标交互；超大 Hero 按钮；全局毛玻璃统一风格 |
+| `890bfd4` | 首页动效重制：滚动渐入、数字滚动、渐变文字、浮动光球；3 个新 Skills |
 | `d7057c8` | Pyodide Worker 多算法支持；Zod 数据校验；React.lazy 代码拆分（主包 86KB）；bundle 分析脚本 |
 | `7f38c47` | 14 个 Vitest 测试；`npm test` 脚本 |
 | `487bed5` | AI 工作流横幅；后端频率限制/Key 脱敏/统一错误码/JSON 修复 |
@@ -1018,4 +1021,4 @@ npm run test:watch # 监听模式
 ---
 
 > 文档生成日期：2026-05-10
-> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI、Pyodide Worker 全算法真运行、Zod 校验、代码拆分、14 个测试、后端安全加固)
+> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI、Pyodide Worker 全算法真运行、粒子动效首页、Zod 校验、代码拆分、14 个测试、后端安全加固、13 个 Skills)
