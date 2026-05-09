@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, BookOpen, Brain, Menu, Shield, User, X } from 'lucide-react';
+import { BarChart3, BookOpen, Brain, Menu, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { useCourses } from '../hooks/useCourses';
 
@@ -45,14 +45,6 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-400 transition-all hover:bg-amber-50 hover:text-amber-700"
-            title="课程管理"
-          >
-            <Shield className="h-4 w-4" />
-            管理
-          </Link>
         </nav>
 
         <button
@@ -81,14 +73,6 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/admin"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50"
-          >
-            <Shield className="h-4 w-4" />
-            课程管理
-          </Link>
           <div className="h-px bg-slate-100" />
           <div className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400">课程列表</div>
           <div className="grid grid-cols-1 gap-1">

@@ -85,12 +85,12 @@ export default function HomePage() {
               className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-600 px-10 py-5 text-xl font-extrabold text-white shadow-xl shadow-primary-500/20 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-primary-500/30"
             >
               <Play className="h-6 w-6 group-hover:translate-x-0.5 transition-transform" />
-              免费开始学习
+              开始学习
               <ArrowRight className="h-6 w-6" />
             </Link>
             <Link
               to="/progress"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-base font-semibold text-gray-700 transition-all hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 hover:shadow-md"
+              className="inline-flex w-auto self-center items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition-all hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 hover:shadow-md"
             >
               <TrendingUp className="w-5 h-5" />
               查看学习进度
