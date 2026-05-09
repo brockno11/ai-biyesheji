@@ -33,7 +33,7 @@ export default function AlgorithmPage() {
   const exercises = getExercisesByAlgorithm(algorithm.id);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="app-container">
       {/* Back link */}
       <Link
         to="/"
@@ -47,9 +47,9 @@ export default function AlgorithmPage() {
         {/* Main Content */}
         <div className="flex-1 min-w-0 space-y-6">
           {/* Hero Card */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm">
+          <div className="app-card p-6 md:p-8">
             <div className="flex items-start gap-4 mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-accent-100 flex items-center justify-center text-3xl shadow-sm flex-shrink-0">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary-100 to-accent-100 flex items-center justify-center text-3xl shadow-sm flex-shrink-0">
                 {algorithm.icon}
               </div>
               <div>
@@ -73,7 +73,7 @@ export default function AlgorithmPage() {
           </div>
 
           {/* Steps */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="app-card p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
               <GraduationCap className="w-5 h-5 text-primary-500" />
               算法步骤
@@ -92,7 +92,7 @@ export default function AlgorithmPage() {
 
           {/* Pros & Cons */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <div className="app-card p-6">
               <h3 className="flex items-center gap-2 text-sm font-bold text-green-700 mb-3">
                 <ThumbsUp className="w-4 h-4" />
                 优点
@@ -106,7 +106,7 @@ export default function AlgorithmPage() {
                 ))}
               </ul>
             </div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <div className="app-card p-6">
               <h3 className="flex items-center gap-2 text-sm font-bold text-red-700 mb-3">
                 <AlertCircle className="w-4 h-4" />
                 缺点
@@ -123,7 +123,7 @@ export default function AlgorithmPage() {
           </div>
 
           {/* Formula */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="app-card p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
               <Lightbulb className="w-5 h-5 text-yellow-500" />
               核心公式
@@ -136,7 +136,7 @@ export default function AlgorithmPage() {
           </div>
 
           {/* Code Example */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="app-card p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
               <Code2 className="w-5 h-5 text-green-500" />
               Python 代码示例
@@ -149,7 +149,7 @@ export default function AlgorithmPage() {
           </div>
 
           {/* Video */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="app-card p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
               <Play className="w-5 h-5 text-red-500" />
               B 站教学视频
@@ -159,7 +159,7 @@ export default function AlgorithmPage() {
 
           {/* Visualization */}
           {VizComponent && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <div className="app-card p-6">
               <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
                 <Sparkles className="w-5 h-5 text-purple-500" />
                 交互式可视化

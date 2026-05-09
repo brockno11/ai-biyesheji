@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, Bot, Code2, BarChart3, BookOpen, TrendingUp, Sparkles,
-  Target, ChevronRight, GraduationCap, Play, Star, Users, Zap, Menu, X,
+  Target, ChevronRight, GraduationCap, Play, Zap,
 } from 'lucide-react';
+import Header from '../components/Header';
 import { useCourses } from '../hooks/useCourses';
 import { storageService } from '../services/storageService';
 
@@ -42,93 +42,13 @@ const stats = [
 ];
 
 export default function HomePage() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const algorithms = useCourses();
   const progress = storageService.getProgress();
   const completedCount = progress.completedAlgorithms.length;
 
   return (
     <div className="min-h-screen bg-white">
-      {/* ── Navigation ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-xl border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-lg bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-              ML 教学平台
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-6">
-            {algorithms.map((a) => (
-              <Link
-                key={a.id}
-                to={`/algorithms/${a.id}`}
-                className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors"
-              >
-                {a.icon} {a.name}
-              </Link>
-            ))}
-            <Link
-              to="/progress"
-              className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              📊 学习进度
-            </Link>
-            <Link
-              to="/profile"
-              className="text-sm font-medium text-gray-400 hover:text-amber-600 transition-colors"
-              title="课程管理"
-            >
-              ⚙️
-            </Link>
-            <Link
-              to={`/algorithms/${algorithms[0]?.id || 'linear-regression'}`}
-              className="ml-2 px-5 py-2 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all"
-            >
-              开始学习
-            </Link>
-          </div>
-
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-
-        {mobileOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
-            {algorithms.map((a) => (
-              <Link
-                key={a.id}
-                to={`/algorithms/${a.id}`}
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50"
-              >
-                {a.icon} {a.name}
-              </Link>
-            ))}
-            <Link
-              to="/progress"
-              onClick={() => setMobileOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50"
-            >
-              📊 学习进度
-            </Link>
-            <Link
-              to="/profile"
-              onClick={() => setMobileOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-sm font-medium text-amber-600 hover:bg-amber-50"
-            >
-              ⚙️ 课程管理
-            </Link>
-          </div>
-        )}
-      </nav>
+      <Header />
 
       {/* ── Hero ── */}
       <section className="pt-28 pb-16 md:pt-36 md:pb-24 bg-gradient-to-br from-slate-50 via-primary-50/40 to-accent-50/30 relative overflow-hidden">
@@ -159,18 +79,18 @@ export default function HomePage() {
             让机器学习从"看不懂"变成"做得出"。
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mx-auto flex max-w-md flex-col items-stretch justify-center gap-3">
             <Link
               to={`/algorithms/${algorithms[0].id}`}
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-primary-500/25 hover:scale-105 transition-all"
+              className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-600 px-10 py-5 text-xl font-extrabold text-white shadow-xl shadow-primary-500/20 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-primary-500/30"
             >
-              <Play className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+              <Play className="h-6 w-6 group-hover:translate-x-0.5 transition-transform" />
               免费开始学习
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="h-6 w-6" />
             </Link>
             <Link
               to="/progress"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-700 rounded-2xl font-semibold text-lg border-2 border-gray-200 hover:border-primary-300 hover:shadow-lg transition-all"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-base font-semibold text-gray-700 transition-all hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 hover:shadow-md"
             >
               <TrendingUp className="w-5 h-5" />
               查看学习进度

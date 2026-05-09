@@ -82,7 +82,7 @@ export default function PracticePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="app-container">
       <Link
         to={`/algorithms/${algorithm.id}`}
         className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 mb-6 transition-colors"
@@ -95,7 +95,7 @@ export default function PracticePage() {
         {/* Main Content */}
         <div className="flex-1 min-w-0 space-y-6">
           {/* Exercise Header */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="app-card p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -129,7 +129,7 @@ export default function PracticePage() {
             <h1 className="text-xl font-bold text-gray-900 mb-2">{exercise.title}</h1>
             <p className="text-sm text-gray-600 mb-4">{exercise.description}</p>
 
-            <div className="bg-blue-50 rounded-xl p-4">
+            <div className="rounded-xl border border-primary-100 bg-primary-50 p-4">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-blue-800 mb-2">
                 <Lightbulb className="w-4 h-4" />
                 操作指引
@@ -178,7 +178,7 @@ export default function PracticePage() {
         <div className="xl:w-96 flex-shrink-0 space-y-6">
           <div className="xl:sticky xl:top-24 space-y-6">
             {/* Required Keywords */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+            <div className="app-card p-5">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
                 <BookOpen className="w-4 h-4 text-primary-500" />
                 需要使用的 API
@@ -202,7 +202,7 @@ export default function PracticePage() {
 
             {/* AI Feedback */}
             {(aiFeedback || aiLoading) && (
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+              <div className="app-card p-5">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                   AI 助教反馈

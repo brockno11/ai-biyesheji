@@ -13,14 +13,13 @@ export default function ProgressPage() {
 
   const totalAlgorithms = algorithms.length;
   const completedAlgorithms = progress.completedAlgorithms.length;
-  const overallProgress = Math.round((completedAlgorithms / totalAlgorithms) * 100);
 
   const totalPractices = progress.practiceRecords.length;
   const bestOverall = progress.practiceRecords.length > 0
     ? Math.max(...progress.practiceRecords.map((r) => r.score))
     : 0;
 
-  const lastPractice = progress.practiceRecords
+  const lastPractice = [...progress.practiceRecords]
     .sort((a, b) => b.timestamp - a.timestamp)[0];
 
   const handleReset = () => {
@@ -42,10 +41,11 @@ export default function ProgressPage() {
   const nextAlgo = getRecommendedNext();
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <div className="app-container max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">学习进度</h1>
-        <p className="text-gray-500 text-sm">追踪你的机器学习学习之旅</p>
+        <p className="mb-2 text-sm font-semibold text-primary-700">学习追踪</p>
+        <h1 className="text-2xl font-extrabold text-slate-950 mb-1">学习进度</h1>
+        <p className="text-slate-500 text-sm">追踪你的机器学习学习之旅，明确下一步该做什么。</p>
       </div>
 
       {/* Stats Grid */}
@@ -82,7 +82,7 @@ export default function ProgressPage() {
         ].map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+            <div key={stat.label} className="app-card p-5">
               <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${stat.color}`} />
               </div>
@@ -94,8 +94,8 @@ export default function ProgressPage() {
       </div>
 
       {/* Overall Progress */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">总体进度</h2>
+      <div className="app-card p-6 mb-8">
+        <h2 className="app-section-title mb-4">总体进度</h2>
         <ProgressBar
           value={completedAlgorithms}
           max={totalAlgorithms}
@@ -106,7 +106,7 @@ export default function ProgressPage() {
 
       {/* Per-Algorithm Progress */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">各算法详情</h2>
+        <h2 className="app-section-title mb-4">各算法详情</h2>
         <div className="space-y-4">
           {algorithms.map((algo) => {
             const isCompleted = storageService.isCompleted(algo.id);
@@ -119,7 +119,7 @@ export default function ProgressPage() {
             return (
               <div
                 key={algo.id}
-                className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow"
+                className="app-card p-5 transition hover:border-primary-200 hover:shadow-md"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ export default function ProgressPage() {
       {/* Recent Activity & Recommendation */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Recent Activity */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+        <div className="app-card p-6">
           <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-4">
             <Award className="w-4 h-4 text-yellow-500" />
             最近活动
@@ -215,7 +215,7 @@ export default function ProgressPage() {
         </div>
 
         {/* Recommendation */}
-        <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl border border-primary-100 p-6 shadow-sm">
+        <div className="rounded-xl border border-primary-100 bg-gradient-to-br from-primary-50 to-accent-50 p-6 shadow-sm">
           <h3 className="flex items-center gap-2 text-sm font-bold text-primary-800 mb-4">
             <Brain className="w-4 h-4" />
             推荐下一步

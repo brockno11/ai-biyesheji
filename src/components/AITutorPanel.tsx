@@ -44,20 +44,21 @@ export default function AITutorPanel({ algorithm, context }: Props) {
   };
 
   const quickActions = [
-    { label: '解释概念', icon: '📖', action: () => handleQuickAction('explain') },
-    { label: '诊断代码', icon: '🔍', action: () => handleQuickAction('diagnose') },
-    { label: '学习建议', icon: '💡', action: () => handleQuickAction('suggest') },
-    { label: '来道题', icon: '📝', action: () => handleQuickAction('quiz') },
+    { type: 'explain' as const, label: '解释概念', icon: '📖' },
+    { type: 'diagnose' as const, label: '诊断代码', icon: '🔍' },
+    { type: 'suggest' as const, label: '学习建议', icon: '💡' },
+    { type: 'quiz' as const, label: '来道题', icon: '📝' },
   ];
 
   const handleQuickAction = async (type: 'explain' | 'diagnose' | 'suggest' | 'quiz') => {
     if (loading) return;
     setLoading(true);
+    const actionLabel = quickActions.find((action) => action.type === type)?.label || '快捷提问';
     try {
       const reply = await askAI(type, algorithm, context);
       setMessages((prev) => [
         ...prev,
-        { role: 'user', content: `[${quickActions.find((a) => a.action.name.includes(type))?.label}]` },
+        { role: 'user', content: `[${actionLabel}]` },
         { role: 'assistant', content: reply },
       ]);
     } catch {
@@ -91,7 +92,7 @@ export default function AITutorPanel({ algorithm, context }: Props) {
               {quickActions.map((qa) => (
                 <button
                   key={qa.label}
-                  onClick={qa.action}
+                  onClick={() => handleQuickAction(qa.type)}
                   disabled={loading}
                   className="text-left px-3 py-2 rounded-xl border border-gray-200 text-sm hover:border-primary-300 hover:bg-primary-50 transition-colors disabled:opacity-50"
                 >
