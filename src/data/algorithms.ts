@@ -906,8 +906,30 @@ y_pred = model.predict(X_test)
 # 6. 评估
 mse = mean_squared_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
-print(f"MSE: {mse:.3f}, R²: {r2:.3f}")`,
+print(f"MSE: {mse:.3f}, R²: {r2:.3f}")
+
+# ── 多元线性回归 ──
+# 当有多个特征时，用法完全一样
+X_multi = np.random.rand(100, 3) * 10  # 3个特征
+y_multi = 2*X_multi[:,0] + 1.5*X_multi[:,1] - 0.5*X_multi[:,2] + 3 + np.random.randn(100)*2
+model_multi = LinearRegression()
+model_multi.fit(X_multi, y_multi)
+print(f"多元权重: {model_multi.coef_}")  # 每个特征对应一个权重
+
+# ── 使用Ridge/Lasso防止过拟合 ──
+from sklearn.linear_model import Ridge, Lasso
+ridge = Ridge(alpha=1.0)  # alpha越大，正则化越强
+ridge.fit(X_train, y_train)
+print(f"Ridge R²: {ridge.score(X_test, y_test):.3f}")
+
+# ── 查看模型预测 vs 真实值 ──
+import matplotlib.pyplot as plt  # 仅示意，平台暂不执行
+# plt.scatter(y_test, y_pred)
+# plt.xlabel('真实值')
+# plt.ylabel('预测值')
+# plt.title('预测 vs 真实')`,
     videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1ZZCkBREVE',
+    nextCourseId: 'knn',
   },
   {
     id: 'logistic-regression',
@@ -930,7 +952,7 @@ print(f"MSE: {mse:.3f}, R²: {r2:.3f}")`,
     visualizationType: 'logistic-regression',
     estimatedMinutes: 40,
     prerequisites: ['linear-regression'],
-    nextCourseId: 'knn',
+    nextCourseId: 'decision-tree',
   },
   {
     id: 'knn',
@@ -1021,8 +1043,31 @@ y_pred = model.predict(X_test)
 # 5. 评估
 accuracy = accuracy_score(y_test, y_pred)
 print(f"准确率: {accuracy:.2%}")
-print(classification_report(y_test, y_pred))`,
+print(classification_report(y_test, y_pred))
+
+# KNN 距离度量选择
+# 默认使用欧氏距离（直线距离）
+knn_euclidean = KNeighborsClassifier(n_neighbors=5, metric='euclidean')
+
+# 曼哈顿距离（适合网格状数据，如城市街区距离）
+knn_manhattan = KNeighborsClassifier(n_neighbors=5, metric='manhattan')
+
+# 标准化非常重要！不同尺度的特征会扭曲距离
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 比较标准化前后的accuracy
+knn_raw = KNeighborsClassifier(n_neighbors=5)
+knn_raw.fit(X_train_raw, y_train)
+acc_raw = knn_raw.score(X_test_raw, y_test)
+
+knn_scaled = KNeighborsClassifier(n_neighbors=5)
+knn_scaled.fit(X_train_scaled, y_train)
+acc_scaled = knn_scaled.score(X_test_scaled, y_test)
+print(f"未标准化: {acc_raw:.2f}, 标准化后: {acc_scaled:.2f}")`,
     videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1TW4y1w7MW',
+    nextCourseId: 'k-means',
   },
   {
     id: 'decision-tree',
@@ -1119,8 +1164,24 @@ print(f"特征重要性: {model.feature_importances_}")
 plt.figure(figsize=(12, 8))
 plot_tree(model, feature_names=iris.feature_names,
           class_names=iris.target_names, filled=True)
-plt.show()`,
+plt.show()
+
+# 可视化决策树（文本形式）
+from sklearn.tree import export_text
+tree_rules = export_text(model, feature_names=['花萼长度','花萼宽度','花瓣长度','花瓣宽度'])
+print(tree_rules)
+
+# 特征重要性分析
+for name, importance in zip(['花萼长度','花萼宽度','花瓣长度','花瓣宽度'], model.feature_importances_):
+    print(f"{name}: {importance:.3f}")
+
+# 不同深度对比
+for d in [1, 2, 3, 5, None]:
+    dt = DecisionTreeClassifier(max_depth=d, random_state=42)
+    dt.fit(X_train, y_train)
+    print(f"max_depth={d}: train={dt.score(X_train, y_train):.3f}, test={dt.score(X_test, y_test):.3f}")`,
     videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1gP4y177cf',
+    nextCourseId: 'random-forest',
   },
   {
     id: 'random-forest',
@@ -1143,7 +1204,7 @@ plt.show()`,
     visualizationType: 'random-forest',
     estimatedMinutes: 45,
     prerequisites: ['decision-tree'],
-    nextCourseId: 'k-means',
+    nextCourseId: '',
   },
   {
     id: 'k-means',
@@ -1214,6 +1275,7 @@ print("聚类中心:", model.cluster_centers_)
 print("簇内平方和:", model.inertia_)
 print("每个簇的样本数:", np.bincount(labels))`,
     videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1sM4y1U7Ph',
+    nextCourseId: 'logistic-regression',
   },
 ];
 

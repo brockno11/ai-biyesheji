@@ -171,6 +171,21 @@ export default function AlgorithmPage() {
             </div>
           </Section>
 
+          {/* B 站教学视频 */}
+          {algorithm.videoUrl && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white text-sm">
+                    <Play className="w-4 h-4" />
+                  </span>
+                  B 站教学视频
+                </h2>
+                <VideoEmbed url={algorithm.videoUrl} title={`${algorithm.name} - B站视频教程`} />
+              </div>
+            </Section>
+          )}
+
           {/* Section 3: 公式与步骤 */}
           {(algorithm.formula || (algorithm.steps && algorithm.steps.length > 0)) && (
             <Section className="mt-6">
@@ -256,21 +271,6 @@ export default function AlgorithmPage() {
                     {algorithm.codeExample}
                   </pre>
                 </div>
-              </div>
-            </Section>
-          )}
-
-          {/* Section 6: B 站教学视频 */}
-          {algorithm.videoUrl && (
-            <Section className="mt-6">
-              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
-                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
-                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white text-sm">
-                    <Play className="w-4 h-4" />
-                  </span>
-                  B 站教学视频
-                </h2>
-                <VideoEmbed url={algorithm.videoUrl} title={`${algorithm.name} - B站视频教程`} />
               </div>
             </Section>
           )}
