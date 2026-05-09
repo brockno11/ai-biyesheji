@@ -46,7 +46,7 @@ export const algorithmSchema = z.object({
   useCases: z.array(z.string()),
   formula: z.string(),
   codeExample: z.string(),
-  videoUrl: z.string().optional(),
+  videoUrl: z.string().default(''),
 });
 
 export const quizSetSchema = z.array(quizQuestionSchema).min(1, '至少需要 1 道题');

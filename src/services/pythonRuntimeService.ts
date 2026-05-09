@@ -23,7 +23,6 @@ let workerReadyResolvers: Array<() => void> = [];
 function createWorker(): Worker {
   const w = new Worker(
     new URL('../workers/pyodideWorker.ts', import.meta.url),
-    { type: 'classic' }
   );
 
   w.onmessage = (event: MessageEvent) => {

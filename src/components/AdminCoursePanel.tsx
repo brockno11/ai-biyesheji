@@ -63,6 +63,7 @@ export default function AdminCoursePanel() {
   const openAdd = () => {
     setForm({ ...emptyForm, id: 'custom-' + Date.now() });
     setEditingId(null);
+    setFieldErrors({});
     setShowForm(true);
   };
 
@@ -75,6 +76,7 @@ export default function AdminCoursePanel() {
       useCases: [...course.useCases],
     });
     setEditingId(course.id);
+    setFieldErrors({});
     setShowForm(true);
   };
 
@@ -121,6 +123,7 @@ export default function AdminCoursePanel() {
         videoUrl: '',
       });
       setEditingId(null);
+      setFieldErrors({});
       setShowForm(true);
       showToast('success', result.mode === 'deepseek' ? 'DeepSeek 已生成课程草稿' : '已生成 Mock 课程草稿');
     } catch {
@@ -135,6 +138,61 @@ export default function AdminCoursePanel() {
     setCustomCourses(storageService.getCustomCourses());
     setDeleteConfirm(null);
     showToast('success', '课程已删除');
+  };
+
+  const handleExportCourses = () => {
+    const data = JSON.stringify(customCourses, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `custom-courses-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('success', '自定义课程已导出');
+  };
+
+  const handleImportCourses = () => {
+    importFileRef.current?.click();
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const raw = JSON.parse(evt.target?.result as string);
+        if (!Array.isArray(raw)) {
+          showToast('error', '导入失败：文件格式不正确，应为数组');
+          return;
+        }
+        const allIds = new Set([...staticAlgorithms, ...customCourses].map((c) => c.id));
+        const imported: Algorithm[] = [];
+        for (const item of raw) {
+          const result = validateAlgorithm(item);
+          if (!result.success) {
+            showToast('error', `导入失败：课程 "${item.name || '(无名称)'}" 校验不通过`);
+            return;
+          }
+          // Warn on ID conflict, auto-rename
+          if (allIds.has(result.data.id)) {
+            result.data.id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+          }
+          allIds.add(result.data.id);
+          imported.push(result.data);
+        }
+        for (const course of imported) {
+          storageService.saveCustomCourse(course);
+        }
+        setCustomCourses(storageService.getCustomCourses());
+        showToast('success', `成功导入 ${imported.length} 门课程`);
+      } catch {
+        showToast('error', '导入失败：无法解析 JSON 文件');
+      }
+    };
+    reader.readAsText(file);
+    if (importFileRef.current) importFileRef.current.value = '';
   };
 
   const updateField = (field: keyof Algorithm, value: unknown) => {
@@ -188,13 +246,39 @@ export default function AdminCoursePanel() {
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400"
             />
           </div>
-          <button
-            onClick={openAdd}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-medium text-sm hover:shadow-lg transition-all flex-shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            添加课程
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCourses}
+              disabled={customCourses.length === 0}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+              title="导出自定义课程"
+            >
+              <Download className="h-3.5 w-3.5" />
+              导出
+            </button>
+            <button
+              onClick={handleImportCourses}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+              title="导入课程 JSON"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              导入
+            </button>
+            <input
+              ref={importFileRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleImportFile}
+            />
+            <button
+              onClick={openAdd}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-medium text-sm hover:shadow-lg transition-all flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              添加课程
+            </button>
+          </div>
         </div>
       </div>
 
@@ -297,12 +381,19 @@ export default function AdminCoursePanel() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
-                        <Link
-                          to={`/algorithms/${course.id}`}
+                        <button
+                          onClick={() => setPreviewCourse(course)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-primary-500 hover:bg-primary-50 transition-colors"
-                          title="预览"
+                          title="预览课程"
                         >
                           <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <Link
+                          to={`/algorithms/${course.id}`}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-accent-500 hover:bg-accent-50 transition-colors"
+                          title="在页面中查看"
+                        >
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         </Link>
                         <button
                           onClick={() => openEdit(course)}
@@ -357,9 +448,10 @@ export default function AdminCoursePanel() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="col-span-2">
                   <label className="block text-xs font-semibold text-gray-600 mb-1.5">课程名称 *</label>
-                  <input type="text" value={form.name} onChange={(e) => updateField('name', e.target.value)}
+                  <input type="text" value={form.name} onChange={(e) => { updateField('name', e.target.value); setFieldErrors((prev) => { const next = { ...prev }; delete next.name; return next; }); }}
                     placeholder="例如：支持向量机 SVM"
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" />
+                    className={`w-full px-3 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 ${fieldErrors.name ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+                  {fieldErrors.name && <p className="mt-1 text-xs text-red-500">{fieldErrors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1.5">图标</label>
@@ -386,9 +478,10 @@ export default function AdminCoursePanel() {
 
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1.5">一句话简介 *</label>
-                <input type="text" value={form.intro} onChange={(e) => updateField('intro', e.target.value)}
+                <input type="text" value={form.intro} onChange={(e) => { updateField('intro', e.target.value); setFieldErrors((prev) => { const next = { ...prev }; delete next.intro; return next; }); }}
                   placeholder="用一句话介绍这个算法..."
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" />
+                  className={`w-full px-3 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 ${fieldErrors.intro ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+                {fieldErrors.intro && <p className="mt-1 text-xs text-red-500">{fieldErrors.intro}</p>}
               </div>
 
               <div>
@@ -433,7 +526,7 @@ export default function AdminCoursePanel() {
                         <div key={i} className="flex gap-2">
                           <input type="text" value={item} onChange={(e) => updateArrayItem(field, i, e.target.value)}
                             placeholder={`${labels[field]} ${i + 1}...`}
-                            className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" />
+                            className={`flex-1 px-3 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 ${fieldErrors[field] ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
                           <button onClick={() => removeArrayItem(field, i)}
                             className="px-2 py-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             <X className="w-4 h-4" />
@@ -441,6 +534,7 @@ export default function AdminCoursePanel() {
                         </div>
                       ))}
                     </div>
+                    {fieldErrors[field] && <p className="mt-1 text-xs text-red-500">{fieldErrors[field]}</p>}
                   </div>
                 );
               })}
@@ -481,6 +575,98 @@ export default function AdminCoursePanel() {
                 className="flex-1 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">取消</button>
               <button onClick={() => handleDelete(deleteConfirm)}
                 className="flex-1 py-2.5 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600">确认删除</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course Preview Modal */}
+      {previewCourse && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 pb-8 overflow-y-auto bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{previewCourse.icon}</span>
+                <h3 className="text-lg font-bold text-gray-900">{previewCourse.name}</h3>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  previewCourse.difficulty === '入门' ? 'bg-green-100 text-green-700' :
+                  previewCourse.difficulty === '中级' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-red-100 text-red-700'
+                }`}>{previewCourse.difficulty}</span>
+              </div>
+              <button onClick={() => setPreviewCourse(null)} className="p-2 rounded-lg hover:bg-gray-100">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 mb-1">简介</p>
+                <p className="text-sm text-gray-700">{previewCourse.intro}</p>
+              </div>
+              {previewCourse.description && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">详细描述</p>
+                  <p className="text-sm text-gray-700">{previewCourse.description}</p>
+                </div>
+              )}
+              {previewCourse.formula && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">核心公式</p>
+                  <pre className="text-xs text-gray-700 bg-gray-50 rounded-xl p-3 font-mono whitespace-pre-wrap">{previewCourse.formula}</pre>
+                </div>
+              )}
+              {previewCourse.steps.length > 0 && previewCourse.steps[0] !== '' && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">算法步骤</p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    {previewCourse.steps.filter(Boolean).map((s, i) => (
+                      <li key={i} className="text-sm text-gray-700">{s}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+              {previewCourse.advantages.length > 0 && previewCourse.advantages[0] !== '' && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">优点</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {previewCourse.advantages.filter(Boolean).map((a, i) => (
+                      <li key={i} className="text-sm text-green-700">{a}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {previewCourse.disadvantages.length > 0 && previewCourse.disadvantages[0] !== '' && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">缺点</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {previewCourse.disadvantages.filter(Boolean).map((d, i) => (
+                      <li key={i} className="text-sm text-red-700">{d}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {previewCourse.useCases.length > 0 && previewCourse.useCases[0] !== '' && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">适用场景</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {previewCourse.useCases.filter(Boolean).map((u, i) => (
+                      <li key={i} className="text-sm text-blue-700">{u}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {previewCourse.codeExample && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-1">Python 代码示例</p>
+                  <pre className="text-xs text-gray-700 bg-gray-50 rounded-xl p-3 font-mono whitespace-pre-wrap">{previewCourse.codeExample}</pre>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+              <button onClick={() => setPreviewCourse(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50">
+                关闭预览
+              </button>
             </div>
           </div>
         </div>

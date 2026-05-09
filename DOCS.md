@@ -966,7 +966,7 @@ npx tsc --noEmit && npx vite build
 - **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
 - **Mock 覆盖范围**：所有 11 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
 - **10 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
-- **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts`），当前优先覆盖线性回归练习；其他题目继续使用规则检查 + AI 诊断。
+- **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 4 个算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
 - **K-Means** 视频链接暂缺，等待补充。
 - **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
@@ -975,7 +975,9 @@ npx tsc --noEmit && npx vite build
 
 | 提交 | 内容 |
 |------|------|
-| 当前工作区 | Pyodide Worker 多算法支持；Zod 数据校验；React.lazy 代码拆分（主包 86KB）；bundle 分析脚本 |
+| `d7057c8` | Pyodide Worker 多算法支持；Zod 数据校验；React.lazy 代码拆分（主包 86KB）；bundle 分析脚本 |
+| `7f38c47` | 14 个 Vitest 测试；`npm test` 脚本 |
+| `487bed5` | AI 工作流横幅；后端频率限制/Key 脱敏/统一错误码/JSON 修复 |
 | `2608c8f` | K-Means 课程与可视化；Pyodide 真运行；练习 8 道，测验 32 道；题库管理后台；代码注释过滤 |
 | `e19f841` | 文档 Agent 交接更新 |
 | `cf2e421` | 修复 DeepSeek thinking 参数、代码质量优化 |
@@ -1015,5 +1017,5 @@ npm run test:watch # 监听模式
 
 ---
 
-> 文档生成日期：2026-05-09
-> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI 模块、Pyodide 线性回归真运行、K-Means 聚类课程、32 道测验题、题库管理后台和学习中心/个人仪表盘 UI 优化)
+> 文档生成日期：2026-05-10
+> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI、Pyodide Worker 全算法真运行、Zod 校验、代码拆分、14 个测试、后端安全加固)
