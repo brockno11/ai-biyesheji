@@ -11,6 +11,10 @@ import {
   PenLine,
   CheckCircle2,
   Sprout,
+  AlertCircle,
+  Shuffle,
+  Compass,
+  AlignLeft,
 } from 'lucide-react';
 import { aiService } from '../services/aiService';
 import type { AIMode, AIActionType } from '../services/aiTypes';
@@ -28,7 +32,7 @@ interface Message {
   content: string;
 }
 
-const QUICK_ACTIONS = [
+const ALGORITHM_QUICK_ACTIONS = [
   { type: 'explainConcept' as const, label: '解释概念', icon: BookOpen },
   { type: 'generatePracticeHint' as const, label: '诊断代码', icon: Search },
   { type: 'askTutor' as const, label: '学习建议', icon: Lightbulb, question: '请给我下一步学习建议' },
@@ -37,7 +41,18 @@ const QUICK_ACTIONS = [
   { type: 'lifeExample' as const, label: '生活例子', icon: Sprout },
 ];
 
+const FOUNDATION_QUICK_ACTIONS = [
+  { type: 'lifeExample' as const, label: '用生活例子解释', icon: Sprout },
+  { type: 'askTutor' as const, label: '我刚才为什么错了？', icon: AlertCircle, question: '我刚才判断错了（或者做错了），能帮我分析一下我错在哪里吗？' },
+  { type: 'generateQuiz' as const, label: '再给我一道类似题', icon: Shuffle },
+  { type: 'askTutor' as const, label: '这个知识点和后面哪个算法有关？', icon: Compass, question: '这个知识点和后面要学的算法有什么关联？在哪个算法中会用到？' },
+  { type: 'summarizeLesson' as const, label: '帮我用一句话总结', icon: AlignLeft },
+];
+
 export default function AITutorPanel({ algorithm, context }: Props) {
+  const isFoundation = algorithm.type === 'foundation';
+  const QUICK_ACTIONS = isFoundation ? FOUNDATION_QUICK_ACTIONS : ALGORITHM_QUICK_ACTIONS;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);

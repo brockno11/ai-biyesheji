@@ -168,7 +168,7 @@ export default function AdminPage() {
                               </td>
                               <td className="px-5 py-3">
                                 <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                                  {{ regression: '回归', classification: '分类', tree: '树形', clustering: '聚类', basic: '基础' }[course.category]}
+                                  {{ regression: '回归', classification: '分类', tree: '树形', clustering: '聚类', basic: '基础', ensemble: '集成' }[course.category]}
                                 </span>
                               </td>
                               <td className="px-5 py-3">

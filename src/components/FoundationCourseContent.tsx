@@ -10,9 +10,12 @@ import {
   ArrowLeft,
   ArrowRight,
   Clock,
+  HelpCircle,
+  XCircle,
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import type { Algorithm } from '../types';
+import type { Algorithm, GuidedQuestion } from '../types';
+import { getAlgorithmById } from '../data/algorithms';
 import AITutorPanel from './AITutorPanel';
 import InteractiveTask from './InteractiveTask';
 import { lessonProgressService } from '../services/lessonProgressService';
@@ -74,6 +77,173 @@ function MistakeCard({
   );
 }
 
+function OpeningQuestionBlock({
+  question,
+  onAnswered,
+}: {
+  question: GuidedQuestion;
+  onAnswered: (selectedIndex: number) => void;
+}) {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const isCorrect = selectedIndex === question.correctIndex;
+
+  const handleSelect = (idx: number) => {
+    if (revealed) return;
+    setSelectedIndex(idx);
+    setRevealed(true);
+  };
+
+  const handleContinue = () => {
+    onAnswered(selectedIndex ?? -1);
+  };
+
+  const algorithmNameMap: Record<string, string> = {
+    'linear-regression': '线性回归',
+    'knn': 'K近邻(KNN)',
+    'decision-tree': '决策树',
+    'k-means': 'K-Means聚类',
+  };
+
+  return (
+    <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 animate-in fade-in">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+        <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
+          <HelpCircle className="w-4 h-4" />
+        </span>
+        <h3 className="text-sm font-extrabold text-gray-900 tracking-tight">
+          思考一下再学习
+        </h3>
+        <span className="ml-auto text-xs text-blue-500 font-semibold">
+          先回答，再看内容
+        </span>
+      </div>
+
+      <div className="px-5 py-4 space-y-4">
+        {/* Scenario */}
+        <div className="bg-blue-50/80 rounded-xl p-4 border border-blue-100">
+          <h4 className="text-xs font-bold text-blue-700 mb-1">场景</h4>
+          <p className="text-sm text-blue-800 leading-relaxed">{question.scenario}</p>
+        </div>
+
+        {/* Prompt */}
+        <p className="text-sm font-semibold text-gray-800 leading-relaxed">
+          {question.prompt}
+        </p>
+
+        {/* Options */}
+        <div className="space-y-2">
+          {question.options.map((opt, idx) => {
+            const isSelected = selectedIndex === idx;
+            const showCorrect = revealed && idx === question.correctIndex;
+            const showWrong = revealed && isSelected && !isCorrect;
+
+            let buttonStyle = 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50';
+            if (revealed) {
+              if (showCorrect) {
+                buttonStyle = 'border-green-400 bg-green-50 text-green-800 font-semibold';
+              } else if (showWrong) {
+                buttonStyle = 'border-red-400 bg-red-50 text-red-800';
+              } else {
+                buttonStyle = 'border-slate-100 bg-slate-50 text-slate-400';
+              }
+            } else if (isSelected) {
+              buttonStyle = 'border-blue-400 bg-blue-50 text-blue-800 font-semibold';
+            }
+
+            return (
+              <button
+                key={idx}
+                onClick={() => handleSelect(idx)}
+                disabled={revealed}
+                className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all flex items-center gap-3 ${buttonStyle} ${revealed ? 'cursor-default' : 'cursor-pointer'}`}
+              >
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                  {String.fromCharCode(65 + idx)}
+                </span>
+                <span className="flex-1">{opt.replace(/^[A-D]\.\s*/, '')}</span>
+                {revealed && showCorrect && (
+                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                )}
+                {revealed && showWrong && (
+                  <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Feedback after selection */}
+        {revealed && (
+          <div className={`rounded-xl p-4 border ${isCorrect ? 'bg-green-50/70 border-green-200' : 'bg-red-50/70 border-red-200'}`}>
+            <div className="flex items-start gap-2 mb-2">
+              {isCorrect ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              )}
+              <div>
+                <h4 className={`text-sm font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                  {isCorrect ? '回答正确！' : '回答有误'}
+                </h4>
+                <p className={`text-sm mt-1 leading-relaxed ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                  {isCorrect ? question.correctFeedback : question.wrongFeedback}
+                </p>
+              </div>
+            </div>
+
+            {/* Explanation */}
+            <div className="mt-3 pt-3 border-t border-slate-200/50">
+              <h4 className="text-xs font-bold text-slate-600 mb-1">知识点</h4>
+              <p className="text-sm text-slate-700 leading-relaxed">{question.explanation}</p>
+            </div>
+
+            {/* Related algorithms */}
+            {question.relatedAlgorithms && question.relatedAlgorithms.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-slate-200/50">
+                <h4 className="text-xs font-bold text-primary-600 mb-1">这个知识点后面会在这些算法中用到</h4>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {question.relatedAlgorithms.map((algId) => {
+                    const name = algorithmNameMap[algId] || algId;
+                    return (
+                      <span
+                        key={algId}
+                        className="inline-block px-2.5 py-0.5 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold border border-primary-100"
+                      >
+                        {name}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Follow-up question hint */}
+            {question.followUpQuestion && (
+              <div className="mt-3 pt-3 border-t border-slate-200/50">
+                <h4 className="text-xs font-bold text-amber-600 mb-1">进阶思考</h4>
+                <p className="text-sm text-amber-800 leading-relaxed">{question.followUpQuestion}</p>
+                <p className="text-xs text-amber-500 mt-1">（学完本节后可以用右侧 AI 助教讨论这个问题）</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Continue button */}
+        {revealed && (
+          <button
+            onClick={handleContinue}
+            className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
+          >
+            开始学习本节内容
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function FoundationCourseContent({
   algorithm,
 }: FoundationCourseContentProps) {
@@ -85,6 +255,10 @@ export default function FoundationCourseContent({
   const courseProgress = progressData[algorithm.id];
   const completedLessons = courseProgress?.completedLessons || [];
 
+  // Opening question state
+  const [openingAnswered, setOpeningAnswered] = useState(false);
+  const [openingUserAnswer, setOpeningUserAnswer] = useState<number | null>(null);
+
   // Determine current lesson from URL param or default to first incomplete
   const lessonParam = searchParams.get('lesson');
   const currentLesson = lessonParam
@@ -95,6 +269,12 @@ export default function FoundationCourseContent({
   const currentLessonIndex = sortedLessons.findIndex(
     (l) => l.id === currentLesson?.id,
   );
+
+  // Reset opening question state when lesson changes
+  useEffect(() => {
+    setOpeningAnswered(false);
+    setOpeningUserAnswer(null);
+  }, [currentLesson?.id]);
 
   // Sync lesson param if not set
   useEffect(() => {
@@ -212,152 +392,172 @@ export default function FoundationCourseContent({
             </p>
           </div>
 
-          {/* Goal */}
-          <Section icon={Target} title="本节目标">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {currentLesson.goal}
-            </p>
-          </Section>
-
-          {/* Story */}
-          <Section
-            icon={BookOpen}
-            title="场景故事"
-            className="bg-blue-50/50 border-blue-100"
-          >
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {currentLesson.story}
-            </p>
-          </Section>
-
-          {/* Explanation */}
-          <Section icon={Lightbulb} title="通俗解释">
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-              {currentLesson.explanation}
-            </p>
-            {currentLesson.example && (
-              <div className="mt-3 bg-amber-50/80 rounded-xl p-4 border border-amber-100">
-                <h4 className="text-xs font-bold text-amber-700 mb-1">
-                  💡 示例
-                </h4>
-                <p className="text-sm text-amber-800 leading-relaxed">
-                  {currentLesson.example}
-                </p>
-              </div>
-            )}
-          </Section>
-
-          {/* Interactive Task */}
-          <Section icon={Play} title="动手试试">
-            <p className="text-gray-500 text-sm mb-4">
-              完成以下互动练习，加深理解
-            </p>
-            <InteractiveTask
-              type={currentLesson.interactionType}
-              onComplete={(passed) => {
-                lessonProgressService.markInteractionComplete(
-                  algorithm.id,
-                  currentLesson.id,
-                );
-                if (passed) {
-                  lessonProgressService.markLessonComplete(
-                    algorithm.id,
-                    currentLesson.id,
-                  );
-                }
+          {/* Opening Question (before content) */}
+          {currentLesson.openingQuestion && !openingAnswered && (
+            <OpeningQuestionBlock
+              question={currentLesson.openingQuestion}
+              onAnswered={(selectedIndex) => {
+                setOpeningUserAnswer(selectedIndex);
+                setOpeningAnswered(true);
               }}
             />
-          </Section>
+          )}
 
-          {/* Common Mistakes */}
-          {currentLesson.commonMistakes &&
-            currentLesson.commonMistakes.length > 0 && (
-              <Section icon={AlertTriangle} title="常见误区">
-                <div className="space-y-3">
-                  {currentLesson.commonMistakes.map((m, i) => (
-                    <MistakeCard
-                      key={i}
-                      wrong={m.mistake}
-                      correct={m.correction}
-                    />
-                  ))}
-                </div>
+          {/* Main lesson content — shown if no opening question, or after answering */}
+          {(openingAnswered || !currentLesson.openingQuestion) && (
+            <>
+              {/* Goal */}
+              <Section icon={Target} title="本节目标">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {currentLesson.goal}
+                </p>
               </Section>
-            )}
 
-          {/* Checkpoint Quiz */}
-          {currentLesson.checkpointQuestions &&
-            currentLesson.checkpointQuestions.length > 0 && (
-              <Section icon={CheckCircle2} title="本节小测">
-                <CheckpointQuizInline
-                  questions={currentLesson.checkpointQuestions}
-                  lessonId={currentLesson.id}
-                  courseId={algorithm.id}
-                  currentScore={
-                    courseProgress?.checkpointScores?.[currentLesson.id]
-                  }
+              {/* Story */}
+              <Section
+                icon={BookOpen}
+                title="场景故事"
+                className="bg-blue-50/50 border-blue-100"
+              >
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {currentLesson.story}
+                </p>
+              </Section>
+
+              {/* Explanation */}
+              <Section icon={Lightbulb} title="通俗解释">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                  {currentLesson.explanation}
+                </p>
+                {currentLesson.example && (
+                  <div className="mt-3 bg-amber-50/80 rounded-xl p-4 border border-amber-100">
+                    <h4 className="text-xs font-bold text-amber-700 mb-1">
+                      💡 示例
+                    </h4>
+                    <p className="text-sm text-amber-800 leading-relaxed">
+                      {currentLesson.example}
+                    </p>
+                  </div>
+                )}
+              </Section>
+
+              {/* Interactive Task */}
+              <Section icon={Play} title="动手试试">
+                <p className="text-gray-500 text-sm mb-4">
+                  完成以下互动练习，加深理解
+                </p>
+                <InteractiveTask
+                  type={currentLesson.interactionType}
+                  onComplete={(passed) => {
+                    lessonProgressService.markInteractionComplete(
+                      algorithm.id,
+                      currentLesson.id,
+                    );
+                    if (passed) {
+                      lessonProgressService.markLessonComplete(
+                        algorithm.id,
+                        currentLesson.id,
+                      );
+                    }
+                  }}
                 />
               </Section>
-            )}
 
-          {/* Key Takeaway */}
-          <div className="bg-gradient-to-r from-primary-50 to-violet-50 rounded-2xl p-5 border border-primary-100">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-sm font-extrabold text-primary-700 mb-1">
-                  核心要点
-                </h3>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {currentLesson.keyTakeaway}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-between pt-4 pb-8">
-            <button
-              onClick={goToPrevLesson}
-              disabled={currentLessonIndex === 0}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              上一节
-            </button>
-
-            {currentLessonIndex < sortedLessons.length - 1 ? (
-              <button
-                onClick={goToNextLesson}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
-              >
-                下一节
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <div className="text-center">
-                <p className="text-sm text-green-600 font-semibold mb-2">
-                  恭喜完成本课程所有小节！
-                </p>
-                {algorithm.nextCourseId && (
-                  <Link
-                    to={`/algorithms/${algorithm.nextCourseId}`}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all"
-                  >
-                    开始下一门课
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+              {/* Common Mistakes */}
+              {currentLesson.commonMistakes &&
+                currentLesson.commonMistakes.length > 0 && (
+                  <Section icon={AlertTriangle} title="常见误区">
+                    <div className="space-y-3">
+                      {currentLesson.commonMistakes.map((m, i) => (
+                        <MistakeCard
+                          key={i}
+                          wrong={m.mistake}
+                          correct={m.correction}
+                        />
+                      ))}
+                    </div>
+                  </Section>
                 )}
+
+              {/* Checkpoint Quiz */}
+              {currentLesson.checkpointQuestions &&
+                currentLesson.checkpointQuestions.length > 0 && (
+                  <Section icon={CheckCircle2} title="本节小测">
+                    <CheckpointQuizInline
+                      questions={currentLesson.checkpointQuestions}
+                      lessonId={currentLesson.id}
+                      courseId={algorithm.id}
+                      currentScore={
+                        courseProgress?.checkpointScores?.[currentLesson.id]
+                      }
+                    />
+                  </Section>
+                )}
+
+              {/* Key Takeaway */}
+              <div className="bg-gradient-to-r from-primary-50 to-violet-50 rounded-2xl p-5 border border-primary-100">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-extrabold text-primary-700 mb-1">
+                      核心要点
+                    </h3>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {currentLesson.keyTakeaway}
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between pt-4 pb-8">
+                <button
+                  onClick={goToPrevLesson}
+                  disabled={currentLessonIndex === 0}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  上一节
+                </button>
+
+                {currentLessonIndex < sortedLessons.length - 1 ? (
+                <button
+                  onClick={goToNextLesson}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                  下一节
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <div className="text-center">
+                  <p className="text-sm text-green-600 font-semibold mb-2">
+                    恭喜完成本课程所有小节！
+                  </p>
+                  {algorithm.nextCourseId && (
+                    <Link
+                      to={`/algorithms/${algorithm.nextCourseId}`}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all"
+                    >
+                      开始下一门课
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
+              )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* RIGHT: AI Assistant */}
         <div className="w-80 shrink-0 hidden xl:block sticky top-20 self-start">
           <AITutorPanel
             algorithm={algorithm}
-            context={`基础课 - ${currentLesson.title}`}
+            context={
+              currentLesson.openingQuestion && openingUserAnswer !== null
+                ? `基础课 - ${currentLesson.title}\n【已答引导题】\n题目：${currentLesson.openingQuestion.prompt}\n学生回答：${currentLesson.openingQuestion.options[openingUserAnswer]?.replace(/^[A-D]\.\s*/, '') || '未知'}\n正确答案：${currentLesson.openingQuestion.options[currentLesson.openingQuestion.correctIndex]?.replace(/^[A-D]\.\s*/, '') || ''}\n${currentLesson.relatedAlgorithms ? `关联算法：${currentLesson.relatedAlgorithms.join('、')}` : ''}`
+                : `基础课 - ${currentLesson.title}`
+            }
           />
         </div>
       </div>

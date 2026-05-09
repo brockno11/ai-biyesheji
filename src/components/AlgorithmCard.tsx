@@ -13,6 +13,7 @@ const categoryLabels: Record<string, string> = {
   classification: '分类',
   tree: '树形',
   clustering: '聚类',
+  ensemble: '集成学习',
 };
 
 interface Props {

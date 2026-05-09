@@ -64,6 +64,7 @@ export default function HomePage() {
     classification: 'from-amber-500 to-orange-600',
     tree: 'from-emerald-500 to-green-600',
     clustering: 'from-fuchsia-500 to-purple-600',
+    ensemble: 'from-orange-500 to-red-500',
   };
   const diffTag: Record<string, string> = {
     '入门': 'bg-green-100 text-green-700',

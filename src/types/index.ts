@@ -47,6 +47,19 @@ export interface LessonVideo {
   watchAfterQuestions: LessonCheckpointQuestion[];
 }
 
+export interface GuidedQuestion {
+  id: string;
+  prompt: string;
+  scenario: string;
+  options: string[];
+  correctIndex: number;
+  correctFeedback: string;
+  wrongFeedback: string;
+  explanation: string;
+  followUpQuestion?: string;
+  relatedAlgorithms?: string[];
+}
+
 export interface FoundationLesson {
   id: string;
   title: string;
@@ -62,13 +75,17 @@ export interface FoundationLesson {
   checkpointQuestions: LessonCheckpointQuestion[];
   aiPrompts: string[];
   video?: LessonVideo;
+  openingQuestion?: GuidedQuestion;
+  guidedQuestions?: GuidedQuestion[];
+  reflectionPrompt?: string;
+  relatedAlgorithms?: string[];
 }
 
 export interface Algorithm {
   id: string;
   name: string;
   type?: CourseType;
-  category: 'regression' | 'classification' | 'tree' | 'clustering' | 'basic';
+  category: 'regression' | 'classification' | 'tree' | 'clustering' | 'ensemble' | 'basic';
   difficulty: '入门' | '中级' | '进阶';
   description: string;
   intro: string;

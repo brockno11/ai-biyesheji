@@ -11,8 +11,10 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import AITutorPanel from '../components/AITutorPanel';
 import VideoEmbed from '../components/VideoEmbed';
 import LinearRegressionViz from '../components/LinearRegressionViz';
+import LogisticRegressionViz from '../components/LogisticRegressionViz';
 import KNNViz from '../components/KNNViz';
 import DecisionTreeViz from '../components/DecisionTreeViz';
+import RandomForestViz from '../components/RandomForestViz';
 import KMeansViz from '../components/KMeansViz';
 import ErrorBoundary from '../components/ErrorBoundary';
 import type { Algorithm } from '../types';
@@ -30,6 +32,7 @@ const categoryLabels: Record<Algorithm['category'], string> = {
   tree: '树形算法',
   clustering: '聚类算法',
   basic: '基础课程',
+  ensemble: '集成学习',
 };
 
 function Section({ children, className }: { children: React.ReactNode; className?: string }) {
