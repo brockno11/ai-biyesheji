@@ -1016,6 +1016,8 @@ npm run test:watch # 监听模式
 | 6 | `quiz.test.ts` | 每算法 8 题、全对/全错评分 |
 | 7 | `storageService.test.ts` | 练习记录保存/读取、自定义课程持久化 |
 
+> **共 14 个测试用例**，分布在 7 个测试文件中。运行 `npm test` 一键验证。
+
 测试框架：Vitest + @testing-library/react + jsdom。配置文件 `vitest.config.ts`。
 
 ---

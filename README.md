@@ -1,6 +1,8 @@
 # 基于 AI 赋能的机器学习算法教学平台
 
 > **文档导航**：快速了解项目 → 当前页；深入技术细节 → **[DOCS.md](./DOCS.md)**；AI Agent 开发 → **[SKILLS.md](./SKILLS.md)**
+>
+> **当前版本：v2.5.0** | 最近更新：粒子动效首页、Pyodide Worker 全算法真运行、React.lazy 代码拆分、Zod 数据校验、AI 安全加固
 
 ## 项目简介
 
@@ -70,7 +72,7 @@
 
 - Monaco Editor 在线 Python 编辑器
 - 基于规则的代码检查 + Pyodide 浏览器端 Python 真运行
-- 线性回归练习会执行固定测试代码，捕获输出和错误信息
+- 每道练习通过 Web Worker 执行 Pyodide 真运行，覆盖线性回归/KNN/决策树/K-Means
 - 综合评分按核心 API、TODO 完成度、Python 可执行性、固定测试表现四个维度计算
 - 实时显示需要使用的 API
 - 保存练习记录、得分和反馈
@@ -128,7 +130,7 @@ AI 代理：http://localhost:8787
 
 `npm run dev` 会同时启动 Vite 和 Express 代理。浏览器只请求 `/api/ai/chat`，真实 DeepSeek API Key 只在 Node 后端读取，不会打进前端包。
 
-启动和构建前会自动执行 `npm run sync:pyodide`，将 Pyodide 核心运行文件同步到 `public/pyodide`。线性回归练习的 `numpy` / `scikit-learn` 包首次加载仍会由 Pyodide 按需获取，加载失败时页面会展示错误并交给 AI 诊断解释。
+启动和构建前会自动执行 `npm run sync:pyodide`，将 Pyodide 核心运行文件同步到 `public/pyodide`。Python 包（numpy / scikit-learn）由 Pyodide 按需获取，加载失败时页面会展示错误并交给 AI 诊断解释。
 
 可用 `http://localhost:8787/api/ai/status` 查看 AI 代理状态；该接口只返回是否已配置 Key，不返回真实密钥。
 

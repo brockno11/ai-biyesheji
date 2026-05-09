@@ -78,6 +78,65 @@ export function formatZodErrors(error: z.ZodError): string[] {
   });
 }
 
+/* ── AI Output Validation Schemas ─────────────────────────────── */
+
+export const aiCodeReviewSchema = z.object({
+  summary: z.string().min(1),
+  scoreReason: z.string().min(1),
+  problems: z.array(z.string()),
+  suggestions: z.array(z.string()),
+  nextStep: z.string().min(1),
+  encouragement: z.string().min(1),
+});
+
+export const aiQuizReviewSchema = z.object({
+  weakPoints: z.array(z.string()),
+  wrongQuestionAnalysis: z.array(z.object({
+    question: z.string(),
+    whyWrong: z.string(),
+    correctThinking: z.string(),
+  })),
+  reviewAdvice: z.string(),
+  extraQuestion: z.object({
+    question: z.string(),
+    options: z.array(z.string()).length(4),
+    answer: z.number().int().min(0).max(3),
+    explanation: z.string(),
+  }),
+});
+
+export const aiStudyPlanSchema = z.object({
+  summary: z.string().min(1),
+  nextAlgorithm: z.string().min(1),
+  reason: z.string().min(1),
+  reviewList: z.array(z.string()),
+  dailyPlan: z.array(z.string()),
+});
+
+export const aiCourseDraftSchema = z.object({
+  name: z.string().min(1),
+  intro: z.string().min(1),
+  description: z.string(),
+  steps: z.array(z.string()),
+  pros: z.array(z.string()),
+  cons: z.array(z.string()),
+  useCases: z.array(z.string()),
+  formula: z.string(),
+  codeExample: z.string(),
+  quizQuestions: z.array(z.unknown()).default([]),
+  practiceExercise: z.record(z.string(), z.unknown()).default({}),
+});
+
+/** Validate and return parsed AI output; on failure, throws with details for fallback */
+export function validateAIOutput<T>(schema: z.ZodSchema<T>, raw: unknown, label: string): T {
+  const result = schema.safeParse(raw);
+  if (!result.success) {
+    const issues = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ');
+    throw new Error(`[AI Validation] ${label} 输出格式异常: ${issues}`);
+  }
+  return result.data;
+}
+
 /** Return a flat Record<fieldPath, errorMessage> for form field-level display. */
 export function flattenZodErrors<T>(result: { success: true; data: T } | { success: false; error: z.ZodError }): Record<string, string> {
   if (result.success) return {};

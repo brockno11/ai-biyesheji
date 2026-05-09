@@ -35,6 +35,25 @@ export default function PracticePage() {
 
   const exercise = exercises[currentExIndex] as Exercise | undefined;
 
+  // Build diagnosis basis for AI code review
+  const diagnosisBasis = useMemo(() => {
+    if (!result) return undefined;
+    const basis: string[] = [];
+    if (result.dimensions) {
+      basis.push(`综合评分: ${result.score} 分 (${result.passed ? '通过' : '未通过'})`);
+      for (const d of result.dimensions) {
+        basis.push(`${d.label}: ${d.score}/${d.maxScore} 分 — ${d.description}`);
+      }
+    }
+    if (pythonResult) {
+      basis.push(`Python 运行: ${pythonResult.status === 'success' ? '通过' : pythonResult.status === 'error' ? '失败' : '未覆盖'}`);
+      if (pythonResult.error) basis.push(`运行错误: ${pythonResult.error.slice(0, 100)}`);
+    }
+    const missing = exercise ? getMissingKeywords(exercise, code) : [];
+    if (missing.length) basis.push(`缺失 API: ${missing.join('、')}`);
+    return basis;
+  }, [result, pythonResult, exercise, code]);
+
   useEffect(() => {
     if (exercise) {
       setCode(exercise.starterCode);
@@ -258,6 +277,7 @@ export default function PracticePage() {
               review={aiReview}
               mode={aiMode}
               fallbackReason={aiFallbackReason}
+              diagnosisBasis={diagnosisBasis}
             />
           )}
         </div>

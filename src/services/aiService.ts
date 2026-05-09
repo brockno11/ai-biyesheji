@@ -7,6 +7,13 @@ import {
   buildQuizReviewMessages,
   buildStudyPlanMessages,
 } from './aiPromptService';
+import {
+  validateAIOutput,
+  aiCodeReviewSchema,
+  aiQuizReviewSchema,
+  aiStudyPlanSchema,
+  aiCourseDraftSchema,
+} from './validationService';
 import type {
   AIActionType,
   AICodeReviewResult,
@@ -150,7 +157,8 @@ export const aiService = {
           thinking: 'enabled',
           maxTokens: 1200,
         });
-        return parseJsonOrThrow<AICodeReviewResult>(raw);
+        const parsed = parseJsonOrThrow<unknown>(raw);
+        return validateAIOutput(aiCodeReviewSchema, parsed, '代码诊断');
       },
       () => aiMockService.codeReview(context),
       'diagnoseCode'
@@ -170,7 +178,8 @@ export const aiService = {
           thinking: 'enabled',
           maxTokens: 1200,
         });
-        return parseJsonOrThrow<AIQuizReviewResult>(raw);
+        const parsed = parseJsonOrThrow<unknown>(raw);
+        return validateAIOutput(aiQuizReviewSchema, parsed, '错题讲解');
       },
       () => aiMockService.quizReview(context),
       'reviewQuiz'
@@ -186,7 +195,8 @@ export const aiService = {
           thinking: 'enabled',
           maxTokens: 1200,
         });
-        return parseJsonOrThrow<AIStudyPlanResult>(raw);
+        const parsed = parseJsonOrThrow<unknown>(raw);
+        return validateAIOutput(aiStudyPlanSchema, parsed, '学习计划');
       },
       () => aiMockService.studyPlan(context),
       'generateStudyPlan'
@@ -202,7 +212,8 @@ export const aiService = {
           thinking: 'enabled',
           maxTokens: 1400,
         });
-        return parseJsonOrThrow<AICourseDraftResult>(raw);
+        const parsed = parseJsonOrThrow<unknown>(raw);
+        return validateAIOutput(aiCourseDraftSchema, parsed, '课程草稿');
       },
       () => aiMockService.courseDraft(context),
       'generateCourseDraft'

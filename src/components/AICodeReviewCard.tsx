@@ -6,9 +6,10 @@ interface Props {
   review: AICodeReviewResult;
   mode: AIMode;
   fallbackReason?: string;
+  diagnosisBasis?: string[];
 }
 
-export default function AICodeReviewCard({ review, mode, fallbackReason }: Props) {
+export default function AICodeReviewCard({ review, mode, fallbackReason, diagnosisBasis }: Props) {
   return (
     <div className="app-card overflow-hidden">
       <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50 px-5 py-4">
@@ -23,6 +24,21 @@ export default function AICodeReviewCard({ review, mode, fallbackReason }: Props
       </div>
 
       <div className="space-y-4 p-5">
+        {/* Diagnosis basis */}
+        {diagnosisBasis && diagnosisBasis.length > 0 && (
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+            <div className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-500">诊断依据</div>
+            <ul className="space-y-1">
+              {diagnosisBasis.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs text-slate-600 leading-relaxed">
+                  <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
           <div className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-400">得分原因</div>
           <p className="text-sm leading-6 text-slate-700">{review.scoreReason}</p>
