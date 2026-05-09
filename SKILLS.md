@@ -32,6 +32,9 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 | 8 | frontend-design | 设计 | 高质量前端界面设计 |
 | 9 | frontend-ui-ux | UI/UX | 设计师视角 UI/UX 开发 |
 | 10 | react | React | LobeHub 生态 React 组件指南 |
+| 11 | shadcn-ui | UI 组件库 | Tailwind-first React 组件、可访问 UI、主题 |
+| 12 | ui-designer | 设计系统 | 从参考 UI 提取设计系统、统一视觉风格 |
+| 13 | react-bits | 动画组件 | 110+ 可复制动画组件、滚动效果、背景特效 |
 
 ---
 
@@ -200,6 +203,9 @@ npx -y @lobehub/market-cli skills install openclaw-skills-api-designer --agent c
 | 设计 API 接口 | `api-designer` | `/api-designer` |
 | 图表/可视化 | `data-viz-2025` | `/data-viz-2025` |
 | 添加教学注释 | `add-educational-comments` | `/add-educational-comments` |
+| UI 组件开发 | `shadcn-ui` | `/shadcn-ui` |
+| 界面美化/重构 | `ui-designer` | `/ui-designer` |
+| 动画和动效 | `react-bits` | `/react-bits` |
 
 ### 注意事项
 
