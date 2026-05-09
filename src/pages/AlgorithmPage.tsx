@@ -21,8 +21,10 @@ import type { Algorithm } from '../types';
 
 const vizComponents: Record<string, React.ComponentType<{ algorithm?: Algorithm }>> = {
   'linear-regression': LinearRegressionViz,
+  'logistic-regression': LogisticRegressionViz,
   knn: KNNViz,
   'decision-tree': DecisionTreeViz,
+  'random-forest': RandomForestViz,
   'k-means': KMeansViz,
 };
 

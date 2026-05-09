@@ -42,8 +42,22 @@ function algorithmContext(context: AIRequestContext) {
     .join('\n');
 }
 
+function foundationContext(context: AIRequestContext) {
+  const pageInfo = context.pagePosition || '';
+  const lessonTitleMatch = pageInfo.match(/基础课 - (.+)/);
+  const lessonTitle = lessonTitleMatch ? lessonTitleMatch[1] : '';
+  const openingInfo = pageInfo.includes('【已答引导题】') ? pageInfo.split('【已答引导题】\n')[1] || '' : '';
+
+  return [
+    lessonTitle ? `当前小节：${lessonTitle}` : '',
+    openingInfo ? `引导题反馈：\n${openingInfo}` : '',
+  ].filter(Boolean).join('\n');
+}
+
 function buildTutorUserPrompt(context: AIRequestContext, actionType: AIActionType) {
   const question = context.userQuestion || '';
+  const isFoundation = context.algorithm?.type === 'foundation';
+
   const actionGuide: Record<string, string> = {
     askTutor: `请结合上下文回答学生问题：${question}`,
     explainConcept: '请解释当前算法的核心概念，适合初学者理解。',
@@ -55,9 +69,25 @@ function buildTutorUserPrompt(context: AIRequestContext, actionType: AIActionTyp
     explainVisualization: '请解释当前可视化参数和图形现象。',
   };
 
-  return `${algorithmContext(context)}
+  const foundationActionGuide: Record<string, string> = {
+    askTutor: `请结合上下文回答学生问题：${question}`,
+    lifeExample: '请用一个生活中的例子解释当前这个概念，用做饭、开车、看病等常见场景。',
+    generateQuiz: '请出一道和当前知识点相关的思考题（选择题），并给出简短解析。',
+    summarizeLesson: '请用一句话总结当前知识点的最核心内容，然后列出2-3个最易错的点。',
+  };
 
-任务：${actionGuide[actionType] || actionGuide.askTutor}
+  const guide = isFoundation
+    ? (foundationActionGuide[actionType] || actionGuide[actionType] || actionGuide.askTutor)
+    : (actionGuide[actionType] || actionGuide.askTutor);
+
+  const baseContext = isFoundation
+    ? `${algorithmContext(context)}\n${foundationContext(context)}`
+    : algorithmContext(context);
+
+  return `${baseContext}
+
+任务：${guide}
+${isFoundation ? '【基础课提示】这是面向零基础学生的基础概念课，请优先用生活例子和类比来讲解，不要引入代码细节。鼓励学生思考"为什么"，而不是"怎么做"。' : ''}
 ${context.visualState ? `当前可视化状态：${JSON.stringify(context.visualState, null, 2)}` : ''}
 ${context.userCode ? `学生代码：\n${context.userCode}` : ''}`;
 }
