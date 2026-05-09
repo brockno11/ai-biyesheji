@@ -33,6 +33,14 @@ export const aiMockService = {
     return `学习 ${algorithmName(context)} 的下一步建议：先复述核心思想，再完成一题代码练习，最后用测验题检查概念漏洞。\n\n如果练习得分低于 80，优先复习 API 调用流程；如果测验得分低，优先回看公式含义和适用场景。`;
   },
 
+  explainVisualization(context: AIRequestContext): string {
+    const vs = context.visualState || {};
+    const params = Object.entries(vs)
+      .map(([k, v]) => `  - ${k}: ${v}`)
+      .join('\n');
+    return `当前 ${algorithmName(context)} 可视化参数：\n${params}\n\n从这些参数来看，你可以观察：当关键超参数变化时，模型的结果和误差曲线会相应改变。建议先改变一个参数小幅调整，观察图表变化趋势，再对比多个参数共同影响。`;
+  },
+
   generateQuiz(context: AIRequestContext): string {
     return `来一道思考题：${algorithmName(context)} 在什么情况下容易表现不好？\n\n提示：从“数据特点、参数选择、模型假设”三个角度想。答完后再对照课程里的优缺点，你会更容易记住。`;
   },

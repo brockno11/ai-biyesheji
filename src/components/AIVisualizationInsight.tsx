@@ -28,6 +28,10 @@ export default function AIVisualizationInsight({ algorithm, visualState }: Props
       setText(result.data);
       setMode(result.mode);
       setFallbackReason(result.fallbackReason);
+    } catch (e) {
+      console.error('[AIVisualizationInsight] Failed to get AI explanation:', e);
+      setText('AI 解释暂时无法生成，请稍后重试');
+      setMode('mock');
     } finally {
       setLoading(false);
     }

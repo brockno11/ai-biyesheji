@@ -10,7 +10,6 @@ export type DeepSeekChatPayload = {
   maxTokens?: number;
   jsonMode?: boolean;
   thinking?: 'enabled' | 'disabled';
-  reasoningEffort?: 'low' | 'medium' | 'high';
 };
 
 export class DeepSeekError extends Error {
@@ -70,8 +69,7 @@ export async function callDeepSeekChat(payload: DeepSeekChatPayload): Promise<st
         model,
         messages: payload.messages,
         stream: false,
-        thinking: { type: payload.thinking || 'disabled' },
-        reasoning_effort: payload.reasoningEffort,
+        thinking: { type: payload.thinking === 'enabled' ? 'enabled' : 'disabled' },
         max_tokens: payload.maxTokens || 800,
         ...(payload.jsonMode ? { response_format: { type: 'json_object' } } : {}),
       }),

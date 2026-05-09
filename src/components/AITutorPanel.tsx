@@ -15,6 +15,15 @@ interface Message {
   content: string;
 }
 
+const QUICK_ACTIONS = [
+  { type: 'explainConcept' as const, label: '解释概念', icon: '📖' },
+  { type: 'generatePracticeHint' as const, label: '诊断代码', icon: '🔍' },
+  { type: 'askTutor' as const, label: '学习建议', icon: '💡', question: '请给我下一步学习建议' },
+  { type: 'generateQuiz' as const, label: '来道题', icon: '📝' },
+  { type: 'summarizeLesson' as const, label: '总结本节', icon: '✅' },
+  { type: 'lifeExample' as const, label: '生活例子', icon: '🌱' },
+];
+
 export default function AITutorPanel({ algorithm, context }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -54,19 +63,10 @@ export default function AITutorPanel({ algorithm, context }: Props) {
     }
   };
 
-  const quickActions = [
-    { type: 'explainConcept' as const, label: '解释概念', icon: '📖' },
-    { type: 'generatePracticeHint' as const, label: '诊断代码', icon: '🔍' },
-    { type: 'askTutor' as const, label: '学习建议', icon: '💡', question: '请给我下一步学习建议' },
-    { type: 'generateQuiz' as const, label: '来道题', icon: '📝' },
-    { type: 'summarizeLesson' as const, label: '总结本节', icon: '✅' },
-    { type: 'lifeExample' as const, label: '生活例子', icon: '🌱' },
-  ];
-
   const handleQuickAction = async (type: AIActionType) => {
     if (loading) return;
     setLoading(true);
-    const action = quickActions.find((item) => item.type === type);
+    const action = QUICK_ACTIONS.find((item) => item.type === type);
     const actionLabel = action?.label || '快捷提问';
     try {
       const request = {
@@ -136,7 +136,7 @@ export default function AITutorPanel({ algorithm, context }: Props) {
             <Sparkles className="w-8 h-8 text-primary-400 mx-auto mb-2" />
             <p className="text-sm text-gray-500 mb-4">我是你的 AI 学习助手，可以帮你：</p>
             <div className="grid grid-cols-2 gap-2">
-              {quickActions.map((qa) => (
+              {QUICK_ACTIONS.map((qa) => (
                 <button
                   key={qa.label}
                   onClick={() => handleQuickAction(qa.type)}

@@ -34,10 +34,10 @@ export function checkCode(
     }
   }
 
-  // Check if TODO comments are resolved
-  const todoCount = (code.match(/TODO|___|---/g) || []).length;
-  if (todoCount > 2) {
-    problems.push(`还有 ${todoCount} 处未完成的代码（TODO 标记）`);
+  // Count unresolved TODO markers (case-insensitive, word boundary)
+  const todoMatches = code.match(/\bTODO\b/gi) || [];
+  if (todoMatches.length > 2) {
+    problems.push(`还有 ${todoMatches.length} 处未完成的代码（TODO 标记）`);
     suggestions.push('请逐个完成 TODO 标记的代码部分');
   }
 

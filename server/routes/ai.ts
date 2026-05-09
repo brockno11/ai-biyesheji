@@ -7,7 +7,7 @@ const isMockFallbackEnabled = () => process.env.AI_ENABLE_MOCK_FALLBACK !== 'fal
 
 router.post('/chat', async (req, res) => {
   try {
-    const { messages, maxTokens, jsonMode, thinking, reasoningEffort } = req.body || {};
+    const { messages, maxTokens, jsonMode, thinking } = req.body || {};
 
     if (!Array.isArray(messages) || messages.length === 0) {
       res.status(400).json({
@@ -26,7 +26,6 @@ router.post('/chat', async (req, res) => {
       maxTokens,
       jsonMode,
       thinking,
-      reasoningEffort,
     });
 
     res.json({

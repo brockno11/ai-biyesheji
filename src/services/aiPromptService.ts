@@ -38,7 +38,7 @@ function buildTutorUserPrompt(context: AIRequestContext, actionType: AIActionTyp
     generateQuiz: '请出一道相关思考题，并给出简短解析。',
     summarizeLesson: '请总结本节课的关键知识点和易错点。',
     lifeExample: '请用一个生活例子解释当前算法。',
-    explainVisualization: '请解释当前可视化参数和图体现象。',
+    explainVisualization: '请解释当前可视化参数和图形现象。',
   };
 
   return `${algorithmContext(context)}

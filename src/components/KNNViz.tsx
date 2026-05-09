@@ -188,14 +188,6 @@ export default function KNNViz({ algorithm }: { algorithm?: Algorithm }) {
     };
   }, [points, neighbors, testPoint, k, prediction]);
 
-  const handleSliderDrag = useCallback(
-    (e: React.MouseEvent) => {
-      // Allow test point dragging by clicking on slider area
-      // The main interaction is chart click
-    },
-    []
-  );
-
   return (
     <div className="space-y-6">
       {/* Controls */}

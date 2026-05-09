@@ -50,7 +50,6 @@ async function callAIProxy(options: {
   messages: AIMessage[];
   jsonMode?: boolean;
   thinking?: 'enabled' | 'disabled';
-  reasoningEffort?: 'low' | 'medium' | 'high';
   maxTokens?: number;
 }): Promise<string> {
   const controller = new AbortController();
@@ -145,7 +144,6 @@ export const aiService = {
           messages: buildCodeReviewMessages(context),
           jsonMode: true,
           thinking: 'enabled',
-          reasoningEffort: 'high',
           maxTokens: 1200,
         });
         return parseJsonOrThrow<AICodeReviewResult>(raw);
@@ -156,7 +154,7 @@ export const aiService = {
   },
 
   generatePracticeHint(context: AIRequestContext) {
-    return chatAction('generatePracticeHint', context, () => aiMockService.diagnoseCodeText(context));
+    return chatAction('generatePracticeHint', context, () => aiMockService.suggestStudy(context));
   },
 
   reviewQuiz(context: AIRequestContext) {
@@ -166,7 +164,6 @@ export const aiService = {
           messages: buildQuizReviewMessages(context),
           jsonMode: true,
           thinking: 'enabled',
-          reasoningEffort: 'high',
           maxTokens: 1200,
         });
         return parseJsonOrThrow<AIQuizReviewResult>(raw);
@@ -183,7 +180,6 @@ export const aiService = {
           messages: buildStudyPlanMessages(context),
           jsonMode: true,
           thinking: 'enabled',
-          reasoningEffort: 'high',
           maxTokens: 1200,
         });
         return parseJsonOrThrow<AIStudyPlanResult>(raw);
@@ -200,7 +196,6 @@ export const aiService = {
           messages: buildCourseDraftMessages(context),
           jsonMode: true,
           thinking: 'enabled',
-          reasoningEffort: 'high',
           maxTokens: 1400,
         });
         return parseJsonOrThrow<AICourseDraftResult>(raw);
@@ -223,7 +218,7 @@ export const aiService = {
   },
 
   explainVisualization(context: AIRequestContext) {
-    return chatAction('explainVisualization', context, () => aiMockService.askTutor(context));
+    return chatAction('explainVisualization', context, () => aiMockService.explainVisualization(context));
   },
 };
 
