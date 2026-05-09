@@ -52,6 +52,9 @@ async function callAIProxy(options: {
   thinking?: 'enabled' | 'disabled';
   maxTokens?: number;
 }): Promise<string> {
+  // Client timeout (22s) > Server timeout (20s) to ensure graceful fallback:
+  // the server will timeout first and return a structured error, so the
+  // frontend never races into an AbortError before the server responds.
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 22000);
 
@@ -74,6 +77,7 @@ async function callAIProxy(options: {
 
     return data.content;
   } finally {
+    // Always clear the timer so it doesn't fire after the request completes
     window.clearTimeout(timeout);
   }
 }

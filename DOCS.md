@@ -975,11 +975,24 @@ npx tsc --noEmit && npx vite build
 
 | 提交 | 内容 |
 |------|------|
-| 当前工作区 | 新增 K-Means 课程与可视化；Pyodide 真运行（线性回归）；练习题 8 道，测验题 32 道；题库管理后台；代码注释过滤；修复 runtime null safety、重复 BVid |
+| 当前工作区 | AI 工作流横幅组件；后端频率限制/Key 脱敏/统一错误码/JSON 修复；AbortController 文档注释 |
+| `2608c8f` | K-Means 课程与可视化；Pyodide 真运行；练习 8 道，测验 32 道；题库管理后台；代码注释过滤 |
 | `e19f841` | 文档 Agent 交接更新 |
-| `cf2e421` | 修复 DeepSeek thinking 参数、移除无效 reasoningEffort、代码质量优化 |
+| `cf2e421` | 修复 DeepSeek thinking 参数、代码质量优化 |
 | `0239f87` | AI 模块升级、10 个 Skills、文档对齐 |
 | `4bcfcd3` | 文档更新和导航优化 |
+
+### 13.5 安全设计
+
+| 保护措施 | 实现位置 | 说明 |
+|----------|----------|------|
+| 频率限制 | `server/index.ts` | 每 IP 30 次/分钟，429 自动降级 Mock |
+| 请求体限制 | `server/index.ts` | JSON body 最大 1MB |
+| API Key 脱敏 | `server/services/deepseekService.ts` | 日志中只输出 `sk-***last4` |
+| 统一错误码 | `server/services/deepseekService.ts` | 12 种错误码，不暴露堆栈到前端 |
+| JSON 修复 | `server/services/deepseekService.ts` | `tryParseJson()` 自动从 Markdown 提取 JSON |
+| 请求超时 | `server/services/deepseekService.ts` | 服务端 20s，客户端 22s（先于客户端超时） |
+| AbortController | `src/services/aiService.ts` | 支持页面切换时取消请求，finally 清理计时器 |
 
 ---
 

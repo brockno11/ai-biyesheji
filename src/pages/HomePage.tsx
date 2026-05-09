@@ -4,6 +4,7 @@ import {
   Target, ChevronRight, GraduationCap, Play, Zap,
 } from 'lucide-react';
 import Header from '../components/Header';
+import AIWorkflowBanner from '../components/AIWorkflowBanner';
 import { useCourses } from '../hooks/useCourses';
 import { storageService } from '../services/storageService';
 import { getAllExercises, getAllQuizQuestions } from '../data/exercises';
@@ -339,6 +340,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── AI Workflow ── */}
+      <AIWorkflowBanner />
 
       {/* ── Footer ── */}
       <footer className="border-t border-gray-100 bg-gray-50">

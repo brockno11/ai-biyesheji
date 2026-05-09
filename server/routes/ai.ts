@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { callDeepSeekChat, DeepSeekError } from '../services/deepseekService';
+import { callDeepSeekChat, DeepSeekError, ERROR_CODES } from '../services/deepseekService';
 
 const router = Router();
 
@@ -21,12 +21,12 @@ router.post('/chat', async (req, res) => {
     const { messages, maxTokens, jsonMode, thinking } = req.body || {};
 
     if (!Array.isArray(messages) || messages.length === 0) {
-      res.status(400).json({
+      res.status(ERROR_CODES.INVALID_REQUEST.status).json({
         ok: false,
         mode: 'mock',
         error: {
-          code: 'INVALID_REQUEST',
-          message: 'messages is required.',
+          code: ERROR_CODES.INVALID_REQUEST.code,
+          message: ERROR_CODES.INVALID_REQUEST.message,
         },
       });
       return;
@@ -40,39 +40,39 @@ router.post('/chat', async (req, res) => {
     );
 
     if (invalidMessage) {
-      res.status(400).json({
+      res.status(ERROR_CODES.INVALID_MESSAGE.status).json({
         ok: false,
         mode: 'mock',
         fallbackEnabled: isMockFallbackEnabled(),
         error: {
-          code: 'INVALID_MESSAGE',
-          message: 'Each message must include role and string content.',
+          code: ERROR_CODES.INVALID_MESSAGE.code,
+          message: ERROR_CODES.INVALID_MESSAGE.message,
         },
       });
       return;
     }
 
     if (maxTokens !== undefined && (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 4000)) {
-      res.status(400).json({
+      res.status(ERROR_CODES.INVALID_MAX_TOKENS.status).json({
         ok: false,
         mode: 'mock',
         fallbackEnabled: isMockFallbackEnabled(),
         error: {
-          code: 'INVALID_MAX_TOKENS',
-          message: 'maxTokens must be an integer between 1 and 4000.',
+          code: ERROR_CODES.INVALID_MAX_TOKENS.code,
+          message: ERROR_CODES.INVALID_MAX_TOKENS.message,
         },
       });
       return;
     }
 
     if (thinking !== undefined && thinking !== 'enabled' && thinking !== 'disabled') {
-      res.status(400).json({
+      res.status(ERROR_CODES.INVALID_THINKING.status).json({
         ok: false,
         mode: 'mock',
         fallbackEnabled: isMockFallbackEnabled(),
         error: {
-          code: 'INVALID_THINKING',
-          message: 'thinking must be enabled or disabled.',
+          code: ERROR_CODES.INVALID_THINKING.code,
+          message: ERROR_CODES.INVALID_THINKING.message,
         },
       });
       return;
@@ -94,7 +94,11 @@ router.post('/chat', async (req, res) => {
     const normalized =
       error instanceof DeepSeekError
         ? error
-        : new DeepSeekError('UNKNOWN_ERROR', 'AI service failed unexpectedly.', 500);
+        : new DeepSeekError(
+            ERROR_CODES.UNKNOWN_ERROR.code,
+            ERROR_CODES.UNKNOWN_ERROR.message,
+            ERROR_CODES.UNKNOWN_ERROR.status,
+          );
 
     console.error('[ai-route] DeepSeek fallback:', {
       code: normalized.code,
