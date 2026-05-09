@@ -1,7 +1,7 @@
 {
   "name": "ml-teaching-platform",
   "private": true,
-  "version": "2.5.0",
+  "version": "2.5.2",
   "type": "module",
   "scripts": {
     "sync:pyodide": "node scripts/sync-pyodide-assets.mjs",
