@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
+import type { Algorithm } from '../types';
+import AIVisualizationInsight from './AIVisualizationInsight';
 
 interface TreeNode {
   id: string;
@@ -121,7 +123,7 @@ function buildTree(depth: number): TreeNode {
   return root;
 }
 
-export default function DecisionTreeViz() {
+export default function DecisionTreeViz({ algorithm }: { algorithm?: Algorithm }) {
   const [maxDepth, setMaxDepth] = useState(3);
   const [highlightPath, setHighlightPath] = useState<number>(1);
 
@@ -329,6 +331,17 @@ export default function DecisionTreeViz() {
       <div className="text-xs text-gray-400 text-center">
         💡 提示：调整最大深度观察树结构的变化。深度越大，树越复杂，越容易过拟合。
       </div>
+
+      <AIVisualizationInsight
+        algorithm={algorithm}
+        visualState={{
+          maxDepth,
+          selectedSample: highlightPath + 1,
+          samplePetalLength: sample.x,
+          samplePetalWidth: sample.y,
+          prediction: ['Setosa', 'Versicolor', 'Virginica'][sample.pred],
+        }}
+      />
     </div>
   );
 }

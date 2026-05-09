@@ -1,5 +1,7 @@
 # 基于 AI 赋能的机器学习算法教学平台
 
+> **文档导航**：快速了解项目 → 当前页；深入技术细节 → **[DOCS.md](./DOCS.md)**；AI Agent 开发 → **[SKILLS.md](./SKILLS.md)**
+
 ## 项目简介
 
 这是一个面向机器学习初学者的交互式 Web 教学平台。项目通过 **课程学习、算法可视化、在线代码练习、知识测验、AI 助教和学习中心** 组成完整学习闭环，适合毕业设计答辩、课程设计展示和个人自学演示。
@@ -19,7 +21,8 @@
 | ECharts / echarts-for-react | 算法可视化 |
 | Lucide React | 图标 |
 | localStorage | 学习进度和自定义课程本地持久化 |
-| OpenAI-compatible API | AI 助教，可选；默认使用 Mock |
+| Node / Express | DeepSeek API 后端代理 |
+| DeepSeek OpenAI-compatible API | 真实 AI 助教；默认 Mock 兜底 |
 
 ## 功能模块
 
@@ -36,6 +39,7 @@
 - 展示算法完成数、练习次数、最高得分、测验次数
 - 展示每门算法的学习状态、练习次数、最佳得分和测验成绩
 - 推荐下一步学习内容
+- 新增 AI 学习路径推荐，结合本地学习记录生成今日计划
 
 ### 3. 课程学习
 
@@ -49,6 +53,7 @@
 - **线性回归**：散点图、拟合直线、Loss 曲线，支持学习率、迭代次数、噪声等参数调节
 - **KNN**：二维分类散点图、K 值调节、最近邻居高亮、测试点点击移动
 - **决策树**：树结构可视化、最大深度调节、样本分类路径追踪
+- **AI 洞察**：每个可视化组件支持点击"AI 解释当前现象"，AI 根据当前参数解释模型表现
 
 ### 5. 代码练习
 
@@ -56,7 +61,7 @@
 - 基于规则的代码检查
 - 实时显示需要使用的 API
 - 保存练习记录、得分和反馈
-- 检查后自动生成 AI 助教反馈
+- 检查后自动生成结构化 AI 代码诊断报告
 
 ### 6. 知识测验
 
@@ -64,12 +69,14 @@
 - 自动评分
 - 提交后展示正确答案和解析
 - 测验记录保存到本地
+- 提交后可触发 AI 错题讲解和相似练习题
 
 ### 7. AI 助教
 
-- 支持概念解释、代码诊断、学习建议、题目生成
-- 不配置 API Key 时使用本地 Mock 回复，方便答辩演示
-- 配置 OpenAI-compatible API 后可使用真实模型回复
+- 支持 DeepSeek 在线模式和 Mock 离线演示模式，自动 fallback
+- 支持概念解释、代码诊断（结构化报告卡片）、学习建议、题目生成、错题讲解（薄弱点分析+相似题）、学习路径推荐（今日计划）、课程草稿生成
+- 可视化组件内嵌 AI 洞察：解释参数变化对模型的影响
+- 全局 AI 模式徽标，用户始终知道当前是 AI 还是 Mock 在回答
 
 ### 8. 个人中心
 
@@ -94,17 +101,18 @@ cd E:\projects\ai-biyesheji
 # 2. 安装依赖
 npm install
 
-# 3. 启动开发服务器
+# 3. 启动开发服务器和 AI 后端代理
 npm run dev
 ```
 
-Vite 默认访问地址通常是：
+默认访问地址：
 
 ```text
-http://localhost:5173
+前端：http://localhost:3000
+AI 代理：http://localhost:8787
 ```
 
-如果 5173 被占用，Vite 会自动换到下一个可用端口，请以终端输出为准。
+`npm run dev` 会同时启动 Vite 和 Express 代理。浏览器只请求 `/api/ai/chat`，真实 DeepSeek API Key 只在 Node 后端读取，不会打进前端包。
 
 ## 生产构建
 
@@ -113,48 +121,51 @@ npm run build
 npm run preview
 ```
 
-## 可选：开启真实 AI API
+## DeepSeek API 配置
 
-不设置环境变量时，AI 助教使用 Mock 数据，不影响完整演示。
+不设置环境变量时，所有 AI 功能自动走 Mock 离线演示模式，不影响完整演示。
 
-```bash
-# Windows PowerShell
-$env:VITE_AI_API_KEY="your-api-key"
-$env:VITE_AI_BASE_URL="https://api.openai.com/v1"
-$env:VITE_AI_MODEL="gpt-3.5-turbo"
-npm run dev
+```env
+# 在项目根目录创建 .env 文件
+DEEPSEEK_API_KEY=your-api-key
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-v4-flash
+AI_ENABLE_MOCK_FALLBACK=true
 ```
 
-```bash
-# Linux / macOS
-export VITE_AI_API_KEY="your-api-key"
-export VITE_AI_BASE_URL="https://api.openai.com/v1"
-export VITE_AI_MODEL="gpt-3.5-turbo"
-npm run dev
-```
+> 安全注意：不要把 API Key 写入前端代码，不要提交 `.env`。详细配置说明和环境变量含义见 **[DOCS.md 第十二章](./DOCS.md#十二deepseek-ai-模块升级说明)**。
+
+## AI 答辩演示流程
+
+覆盖课程学习、代码练习、测验、学习中心、管理后台五大场景的完整演示路径。
+
+> 分步演示细节见 **[DOCS.md 第十二章 → 答辩演示步骤](./DOCS.md#126-答辩演示步骤)**。
 
 ## 项目亮点
 
-1. **零后端依赖**：静态课程数据 + localStorage，启动即可演示。
+1. **零数据库依赖**：静态课程数据 + localStorage，启动即可演示。
 2. **学习闭环完整**：课程学习 → 可视化探索 → 代码练习 → 测验验证 → 学习中心追踪。
-3. **AI 可离线演示**：Mock 模式覆盖核心助教能力。
+3. **AI 可在线也可离线**：DeepSeek 在线模式 + Mock fallback 覆盖核心助教能力。
 4. **学习中心清晰**：用户可以直接查看进度、下一步推荐和每门课程掌握情况。
 5. **管理入口收敛**：管理后台只从个人中心进入，主导航保持学习路径简洁。
 6. **答辩友好**：界面完整、路径清楚、功能可现场走通。
 
 ## 设计原则
 
-- **学习优先**：顶部导航围绕“首页、学习中心、个人中心”组织。
-- **操作清晰**：首页强化“开始学习”，学习中心承担进度查看。
+- **学习优先**：顶部导航围绕”首页、学习中心、个人中心”组织。
+- **操作清晰**：首页强化”开始学习”，学习中心承担进度查看。
 - **演示稳定**：没有真实 API Key 也能展示 AI 助教。
 - **本地持久化**：学习记录和自定义课程保存在浏览器 localStorage。
 - **易扩展**：课程数据、练习数据、测验数据和 UI 组件分层清晰。
 
+## AI Agent 开发指引
+
+本项目配置了 10 个 Claude Code Skills（位于 `.claude/skills/`），覆盖前端开发、数据可视化、后端 API、代码审查、测试、教育注释等场景。
+
+> 新 Agent 加入开发前，请先阅读 **[SKILLS.md](./SKILLS.md)** 了解全部技能清单、安装方式和本地路径。
+
 ## 后续扩展方向
 
-- 接入 Pyodide 或后端沙箱，实现 Python 代码真实运行
-- 管理后台支持练习题和测验题编辑
-- 增加更多算法，如 SVM、随机森林、K-Means、PCA、神经网络
-- 增加用户系统和云端数据同步
-- 对 AI 助教接入更稳定的大模型服务
-- 做代码分割，降低 Monaco Editor 和 ECharts 带来的首屏包体积
+短期：Pyodide 真执行、题目编辑、首屏优化；中期：后端服务、新增算法（SVM/神经网络/K-Means）；长期：社区、教师端、国际化。
+
+> 完整规划（短期/中期/长期）见 **[DOCS.md 第九章](./DOCS.md#九后续可扩展方向)**。

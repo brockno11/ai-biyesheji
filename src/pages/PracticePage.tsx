@@ -6,10 +6,12 @@ import { useCourseById } from '../hooks/useCourses';
 import { getExercisesByAlgorithm } from '../data/exercises';
 import { checkCode } from '../services/codeCheckService';
 import { storageService } from '../services/storageService';
-import { askAI } from '../services/aiService';
+import { aiService } from '../services/aiService';
 import CodeEditor from '../components/CodeEditor';
 import ScoreCard from '../components/ScoreCard';
+import AICodeReviewCard from '../components/AICodeReviewCard';
 import type { AIReviewResult, Exercise } from '../types';
+import type { AICodeReviewResult, AIMode } from '../services/aiTypes';
 
 export default function PracticePage() {
   const { algorithmId } = useParams<{ algorithmId: string }>();
@@ -20,7 +22,9 @@ export default function PracticePage() {
   const [code, setCode] = useState('');
   const [result, setResult] = useState<AIReviewResult | null>(null);
   const [checking, setChecking] = useState(false);
-  const [aiFeedback, setAiFeedback] = useState<string | null>(null);
+  const [aiReview, setAiReview] = useState<AICodeReviewResult | null>(null);
+  const [aiMode, setAiMode] = useState<AIMode>('mock');
+  const [aiFallbackReason, setAiFallbackReason] = useState<string | undefined>();
   const [aiLoading, setAiLoading] = useState(false);
 
   const exercise = exercises[currentExIndex] as Exercise | undefined;
@@ -29,7 +33,7 @@ export default function PracticePage() {
     if (exercise) {
       setCode(exercise.starterCode);
       setResult(null);
-      setAiFeedback(null);
+      setAiReview(null);
     }
   }, [exercise]);
 
@@ -45,7 +49,8 @@ export default function PracticePage() {
 
   const handleCheck = async () => {
     setChecking(true);
-    setAiFeedback(null);
+    setAiReview(null);
+    setAiFallbackReason(undefined);
 
     // Simulate delay
     await new Promise((r) => setTimeout(r, 800));
@@ -65,17 +70,33 @@ export default function PracticePage() {
 
     setChecking(false);
 
-    // Get AI feedback
+    // Get structured AI feedback. Mock fallback keeps the demo usable offline.
     setAiLoading(true);
     try {
-      const feedback = await askAI(
-        'diagnose',
-        algorithm,
-        `学生代码得分: ${checkResult.score}/100\n通过的检查: 略\n问题: ${checkResult.problems.join(', ') || '无'}\n\n代码:\n${code}`
+      const missingKeywords = exercise.expectedKeywords.filter(
+        (kw) => !code.toLowerCase().includes(kw.toLowerCase())
       );
-      setAiFeedback(feedback);
+      const feedback = await aiService.diagnoseCode({
+        algorithm,
+        exercise,
+        userCode: code,
+        localReview: checkResult,
+        missingKeywords,
+        pagePosition: '代码练习页',
+      });
+      setAiReview(feedback.data);
+      setAiMode(feedback.mode);
+      setAiFallbackReason(feedback.fallbackReason);
     } catch {
-      setAiFeedback('AI 助教暂时不可用，请根据上方的检查结果自行改进代码。');
+      setAiReview({
+        summary: 'AI 助教暂时不可用，请先根据本地规则检查结果继续修改。',
+        scoreReason: `当前本地规则得分为 ${checkResult.score} 分。`,
+        problems: checkResult.problems.length ? checkResult.problems : ['暂未发现明显规则问题。'],
+        suggestions: checkResult.suggestions.length ? checkResult.suggestions : ['继续检查训练、预测和评估流程是否完整。'],
+        nextStep: checkResult.nextStep,
+        encouragement: '先把本地检查跑通，再逐步优化代码质量。',
+      });
+      setAiMode('mock');
     } finally {
       setAiLoading(false);
     }
@@ -172,6 +193,20 @@ export default function PracticePage() {
 
           {/* Score Card */}
           {result && <ScoreCard result={result} />}
+
+          {aiLoading && (
+            <div className="app-card p-5 text-sm text-slate-500">
+              AI 助教正在生成结构化诊断报告...
+            </div>
+          )}
+
+          {aiReview && (
+            <AICodeReviewCard
+              review={aiReview}
+              mode={aiMode}
+              fallbackReason={aiFallbackReason}
+            />
+          )}
         </div>
 
         {/* AI Feedback Sidebar */}
@@ -201,22 +236,16 @@ export default function PracticePage() {
             </div>
 
             {/* AI Feedback */}
-            {(aiFeedback || aiLoading) && (
+            {aiLoading && (
               <div className="app-card p-5">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  AI 助教反馈
+                  AI 诊断报告
                 </h3>
-                {aiLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <div className="w-4 h-4 border-2 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
-                    AI 助教正在分析你的代码...
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {aiFeedback}
-                  </p>
-                )}
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="w-4 h-4 border-2 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+                  AI 助教正在分析你的代码...
+                </div>
               </div>
             )}
           </div>

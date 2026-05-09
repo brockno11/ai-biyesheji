@@ -8,8 +8,9 @@ import VideoEmbed from '../components/VideoEmbed';
 import LinearRegressionViz from '../components/LinearRegressionViz';
 import KNNViz from '../components/KNNViz';
 import DecisionTreeViz from '../components/DecisionTreeViz';
+import type { Algorithm } from '../types';
 
-const vizComponents: Record<string, React.ComponentType> = {
+const vizComponents: Record<string, React.ComponentType<{ algorithm?: Algorithm }>> = {
   'linear-regression': LinearRegressionViz,
   knn: KNNViz,
   'decision-tree': DecisionTreeViz,
@@ -164,7 +165,7 @@ export default function AlgorithmPage() {
                 <Sparkles className="w-5 h-5 text-purple-500" />
                 交互式可视化
               </h2>
-              <VizComponent />
+              <VizComponent algorithm={algorithm} />
             </div>
           )}
 

@@ -17,7 +17,7 @@
 
 | 原则 | 说明 |
 |------|------|
-| 零后端依赖 | 所有数据 TypeScript 静态定义 + localStorage，无需数据库和服务端 |
+| 零数据库依赖 | 课程数据 TypeScript 静态定义 + localStorage，AI 通过轻量 Node/Express 代理转发 |
 | 可演示优先 | 不配置任何 API Key 也能完整演示所有功能 |
 | 交互第一 | 可视化组件支持 slider、点击、拖拽等交互操作 |
 | AI 赋能 | AI 助教贯穿学习全流程，Mock 数据确保离线可用 |
@@ -38,7 +38,7 @@
 图表可视化： ECharts 5 + echarts-for-react
 图标库：     Lucide React
 数据存储：   localStorage (浏览器本地)
-AI 接口：    OpenAI-compatible API (可选，默认 Mock)
+AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 Mock)
 ```
 
 ### 2.2 项目目录结构
@@ -54,13 +54,21 @@ src/
 ├── services/
 │   ├── storageService.ts       # localStorage 封装 + 课程 CRUD
 │   ├── codeCheckService.ts     # 基于规则的代码检查引擎
-│   └── aiService.ts            # AI 服务 (Mock + 真实 API)
+│   ├── aiService.ts            # 统一 AI 服务入口 (7 个方法)
+│   ├── aiTypes.ts              # AI 类型定义 (消息/上下文/结果)
+│   ├── aiPromptService.ts      # 系统提示词 + 场景 Prompt
+│   └── aiMockService.ts        # Mock 回复 + 结构化兜底数据
 ├── components/
 │   ├── Layout.tsx              # 内页布局 (Header + Sidebar + 内容区)
 │   ├── Header.tsx              # 顶部导航栏
 │   ├── Sidebar.tsx             # 课程侧边导航
 │   ├── AlgorithmCard.tsx       # 算法课程卡片
 │   ├── AITutorPanel.tsx        # AI 助教对话面板
+│   ├── AIModeBadge.tsx         # AI 模式徽标 (DeepSeek/Mock)
+│   ├── AICodeReviewCard.tsx    # AI 代码诊断报告卡片
+│   ├── AIQuizReviewCard.tsx    # AI 错题讲解卡片
+│   ├── AIStudyPlanCard.tsx     # AI 学习计划卡片
+│   ├── AIVisualizationInsight.tsx # AI 可视化洞察组件
 │   ├── CodeEditor.tsx          # Monaco Editor 封装
 │   ├── VideoEmbed.tsx          # B 站视频播放器
 │   ├── ProgressBar.tsx         # 进度条组件
@@ -101,8 +109,8 @@ src/
 │                      用户浏览器                           │
 │                                                         │
 │  ┌──────────┐   ┌──────────┐   ┌──────────────────────┐ │
-│  │ Static    │   │ localStorage │   │ OpenAI-compatible │ │
-│  │ TS Data   │   │ (进度+自定义  │   │ API (可选)         │ │
+│  │ Static    │   │ localStorage │   │ DeepSeek Proxy     │ │
+│  │ TS Data   │   │ (进度+自定义  │   │ /api/ai/chat       │ │
 │  │ (算法+题目) │   │  课程)       │   │                    │ │
 │  └────┬─────┘   └─────┬─────┘   └──────────┬───────────┘ │
 │       │               │                     │             │
@@ -376,6 +384,44 @@ src/
 
 **交互**：调节深度 → 树结构重组；切换样本 → 追踪不同的分类路径
 
+### 3.9 AI 功能 UI 组件
+
+以下组件封装了 AI 助教的 UI 交互，贯穿各页面：
+
+#### AIModeBadge
+
+显示当前 AI 模式是 **DeepSeek 在线** 还是 **Mock 离线**。以徽标形式呈现在 AI 面板、代码诊断卡片等处，让用户清楚当前 AI 能力的来源。
+
+#### AICodeReviewCard
+
+在代码练习页中，用户点击"检查代码"后展示。包含：
+- AI 对得分的解读
+- 代码问题列表和修复建议
+- 下一步学习方向
+- 鼓励语
+
+支持 DeepSeek 在线模式生成动态反馈，Mock 模式返回预设诊断。
+
+#### AIQuizReviewCard
+
+在测验提交后渲染。包含：
+- 薄弱知识点分析
+- 逐题错因讲解
+- 复习建议
+- AI 生成的一道相似练习（含答案和解析）
+
+#### AIStudyPlanCard
+
+在学习中心展示。根据 localStorage 中的学习记录生成：
+- 学习进度摘要
+- 推荐下一门课程及原因
+- 待复习内容列表
+- 今日学习计划
+
+#### AIVisualizationInsight
+
+嵌入算法可视化组件中。用户点击"AI 解释当前现象"按钮后，AI 根据当前可视化参数（如学习率、K 值、树深度等），解释参数变化如何影响模型表现。帮助初学者理解超参数调优的意义。
+
 ---
 
 ## 四、AI 助教系统
@@ -399,31 +445,30 @@ src/
 
 | 模式 | 条件 | 实现 |
 |------|------|------|
-| Mock 模式 | 未设置 `VITE_AI_API_KEY` | 预设中文回复，模拟 0.6-1.4s 延迟 |
-| 真实 API 模式 | 设置了 `VITE_AI_API_KEY` | 调用 OpenAI-compatible `/chat/completions` |
+| Mock 离线演示模式 | 未设置 `DEEPSEEK_API_KEY`、网络异常或 API 报错 | 预设中文回复和结构化兜底数据 |
+| DeepSeek 在线模式 | 设置了 `DEEPSEEK_API_KEY` | 前端请求 `/api/ai/chat`，Node/Express 代理调用 DeepSeek Chat Completions |
 
 ### 4.3 Mock 回复覆盖范围
 
-每个算法都有 4 类预设回复：
+Mock 覆盖以下能力：
 - **解释概念**：用比喻讲解算法核心思想
 - **诊断代码**：列出常见错误和修复建议
 - **学习建议**：推荐下一步学习路径
 - **题目生成**：出一道思考题并给出解析
+- **错题讲解**：分析薄弱点、错因和正确思路
+- **学习路径推荐**：根据 localStorage 学习记录生成今日计划
 
-### 4.4 自由提问路由 (askAIChat)
+### 4.4 统一 AI 服务入口
 
-根据用户输入的关键词自动匹配回复类型：
-- 含"代码/error/报错" → 诊断模式
-- 含"学/建议/进阶/下一步" → 建议模式
-- 含"题/测试/考" → 出题模式
-- 其他 → 解释模式
+AI 逻辑集中在 `src/services/aiService.ts`，组件通过 `askTutor`、`diagnoseCode`、`reviewQuiz`、`generateStudyPlan` 等方法调用，不再把 Prompt 分散在页面组件里。
 
 ### 4.5 环境变量配置
 
 ```bash
-VITE_AI_API_KEY=sk-xxx          # API Key
-VITE_AI_BASE_URL=https://...     # API 地址 (默认 OpenAI)
-VITE_AI_MODEL=gpt-3.5-turbo      # 模型名 (默认 gpt-3.5-turbo)
+DEEPSEEK_API_KEY=sk-xxx
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-v4-flash
+AI_ENABLE_MOCK_FALLBACK=true
 ```
 
 ---
@@ -657,7 +702,7 @@ VITE_AI_MODEL=gpt-3.5-turbo      # 模型名 (默认 gpt-3.5-turbo)
 # 安装依赖
 npm install
 
-# 启动开发服务器
+# 启动前端开发服务器和 AI 后端代理
 npm run dev
 
 # 生产构建
@@ -665,17 +710,20 @@ npm run build
 npm run preview
 ```
 
-Vite 默认端口通常是 `http://localhost:5173`。如果端口被占用，会自动切换到下一个可用端口，请以终端输出为准。
+默认前端地址是 `http://localhost:3000`，AI 后端代理地址是 `http://localhost:8787`。Vite 会把 `/api` 请求代理到后端。
 
-### 10.3 可选：开启真实 AI API
+### 10.3 可选：开启真实 DeepSeek API
 
 ```bash
 # Windows PowerShell
-$env:VITE_AI_API_KEY="sk-your-key"
+$env:DEEPSEEK_API_KEY="sk-your-key"
+$env:DEEPSEEK_BASE_URL="https://api.deepseek.com"
+$env:DEEPSEEK_MODEL="deepseek-v4-flash"
+$env:AI_ENABLE_MOCK_FALLBACK="true"
 npm run dev
 
 # Linux / macOS
-VITE_AI_API_KEY=sk-your-key npm run dev
+DEEPSEEK_API_KEY=sk-your-key DEEPSEEK_BASE_URL=https://api.deepseek.com DEEPSEEK_MODEL=deepseek-v4-flash AI_ENABLE_MOCK_FALLBACK=true npm run dev
 ```
 
 ---
@@ -690,5 +738,94 @@ VITE_AI_API_KEY=sk-your-key npm run dev
 
 ---
 
+## 十二、DeepSeek AI 模块升级说明
+
+### 12.1 模块目标
+
+本项目的 AI 能力已从简单 Mock 聊天升级为 **DeepSeek 在线模式 + Mock 离线兜底 + 多场景教学能力**。核心目标是：答辩现场有网络和 API Key 时可以展示真实大模型能力；没有网络、没有 Key 或 DeepSeek 返回错误时，仍可稳定使用本地 Mock 演示。
+
+### 12.2 服务结构
+
+前端 AI 服务拆分为：
+
+```text
+src/services/aiTypes.ts          # AI 消息、上下文、结构化结果类型
+src/services/aiPromptService.ts  # 统一维护系统提示词和场景 Prompt
+src/services/aiMockService.ts    # Mock 回复和结构化兜底数据
+src/services/aiService.ts        # 统一对组件暴露 AI 方法并处理 fallback
+```
+
+后端代理新增：
+
+```text
+server/services/deepseekService.ts  # 调用 DeepSeek Chat Completions API
+server/routes/ai.ts                 # POST /api/ai/chat
+server/index.ts                     # Express 启动、CORS、JSON、错误处理
+```
+
+前端只请求 `/api/ai/chat`，由 Node/Express 代理转发到 DeepSeek。这样 API Key 只存在服务端环境变量中，不会出现在浏览器公开代码里。
+
+### 12.3 环境变量
+
+```env
+DEEPSEEK_API_KEY=your-api-key
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-v4-flash
+AI_ENABLE_MOCK_FALLBACK=true
+```
+
+说明：
+
+- `DEEPSEEK_API_KEY`：DeepSeek API Key，不配置时自动走 Mock。
+- `DEEPSEEK_BASE_URL`：默认 `https://api.deepseek.com`。
+- `DEEPSEEK_MODEL`：默认 `deepseek-v4-flash`。
+- `AI_ENABLE_MOCK_FALLBACK`：默认开启。设置为 `false` 时，服务端会告诉前端不要自动兜底，通常不建议答辩时关闭。
+
+安全注意：
+
+- 不要把真实 API Key 写入 `src` 前端代码。
+- 不要把 `.env` 提交到 GitHub。
+- 当前仓库 `.gitignore` 已忽略 `.env` 和 `.env.*`。
+- 如果临时改为前端直连大模型 API，只适合本地演示，生产环境不安全。
+
+### 12.4 AI 方法
+
+`aiService.ts` 对组件暴露：
+
+```ts
+askTutor(context)
+explainConcept(context)
+diagnoseCode(context)
+generatePracticeHint(context)
+reviewQuiz(context)
+generateStudyPlan(context)
+generateCourseDraft(context)
+```
+
+每个方法都会优先尝试调用 DeepSeek。如果遇到 API Key 未配置、网络错误、401、429、500、请求超时、JSON 解析失败等情况，会输出控制台错误并自动返回 Mock 结果，避免页面崩溃。
+
+### 12.5 场景覆盖
+
+| 场景 | 功能 |
+|------|------|
+| 课程页 / AI 助教 | 带算法上下文问答，支持解释概念、诊断代码、学习建议、来道题、总结本节、举生活例子 |
+| 代码练习页 | 先做本地规则检查，再生成结构化 AI 代码诊断报告 |
+| 测验页 | 提交后可触发 AI 错题讲解，输出薄弱点、错题分析、复习建议和相似题 |
+| 学习中心 | 根据 localStorage 学习记录生成 AI 学习路径推荐和今日计划 |
+| 可视化组件 | 可点击“AI 解释当前现象”，解释参数变化对模型表现的影响 |
+| 管理后台 | 可输入算法名称、难度、分类和关键词，生成课程草稿，填入表单后由管理员确认保存 |
+
+### 12.6 答辩演示步骤
+
+1. 运行 `npm run dev`，同时启动 Vite 前端和 Express AI 代理。
+2. 打开 `http://localhost:3000`。
+3. 进入任意课程页，展示 AI 助教模式徽标和快捷提问。
+4. 进入代码练习页，点击“检查代码”，展示本地规则评分和 AI 代码诊断报告。
+5. 进入测验页，答题并提交，点击“AI 讲解我的错题”。
+6. 进入学习中心，展示 AI 学习路径推荐。
+7. 进入个人中心 → 管理后台，展示 AI 生成课程草稿。
+
+---
+
 > 文档生成日期：2026-05-09
-> 项目版本：1.0.0 (MVP，已完成学习中心和个人仪表盘 UI 优化)
+> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI 模块、学习中心和个人仪表盘 UI 优化)

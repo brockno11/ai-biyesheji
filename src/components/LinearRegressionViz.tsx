@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
+import type { Algorithm } from '../types';
+import AIVisualizationInsight from './AIVisualizationInsight';
 
 function generateData(n: number, noise: number) {
   const data: [number, number][] = [];
@@ -42,7 +44,7 @@ function gradientDescent(
   return { w, b, lossHistory };
 }
 
-export default function LinearRegressionViz() {
+export default function LinearRegressionViz({ algorithm }: { algorithm?: Algorithm }) {
   const [sampleCount, setSampleCount] = useState(60);
   const [learningRate, setLearningRate] = useState(0.01);
   const [iterations, setIterations] = useState(100);
@@ -225,6 +227,19 @@ export default function LinearRegressionViz() {
           </div>
         ))}
       </div>
+
+      <AIVisualizationInsight
+        algorithm={algorithm}
+        visualState={{
+          sampleCount,
+          learningRate,
+          iterations,
+          noise,
+          mse: Number(mse.toFixed(3)),
+          w: Number(w.toFixed(3)),
+          b: Number(b.toFixed(3)),
+        }}
+      />
     </div>
   );
 }

@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Code2, Brain, Trophy, ArrowRight, RotateCcw, Target, BookOpen, Clock, Award } from 'lucide-react';
 import { useCourses } from '../hooks/useCourses';
 import { storageService } from '../services/storageService';
 import ProgressBar from '../components/ProgressBar';
+import { aiService } from '../services/aiService';
+import AIStudyPlanCard from '../components/AIStudyPlanCard';
+import type { AIMode, AIStudyPlanResult } from '../services/aiTypes';
 
 export default function ProgressPage() {
   const algorithms = useCourses();
   const [progress, setProgress] = useState(() => storageService.getProgress());
+  const [aiPlan, setAiPlan] = useState<AIStudyPlanResult | null>(null);
+  const [aiMode, setAiMode] = useState<AIMode>('mock');
+  const [aiFallbackReason, setAiFallbackReason] = useState<string | undefined>();
+  const [aiLoading, setAiLoading] = useState(false);
 
   const refresh = () => setProgress(storageService.getProgress());
 
@@ -39,6 +46,42 @@ export default function ProgressPage() {
   };
 
   const nextAlgo = getRecommendedNext();
+
+  const generateAIPlan = async () => {
+    setAiLoading(true);
+    setAiFallbackReason(undefined);
+    try {
+      const courseStats = algorithms.map((algo) => ({
+        algorithmId: algo.id,
+        algorithmName: algo.name,
+        practiceCount: storageService.getPracticeCount(algo.id),
+        bestScore: storageService.getBestScore(algo.id),
+        quizScore: progress.quizRecords.find((r) => r.algorithmId === algo.id)?.score,
+        completed: progress.completedAlgorithms.includes(algo.id),
+      }));
+      const latest = [...progress.practiceRecords, ...progress.quizRecords]
+        .sort((a, b) => b.timestamp - a.timestamp)[0];
+      const plan = await aiService.generateStudyPlan({
+        completedAlgorithms: progress.completedAlgorithms,
+        courseStats,
+        unfinishedCourses: algorithms
+          .filter((algo) => !progress.completedAlgorithms.includes(algo.id))
+          .map((algo) => algo.name),
+        recentActivity: latest ? new Date(latest.timestamp).toLocaleString('zh-CN') : '暂无',
+        pagePosition: '学习中心',
+      });
+      setAiPlan(plan.data);
+      setAiMode(plan.mode);
+      setAiFallbackReason(plan.fallbackReason);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    generateAIPlan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="app-container max-w-6xl">
@@ -102,6 +145,24 @@ export default function ProgressPage() {
           label="算法课程完成情况"
           size="lg"
         />
+      </div>
+
+      <div className="mb-8">
+        {aiPlan ? (
+          <AIStudyPlanCard
+            plan={aiPlan}
+            mode={aiMode}
+            fallbackReason={aiFallbackReason}
+            loading={aiLoading}
+            onRefresh={generateAIPlan}
+          />
+        ) : (
+          <div className="app-card p-6">
+            <div className="text-sm text-slate-500">
+              {aiLoading ? 'AI 正在生成学习路径推荐...' : 'AI 学习路径推荐暂不可用'}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Per-Algorithm Progress */}

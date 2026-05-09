@@ -5,6 +5,9 @@ import { getAlgorithmById } from '../data/algorithms';
 import { useCourseById } from '../hooks/useCourses';
 import { getQuizByAlgorithm } from '../data/exercises';
 import { storageService } from '../services/storageService';
+import { aiService } from '../services/aiService';
+import AIQuizReviewCard from '../components/AIQuizReviewCard';
+import type { AIMode, AIQuizReviewResult } from '../services/aiTypes';
 
 export default function QuizPage() {
   const { algorithmId } = useParams<{ algorithmId: string }>();
@@ -15,6 +18,10 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [aiReview, setAiReview] = useState<AIQuizReviewResult | null>(null);
+  const [aiMode, setAiMode] = useState<AIMode>('mock');
+  const [aiFallbackReason, setAiFallbackReason] = useState<string | undefined>();
+  const [aiLoading, setAiLoading] = useState(false);
 
   if (!algorithm || questions.length === 0) {
     return (
@@ -59,6 +66,7 @@ export default function QuizPage() {
     setAnswers({});
     setSubmitted(false);
     setShowExplanation(false);
+    setAiReview(null);
     setCurrentQ(0);
   };
 
@@ -66,6 +74,28 @@ export default function QuizPage() {
     ([i, ans]) => questions[Number(i)]?.correctIndex === ans
   ).length;
   const allAnswered = Object.keys(answers).length === questions.length;
+
+  const handleAIReview = async () => {
+    if (!submitted || aiLoading) return;
+    setAiLoading(true);
+    setAiFallbackReason(undefined);
+    try {
+      const review = await aiService.reviewQuiz({
+        algorithm,
+        quizQuestions: questions,
+        quizAnswers: answers,
+        quizScore: Math.round((correctCount / questions.length) * 100),
+        pagePosition: '测验页',
+      });
+      setAiReview(review.data);
+      setAiMode(review.mode);
+      setAiFallbackReason(review.fallbackReason);
+    } catch {
+      setAiReview(null);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
@@ -240,6 +270,28 @@ export default function QuizPage() {
           </button>
         )}
       </div>
+
+      {submitted && (
+        <div className="mt-6">
+          {!aiReview && (
+            <button
+              onClick={handleAIReview}
+              disabled={aiLoading}
+              className="w-full rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              {aiLoading ? 'AI 正在讲解错题...' : 'AI 讲解我的错题'}
+            </button>
+          )}
+
+          {aiReview && (
+            <AIQuizReviewCard
+              review={aiReview}
+              mode={aiMode}
+              fallbackReason={aiFallbackReason}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

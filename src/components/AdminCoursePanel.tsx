@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Plus, Pencil, Trash2, Save, X, Search, Eye, AlertTriangle, CheckCircle2, GraduationCap,
+  Plus, Pencil, Trash2, Save, X, Search, Eye, AlertTriangle, CheckCircle2, GraduationCap, Sparkles,
 } from 'lucide-react';
 import { algorithms as staticAlgorithms } from '../data/algorithms';
 import { storageService } from '../services/storageService';
+import { aiService } from '../services/aiService';
 import type { Algorithm } from '../types';
 
 const DEFAULT_ICONS = ['📈', '🎯', '🌳', '🧠', '🤖', '📊', '🔍', '💡', '⚡', '🔬', '📐', '🎓'];
@@ -31,6 +32,13 @@ export default function AdminCoursePanel() {
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [draftInput, setDraftInput] = useState({
+    name: '',
+    difficulty: '入门' as Algorithm['difficulty'],
+    category: 'regression' as Algorithm['category'],
+    keywords: '',
+  });
+  const [draftLoading, setDraftLoading] = useState(false);
 
   const allCourses = [...staticAlgorithms, ...customCourses];
   const staticIds = new Set(staticAlgorithms.map((a) => a.id));
@@ -73,6 +81,44 @@ export default function AdminCoursePanel() {
     setCustomCourses(storageService.getCustomCourses());
     setShowForm(false);
     showToast('success', editingId ? '课程已更新' : '课程已添加');
+  };
+
+  const handleGenerateDraft = async () => {
+    if (!draftInput.name.trim()) {
+      showToast('error', '请先输入算法名称');
+      return;
+    }
+    setDraftLoading(true);
+    try {
+      const result = await aiService.generateCourseDraft({
+        courseDraftInput: draftInput,
+        pagePosition: '管理后台课程生成',
+      });
+      const draft = result.data;
+      setForm({
+        id: 'custom-' + Date.now(),
+        name: draft.name || draftInput.name,
+        category: draftInput.category,
+        difficulty: draftInput.difficulty,
+        icon: emptyForm.icon,
+        intro: draft.intro || '',
+        description: draft.description || '',
+        formula: draft.formula || '',
+        steps: draft.steps?.length ? draft.steps : [''],
+        advantages: draft.pros?.length ? draft.pros : [''],
+        disadvantages: draft.cons?.length ? draft.cons : [''],
+        useCases: draft.useCases?.length ? draft.useCases : [''],
+        codeExample: draft.codeExample || '',
+        videoUrl: '',
+      });
+      setEditingId(null);
+      setShowForm(true);
+      showToast('success', result.mode === 'deepseek' ? 'DeepSeek 已生成课程草稿' : '已生成 Mock 课程草稿');
+    } catch {
+      showToast('error', '课程草稿生成失败');
+    } finally {
+      setDraftLoading(false);
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -139,6 +185,55 @@ export default function AdminCoursePanel() {
           >
             <Plus className="w-4 h-4" />
             添加课程
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-primary-100 bg-gradient-to-r from-primary-50 to-accent-50 p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary-600" />
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">AI 生成课程草稿</h3>
+            <p className="text-xs text-slate-500">生成后会先填入表单，确认后再保存。</p>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_1fr_1.5fr_auto]">
+          <input
+            value={draftInput.name}
+            onChange={(e) => setDraftInput((prev) => ({ ...prev, name: e.target.value }))}
+            placeholder="算法名称，如 SVM"
+            className="rounded-xl border border-white/80 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          />
+          <select
+            value={draftInput.category}
+            onChange={(e) => setDraftInput((prev) => ({ ...prev, category: e.target.value as Algorithm['category'] }))}
+            className="rounded-xl border border-white/80 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          >
+            {CATEGORIES.map((cat) => (
+              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            ))}
+          </select>
+          <select
+            value={draftInput.difficulty}
+            onChange={(e) => setDraftInput((prev) => ({ ...prev, difficulty: e.target.value as Algorithm['difficulty'] }))}
+            className="rounded-xl border border-white/80 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          >
+            {DIFFICULTIES.map((level) => (
+              <option key={level} value={level}>{level}</option>
+            ))}
+          </select>
+          <input
+            value={draftInput.keywords}
+            onChange={(e) => setDraftInput((prev) => ({ ...prev, keywords: e.target.value }))}
+            placeholder="关键词，如 间隔 最大化 核函数"
+            className="rounded-xl border border-white/80 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          />
+          <button
+            onClick={handleGenerateDraft}
+            disabled={draftLoading}
+            className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800 disabled:opacity-50"
+          >
+            {draftLoading ? '生成中...' : '生成草稿'}
           </button>
         </div>
       </div>

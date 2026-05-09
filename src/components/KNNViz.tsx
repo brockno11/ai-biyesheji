@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
+import type { Algorithm } from '../types';
+import AIVisualizationInsight from './AIVisualizationInsight';
 
 interface Point {
   x: number;
@@ -32,7 +34,7 @@ function euclideanDist(a: { x: number; y: number }, b: { x: number; y: number })
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }
 
-export default function KNNViz() {
+export default function KNNViz({ algorithm }: { algorithm?: Algorithm }) {
   const [k, setK] = useState(5);
   const [testPoint, setTestPoint] = useState({ x: 3.5, y: 3.5 });
   const chartRef = useRef<ReactECharts>(null);
@@ -268,6 +270,17 @@ export default function KNNViz() {
           💡 提示：K 值越大，决策边界越平滑；K 值越小，越容易受噪声影响。拖动 K 值 slider 和测试点位置，观察预测结果的变化。
         </div>
       </div>
+
+      <AIVisualizationInsight
+        algorithm={algorithm}
+        visualState={{
+          k,
+          testPointX: Number(testPoint.x.toFixed(2)),
+          testPointY: Number(testPoint.y.toFixed(2)),
+          prediction,
+          neighborCount: neighbors.length,
+        }}
+      />
     </div>
   );
 }

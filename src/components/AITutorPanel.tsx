@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Sparkles, Loader2 } from 'lucide-react';
-import { askAIChat, askAI } from '../services/aiService';
+import { Bot, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { aiService } from '../services/aiService';
+import type { AIMode, AIActionType } from '../services/aiTypes';
 import type { Algorithm } from '../types';
+import AIModeBadge from './AIModeBadge';
 
 interface Props {
   algorithm: Algorithm;
@@ -17,6 +19,8 @@ export default function AITutorPanel({ algorithm, context }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<AIMode>('mock');
+  const [fallbackReason, setFallbackReason] = useState<string | undefined>();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,8 +35,15 @@ export default function AITutorPanel({ algorithm, context }: Props) {
     setLoading(true);
 
     try {
-      const reply = await askAIChat(text, algorithm);
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+      const reply = await aiService.askTutor({
+        algorithm,
+        userQuestion: text,
+        chatHistory: messages,
+        pagePosition: context || '课程 AI 助教面板',
+      });
+      setMode(reply.mode);
+      setFallbackReason(reply.fallbackReason);
+      setMessages((prev) => [...prev, { role: 'assistant', content: reply.data }]);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -44,22 +55,44 @@ export default function AITutorPanel({ algorithm, context }: Props) {
   };
 
   const quickActions = [
-    { type: 'explain' as const, label: '解释概念', icon: '📖' },
-    { type: 'diagnose' as const, label: '诊断代码', icon: '🔍' },
-    { type: 'suggest' as const, label: '学习建议', icon: '💡' },
-    { type: 'quiz' as const, label: '来道题', icon: '📝' },
+    { type: 'explainConcept' as const, label: '解释概念', icon: '📖' },
+    { type: 'generatePracticeHint' as const, label: '诊断代码', icon: '🔍' },
+    { type: 'askTutor' as const, label: '学习建议', icon: '💡', question: '请给我下一步学习建议' },
+    { type: 'generateQuiz' as const, label: '来道题', icon: '📝' },
+    { type: 'summarizeLesson' as const, label: '总结本节', icon: '✅' },
+    { type: 'lifeExample' as const, label: '生活例子', icon: '🌱' },
   ];
 
-  const handleQuickAction = async (type: 'explain' | 'diagnose' | 'suggest' | 'quiz') => {
+  const handleQuickAction = async (type: AIActionType) => {
     if (loading) return;
     setLoading(true);
-    const actionLabel = quickActions.find((action) => action.type === type)?.label || '快捷提问';
+    const action = quickActions.find((item) => item.type === type);
+    const actionLabel = action?.label || '快捷提问';
     try {
-      const reply = await askAI(type, algorithm, context);
+      const request = {
+        algorithm,
+        chatHistory: messages,
+        pagePosition: context || '课程 AI 助教面板',
+        userQuestion: action?.question,
+      };
+      const reply =
+        type === 'explainConcept'
+          ? await aiService.explainConcept(request)
+          : type === 'generatePracticeHint'
+            ? await aiService.generatePracticeHint(request)
+            : type === 'generateQuiz'
+              ? await aiService.generateQuiz(request)
+              : type === 'summarizeLesson'
+                ? await aiService.summarizeLesson(request)
+                : type === 'lifeExample'
+                  ? await aiService.lifeExample(request)
+                  : await aiService.askTutor(request);
+      setMode(reply.mode);
+      setFallbackReason(reply.fallbackReason);
       setMessages((prev) => [
         ...prev,
         { role: 'user', content: `[${actionLabel}]` },
-        { role: 'assistant', content: reply },
+        { role: 'assistant', content: reply.data },
       ]);
     } catch {
       setMessages((prev) => [
@@ -73,13 +106,27 @@ export default function AITutorPanel({ algorithm, context }: Props) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 flex flex-col h-[600px] shadow-sm">
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
           <Bot className="w-4 h-4 text-white" />
         </div>
         <div>
           <div className="text-sm font-semibold text-gray-900">AI 助教 · 小智</div>
           <div className="text-xs text-gray-400">关于 {algorithm.name}，尽管问我</div>
+        </div>
+          </div>
+          <button
+            onClick={() => setMessages([])}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            title="清空对话"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="mt-3">
+          <AIModeBadge mode={mode} fallbackReason={fallbackReason} />
         </div>
       </div>
 
