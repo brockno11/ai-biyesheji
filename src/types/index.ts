@@ -16,6 +16,54 @@ export interface CourseMisunderstanding {
   correct: string;
 }
 
+export type InteractionType =
+  | "programming-vs-ml"
+  | "ai-ml-dl-map"
+  | "learning-type-sorter"
+  | "task-type-classifier"
+  | "workflow-simulator"
+  | "algorithm-recommender"
+  | "data-table-guide"
+  | "feature-label-selector"
+  | "xy-splitter"
+  | "train-test-split"
+  | "regression-metric-lab"
+  | "classification-metric-lab"
+  | "overfitting-playground"
+  | "leakage-detective";
+
+export interface LessonCheckpointQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface LessonVideo {
+  title: string;
+  bv?: string;
+  watchBefore: string;
+  watchAfterQuestions: LessonCheckpointQuestion[];
+}
+
+export interface FoundationLesson {
+  id: string;
+  title: string;
+  subtitle: string;
+  order: number;
+  goal: string;
+  story: string;
+  explanation: string;
+  example: string;
+  interactionType: InteractionType;
+  keyTakeaway: string;
+  commonMistakes: { mistake: string; correction: string }[];
+  checkpointQuestions: LessonCheckpointQuestion[];
+  aiPrompts: string[];
+  video?: LessonVideo;
+}
+
 export interface Algorithm {
   id: string;
   name: string;
@@ -40,6 +88,10 @@ export interface Algorithm {
   visualizationType?: string;
   hasPractice?: boolean;
   hasQuiz?: boolean;
+  lessons?: FoundationLesson[];
+  estimatedMinutes?: number;
+  prerequisites?: string[];
+  nextCourseId?: string;
 }
 
 import type { PythonRuntimeSpec } from '../services/aiTypes';

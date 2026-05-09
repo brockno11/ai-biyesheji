@@ -2,7 +2,7 @@
 
 > **文档导航**：快速了解项目 → 当前页；深入技术细节 → **[DOCS.md](./DOCS.md)**；AI Agent 开发 → **[SKILLS.md](./SKILLS.md)**
 >
-> **当前版本：v2.6.0** | 最近更新：粒子动效首页、Pyodide Worker 全算法真运行、React.lazy 代码拆分、Zod 数据校验、AI 安全加固
+> **当前版本：v2.7.0** | 最近更新：粒子动效首页、Pyodide Worker 全算法真运行、React.lazy 代码拆分、Zod 数据校验、AI 安全加固
 
 ## 项目简介
 
