@@ -165,6 +165,113 @@ export default function ProgressPage() {
         </div>
       </Section>
 
+      {/* Learning Diagnostic */}
+      <Section className="mb-8">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <Brain className="w-3.5 h-3.5 text-white" />
+            </div>
+            <h2 className="text-lg font-extrabold text-gray-900 tracking-tight">学习诊断</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Code vs Concept analysis */}
+            {(() => {
+              const algoStats = algorithms.map((algo) => {
+                const records = progress.practiceRecords.filter((r) => r.algorithmId === algo.id);
+                const quizRecords = progress.quizRecords.filter((r) => r.algorithmId === algo.id);
+                const avgPractice = records.length > 0
+                  ? Math.round(records.reduce((s, r) => s + r.score, 0) / records.length)
+                  : null;
+                const avgQuiz = quizRecords.length > 0
+                  ? Math.round(quizRecords.reduce((s, r) => s + r.score, 0) / quizRecords.length)
+                  : null;
+                return { algo, avgPractice, avgQuiz, records, quizRecords };
+              });
+
+              const hasData = algoStats.some((s) => s.records.length > 0 || s.quizRecords.length > 0);
+              if (!hasData) {
+                return (
+                  <div className="md:col-span-2 text-center py-4 text-sm text-gray-400">
+                    还没有学习数据，完成一些练习和测验后会显示诊断结果
+                  </div>
+                );
+              }
+
+              const lowPracticeAlgos = algoStats.filter((s) => s.avgPractice !== null && s.avgPractice < 60);
+              const lowQuizAlgos = algoStats.filter((s) => s.avgQuiz !== null && s.avgQuiz < 60);
+              const codeWeak = lowPracticeAlgos.length >= lowQuizAlgos.length;
+              const conceptWeak = lowQuizAlgos.length > 0;
+
+              return (
+                <>
+                  {/* Code ability card */}
+                  <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Code2 className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-bold text-blue-800">代码能力</span>
+                    </div>
+                    {lowPracticeAlgos.length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="text-xs text-blue-700">以下算法练习得分偏低，建议重点加强动手实践：</p>
+                        {lowPracticeAlgos.map((s) => (
+                          <div key={s.algo.id} className="flex items-center justify-between text-xs">
+                            <span className="font-medium text-blue-700">{s.algo.icon} {s.algo.name}</span>
+                            <span className="text-blue-500">平均 {s.avgPractice} 分</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-blue-600">
+                        {algoStats.some((s) => s.records.length > 0) ? '代码练习表现良好，继续保持！' : '尚未开始代码练习'}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Concept understanding card */}
+                  <div className="rounded-xl border border-purple-100 bg-purple-50/40 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Brain className="w-4 h-4 text-purple-600" />
+                      <span className="text-sm font-bold text-purple-800">概念理解</span>
+                    </div>
+                    {lowQuizAlgos.length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="text-xs text-purple-700">以下算法测验得分偏低，建议回顾课程核心概念：</p>
+                        {lowQuizAlgos.map((s) => (
+                          <div key={s.algo.id} className="flex items-center justify-between text-xs">
+                            <span className="font-medium text-purple-700">{s.algo.icon} {s.algo.name}</span>
+                            <span className="text-purple-500">平均 {s.avgQuiz} 分</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-purple-600">
+                        {algoStats.some((s) => s.quizRecords.length > 0) ? '概念掌握扎实，继续保持！' : '尚未开始知识测验'}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Overall verdict */}
+                  <div className="md:col-span-2 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      {codeWeak && conceptWeak ? (
+                        <><strong className="text-gray-800">综合诊断：</strong>代码实践和概念理解都有提升空间。建议先回顾课程内容，再通过练习巩固。{nextAlgo ? ` 推荐从「${nextAlgo.name}」开始，逐步建立信心。` : ''}</>
+                      ) : codeWeak ? (
+                        <><strong className="text-gray-800">综合诊断：</strong>概念理解较好，但代码实践需要加强。在编码时重点关注 API 调用顺序和数据流转。{nextAlgo ? ` 推荐继续完成「${nextAlgo.name}」的练习。` : ''}</>
+                      ) : conceptWeak ? (
+                        <><strong className="text-gray-800">综合诊断：</strong>代码能力不错，但概念辨析可以更扎实。建议回顾错题解析，理解公式和适用场景。{nextAlgo ? ` 下一步推荐「${nextAlgo.name}」，巩固理论知识。` : ''}</>
+                      ) : (
+                        <><strong className="text-gray-800">综合诊断：</strong>表现均衡！代码和测验都达到良好水平。{nextAlgo ? ` 可以挑战「${nextAlgo.name}」的新知识点。` : '继续完成剩余课程。'}</>
+                      )}
+                    </p>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      </Section>
+
       <Section className="mb-8">
         {aiPlan ? (
           <AIStudyPlanCard

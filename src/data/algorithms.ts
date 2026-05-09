@@ -344,7 +344,7 @@ labels = model.fit_predict(X_scaled)
 print("聚类中心:", model.cluster_centers_)
 print("簇内平方和:", model.inertia_)
 print("每个簇的样本数:", np.bincount(labels))`,
-    videoUrl: '',
+    videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1sM4y1U7Ph',
   },
 ];
 

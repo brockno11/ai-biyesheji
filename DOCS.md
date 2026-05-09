@@ -807,6 +807,7 @@ curl -X POST http://localhost:8787/api/ai/chat \
 | 线性回归 | BV1ZZCkBREVE | 机器学习算法 · 构建线性回归 |
 | KNN | BV1TW4y1w7MW | K近邻算法 · 通俗易懂课程 |
 | 决策树 | BV1gP4y177cf | 机器学习入门系列 · 决策树 |
+| K-Means | BV1sM4y1U7Ph | K-Means 聚类算法教程 |
 
 ---
 
@@ -968,13 +969,16 @@ npx tsc --noEmit && npx vite build
 - **10 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
 - **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 4 个算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
-- **K-Means** 视频链接暂缺，等待补充。
+- **K-Means** 视频已配置 B站 BV号（BV1sM4y1U7Ph），如有更合适的可替换。
 - **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
 
 ### 13.4 最近更新（2026-05-09）
 
 | 提交 | 内容 |
 |------|------|
+| 当前工作区 | K-Means 视频补充；ProgressPage 学习诊断（代码/概念能力分析+个性化推荐理由） |
+| `9214825` | 修复图表点击白屏 Bug；新增 ErrorBoundary + notMerge 渲染优化 |
+| `cf9dc85` | 文档最终同步：changelog 补全、版本号统一 v2.5.2 |
 | `333d99b` | 内页视觉统一：算法页分段学习路径、练习页步骤流水线+分层提示+错误分类、学习中心仪表盘、后台玻璃风格 |
 | `97500e0` | AI 可信度：诊断依据卡片、硬规则防幻觉、Zod 校验所有 AI JSON 输出；文档 v2.5.0 |
 | `777eb74` | 首页视觉统一：移除突兀深蓝块，粒子颜色柔化，全页面流畅过渡 |
