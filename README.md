@@ -182,7 +182,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 ## AI Agent 开发指引
 
-本项目配置了 10 个 Claude Code Skills（位于 `.claude/skills/`），覆盖前端开发、数据可视化、后端 API、代码审查、测试、教育注释等场景。
+本项目配置了 13 个 Claude Code Skills（位于 `.claude/skills/`），覆盖前端开发、数据可视化、后端 API、代码审查、测试、UI 设计、动画动效、教育注释等场景。
 
 > 新 Agent 加入开发前，请先阅读 **[SKILLS.md](./SKILLS.md)** 了解全部技能清单、安装方式和本地路径。
 

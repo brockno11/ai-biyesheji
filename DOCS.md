@@ -237,7 +237,7 @@ scripts/
 3. 统计 TODO 残留数量
 4. 加权计算总分 (每个规则有独立 points)
 5. 得分 ≥ 60 为"通过"
-6. 对线性回归练习调用 Pyodide，在浏览器端执行用户 Python 代码和固定测试代码
+6. 对有 runtimeSpec 的练习，通过 Web Worker 调用 Pyodide 执行 Python 代码和固定测试
 7. 捕获 Python 输出；如果执行失败，展示错误信息
 8. 按核心 API、TODO 完成度、Python 可执行性、固定测试表现计算综合评分
 9. 将综合评分、运行结果和报错一起发送给 AI，生成结构化诊断
@@ -609,10 +609,11 @@ AI_ENABLE_MOCK_FALLBACK=true
   ↓
 生成规则检查结果
   ↓
-线性回归练习调用 Pyodide 执行 Python
-  ├─ 成功 → 展示 print 输出和自动测试通过
-  ├─ 失败 → 展示 Python 错误或测试断言失败
-  └─ 未覆盖 → 展示暂未支持提示
+根据 exercise.runtimeSpec 判断是否启用 Pyodide Worker 真运行
+  ├─ 支持真运行 → 在 Web Worker 中执行学生代码和固定测试
+  ├─ 成功 → 展示 stdout、测试结果和耗时
+  ├─ 失败 → 展示错误分类、stderr 和修复建议
+  └─ 未覆盖 → 使用规则检查 + AI 诊断兜底
   ↓
 计算四维综合评分并保存到 localStorage
   ↓
@@ -717,10 +718,12 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 ### 9.1 短期 (1-2 周可完成)
 
-- [ ] 扩展 Pyodide 真运行覆盖范围到 KNN、决策树和更多练习题
+- [ ] 增加 Playwright E2E 测试，覆盖完整学习闭环
+- [x] Pyodide Worker 覆盖全部 4 个算法核心练习
 - [x] 管理员可添加/编辑/删除练习题和测验题
-- [ ] 增加更多预设 AI Mock 回复变体
-- [ ] 代码分割优化首屏加载
+- [x] React.lazy 代码分割（主包 86KB）
+- [ ] 优化 Pyodide 首次加载体验：预热、加载进度
+- [ ] 增加综合测验和项目式练习
 - [ ] 添加暗色模式
 
 ### 9.2 中期 (1 个月)
