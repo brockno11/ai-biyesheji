@@ -714,17 +714,35 @@ npm run preview
 
 ### 10.3 可选：开启真实 DeepSeek API
 
-```bash
-# Windows PowerShell
-$env:DEEPSEEK_API_KEY="sk-your-key"
-$env:DEEPSEEK_BASE_URL="https://api.deepseek.com"
-$env:DEEPSEEK_MODEL="deepseek-v4-flash"
-$env:AI_ENABLE_MOCK_FALLBACK="true"
-npm run dev
+**推荐方式：创建 `.env` 文件**（项目已提供 `.env.example` 模板）
 
-# Linux / macOS
-DEEPSEEK_API_KEY=sk-your-key DEEPSEEK_BASE_URL=https://api.deepseek.com DEEPSEEK_MODEL=deepseek-v4-flash AI_ENABLE_MOCK_FALLBACK=true npm run dev
+```env
+# 在项目根目录创建 .env 文件
+DEEPSEEK_API_KEY=sk-your-key-here
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-v4-flash
+AI_ENABLE_MOCK_FALLBACK=true
 ```
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `DEEPSEEK_API_KEY` | DeepSeek API Key（为空则走 Mock） | 空 |
+| `DEEPSEEK_BASE_URL` | API 地址 | `https://api.deepseek.com` |
+| `DEEPSEEK_MODEL` | 模型名 | `deepseek-v4-flash` |
+| `AI_ENABLE_MOCK_FALLBACK` | API 失败时自动降级 Mock | `true` |
+
+安全注意：
+- `.env` 已加入 `.gitignore`，不会被提交到 GitHub
+- API Key 只存在于本地，前端代码无法访问
+- 后端通过 `server/services/deepseekService.ts` 读取环境变量，前端通过 `/api/ai/chat` 代理调用
+
+验证连通性：
+```bash
+curl -X POST http://localhost:8787/api/ai/chat \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"Hello"}],"maxTokens":100}'
+```
+返回 `"ok":true,"mode":"deepseek"` 即表示连通。
 
 ---
 
@@ -824,6 +842,64 @@ generateCourseDraft(context)
 5. 进入测验页，答题并提交，点击“AI 讲解我的错题”。
 6. 进入学习中心，展示 AI 学习路径推荐。
 7. 进入个人中心 → 管理后台，展示 AI 生成课程草稿。
+
+---
+
+## 十三、Agent 交接备忘
+
+### 13.1 环境准备（新 Agent 首次接手）
+
+```bash
+# 1. 安装依赖
+npm install
+
+# 2. 确认 .env 存在（不存在则从 .env.example 复制）
+cp .env.example .env
+# 编辑 .env 填入真实 API Key
+
+# 3. 启动项目
+npm run dev
+
+# 4. 验证构建
+npx tsc --noEmit && npx vite build
+```
+
+### 13.2 项目文件速查
+
+| 想了解 | 看这里 |
+|--------|--------|
+| 项目是什么、怎么跑 | `README.md` |
+| 完整技术文档 | `DOCS.md` |
+| AI Agent Skills 清单 | `SKILLS.md` |
+| 前端路由 | `src/App.tsx` |
+| 全局类型定义 | `src/types/index.ts` |
+| 静态课程数据 | `src/data/algorithms.ts` |
+| AI 服务入口 | `src/services/aiService.ts` |
+| AI 类型定义 | `src/services/aiTypes.ts` |
+| AI Prompt 模板 | `src/services/aiPromptService.ts` |
+| AI Mock 数据 | `src/services/aiMockService.ts` |
+| 后端入口 | `server/index.ts` |
+| DeepSeek API 调用 | `server/services/deepseekService.ts` |
+| 后端路由 | `server/routes/ai.ts` |
+| 环境变量模板 | `.env.example` |
+
+### 13.3 已知注意事项
+
+- **模型 `deepseek-v4-flash` 是推理模型**，后端默认 `thinking: disabled`。仅在 JSON 模式（代码诊断/错题讲解等）启用 thinking。不要去掉这个默认值，否则简单问答会返回空响应。
+- **`.env` 已 gitignore**，新 Agent 需自行创建。
+- **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
+- **Mock 覆盖范围**：所有 11 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
+- **10 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
+- **代码检查** 仅作关键词匹配（`codeCheckService.ts`），不真实执行 Python。
+- **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
+
+### 13.4 最近更新（2026-05-09）
+
+| 提交 | 内容 |
+|------|------|
+| `cf2e421` | 修复 DeepSeek thinking 参数、移除无效 reasoningEffort、代码质量优化 |
+| `0239f87` | AI 模块升级、10 个 Skills、文档对齐 |
+| `4bcfcd3` | 文档更新和导航优化 |
 
 ---
 

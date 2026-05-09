@@ -168,3 +168,26 @@ npx -y @lobehub/market-cli skills install openclaw-skills-api-designer --agent c
 | React Router v6 | react, senior-frontend |
 | 教学功能 | add-educational-comments |
 | 测试 | senior-qa |
+
+---
+
+## Agent 使用建议
+
+### 开发时优先调用的 Skills
+
+| 场景 | 推荐 Skill | 调用方式 |
+|------|-----------|----------|
+| 新建 React 组件/页面 | `senior-frontend` | `/senior-frontend` |
+| 设计 UI 样式 | `frontend-design` 或 `frontend-ui-ux` | `/frontend-design` |
+| 编写后端 API | `fullstack-dev` | `/fullstack-dev` |
+| 代码审查 | `frontend-code-review` | `/frontend-code-review` |
+| 编写测试 | `senior-qa` | `/senior-qa` |
+| 设计 API 接口 | `api-designer` | `/api-designer` |
+| 图表/可视化 | `data-viz-2025` | `/data-viz-2025` |
+| 添加教学注释 | `add-educational-comments` | `/add-educational-comments` |
+
+### 注意事项
+
+- `react` skill 面向 LobeHub 生态（`@lobehub/ui`、Next.js 路由），**与本项目技术栈不完全匹配**，仅作参考。
+- `frontend-design` 和 `frontend-ui-ux` 功能相近，日常开发用 `frontend-design`，需要极度注重视觉细节时用 `frontend-ui-ux`。
+- 所有 skills 文件位于 `.claude/skills/`，新 Agent 无需重新下载。
