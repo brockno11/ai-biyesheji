@@ -48,6 +48,7 @@ describe('storageService', () => {
       useCases: [],
       formula: '',
       codeExample: '',
+    videoUrl: '',
     });
 
     const courses = storageService.getCustomCourses();

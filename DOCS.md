@@ -975,7 +975,7 @@ npx tsc --noEmit && npx vite build
 
 | 提交 | 内容 |
 |------|------|
-| 当前工作区 | 14 个 Vitest 测试（首页/算法页/代码检查/AI Mock/AI fallback/测验/localStorage）；测试脚本 `npm test` |
+| 当前工作区 | Pyodide Worker 多算法支持；Zod 数据校验；React.lazy 代码拆分（主包 86KB）；bundle 分析脚本 |
 | `2608c8f` | K-Means 课程与可视化；Pyodide 真运行；练习 8 道，测验 32 道；题库管理后台；代码注释过滤 |
 | `e19f841` | 文档 Agent 交接更新 |
 | `cf2e421` | 修复 DeepSeek thinking 参数、代码质量优化 |

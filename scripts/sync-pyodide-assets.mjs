@@ -7,6 +7,7 @@ const sourceDir = join(root, 'node_modules', 'pyodide');
 const targetDir = join(root, 'public', 'pyodide');
 
 const files = [
+  'pyodide.js',
   'pyodide.asm.js',
   'pyodide.asm.wasm',
   'pyodide-lock.json',

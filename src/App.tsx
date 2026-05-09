@@ -1,25 +1,83 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+
+// HomePage loaded eagerly for instant landing page
 import HomePage from './pages/HomePage';
-import AlgorithmPage from './pages/AlgorithmPage';
-import PracticePage from './pages/PracticePage';
-import QuizPage from './pages/QuizPage';
-import ProgressPage from './pages/ProgressPage';
-import ProfilePage from './pages/ProfilePage';
-import AdminPage from './pages/AdminPage';
+
+// Lazy-loaded pages for code splitting
+const AlgorithmPage = lazy(() => import('./pages/AlgorithmPage'));
+const PracticePage = lazy(() => import('./pages/PracticePage'));
+const QuizPage = lazy(() => import('./pages/QuizPage'));
+const ProgressPage = lazy(() => import('./pages/ProgressPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+
+function PageLoader() {
+  return (
+    <div className="flex h-96 items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+        <span className="text-sm text-slate-500">页面加载中...</span>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route
+          path="/profile"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <ProfilePage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <AdminPage />
+            </Suspense>
+          }
+        />
         <Route element={<Layout />}>
-          <Route path="/algorithms/:id" element={<AlgorithmPage />} />
-          <Route path="/practice/:algorithmId" element={<PracticePage />} />
-          <Route path="/quiz/:algorithmId" element={<QuizPage />} />
-          <Route path="/progress" element={<ProgressPage />} />
+          <Route
+            path="/algorithms/:id"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <AlgorithmPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/practice/:algorithmId"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <PracticePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/quiz/:algorithmId"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <QuizPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/progress"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <ProgressPage />
+              </Suspense>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

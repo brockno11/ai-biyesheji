@@ -15,6 +15,8 @@ export interface Algorithm {
   icon: string;
 }
 
+import type { PythonRuntimeSpec } from '../services/aiTypes';
+
 export interface Exercise {
   id: string;
   algorithmId: string;
@@ -25,6 +27,7 @@ export interface Exercise {
   starterCode: string;
   expectedKeywords: string[];
   checkRules: CheckRule[];
+  runtimeSpec?: PythonRuntimeSpec;
 }
 
 export interface CheckRule {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Play, CheckCircle2, BookOpen, Lightbulb } from 'lucide-react';
 import { getAlgorithmById } from '../data/algorithms';
@@ -45,6 +45,22 @@ export default function PracticePage() {
       setAiFallbackReason(undefined);
     }
   }, [exercise]);
+
+  const pythonStatusText = useMemo(() => {
+    if (!pythonRunning) return null;
+    if (pythonEvents.length === 0) return 'Python 环境准备中...';
+    const latest = pythonEvents[pythonEvents.length - 1];
+    switch (latest.phase) {
+      case 'booting': return '启动 Python 运行时...';
+      case 'loading-packages': return '加载 Python 包...';
+      case 'executing': return '执行代码中...';
+      case 'testing': return '运行自动测试...';
+      case 'complete': return '运行完成';
+      case 'failed': return '运行失败';
+      case 'unsupported': return '暂未覆盖';
+      default: return '运行中...';
+    }
+  }, [pythonRunning, pythonEvents]);
 
   if (!algorithm || !exercise) {
     return (

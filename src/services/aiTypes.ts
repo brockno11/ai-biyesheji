@@ -54,6 +54,14 @@ export type AIRequestContext = {
   };
 };
 
+export type PythonRuntimeSpec = {
+  packages?: string[];         // e.g. ['numpy', 'scikit-learn']
+  setupCode?: string;          // imports, data prep
+  testCode?: string;           // verification script
+  expectedVariables?: string[];// variables to extract from globals
+  timeoutMs?: number;          // default 15000
+};
+
 export type PythonRunStatus = 'success' | 'error' | 'unsupported';
 
 export type PythonRuntimePhase =

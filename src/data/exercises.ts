@@ -87,6 +87,25 @@ print(f"R²: {r2:.3f}")`,
         points: 20,
       },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      testCode: `
+required = ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'coef_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if len(y_pred) != len(y_test):
+    raise AssertionError("y_pred 长度应与 y_test 一致")
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+assert float(r2) >= 0.7, f"R² 偏低 ({float(r2):.3f})，请检查代码"
+print(f"测试通过：MSE={float(mse):.2f}, R²={float(r2):.3f}")
+      `,
+      expectedVariables: ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'lr-ex-2',
@@ -282,6 +301,25 @@ for k in [1, 3, 5, 7, 9, 11, 15]:
         points: 20,
       },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      testCode: `
+required = ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'classes_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if len(y_pred) != len(y_test):
+    raise AssertionError("y_pred 长度应与 y_test 一致")
+from sklearn.metrics import accuracy_score as _acc
+acc = _acc(y_test, y_pred)
+assert acc >= 0.5, f"准确率偏低 ({acc:.2%})，请检查代码"
+print(f"测试通过：准确率={acc:.2%}")
+      `,
+      expectedVariables: ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'dt-ex-1',
@@ -395,6 +433,25 @@ print("\\n提示：观察 max_depth 对模型性能的影响！")`,
         points: 15,
       },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      testCode: `
+required = ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'tree_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if len(y_pred) != len(y_test):
+    raise AssertionError("y_pred 长度应与 y_test 一致")
+from sklearn.metrics import accuracy_score as _acc
+acc = _acc(y_test, y_pred)
+assert acc >= 0.5, f"准确率偏低 ({acc:.2%})，请检查代码"
+print(f"测试通过：准确率={acc:.2%}，树深度={model.get_depth()}")
+      `,
+      expectedVariables: ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'knn-ex-2',
@@ -541,6 +598,22 @@ print("每个簇的样本数量:", np.bincount(labels))`,
       { type: 'keyword', keyword: 'cluster_centers_', description: '查看聚类中心', points: 20 },
       { type: 'keyword', keyword: 'bincount', description: '统计簇内样本数', points: 10 },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      testCode: `
+required = ['model', 'labels', 'centers']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'cluster_centers_'):
+    raise AssertionError("model 还没有完成聚类训练")
+assert len(set(labels)) >= 2, "聚类数量应至少为 2"
+assert len(centers) >= 2, "聚类中心数量不正确"
+print(f"测试通过：{len(centers)} 个聚类中心，inertia={model.inertia_:.2f}")
+      `,
+      expectedVariables: ['model', 'labels', 'centers'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'km-ex-2',

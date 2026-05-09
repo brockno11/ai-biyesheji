@@ -1,13 +1,85 @@
-import type { PyodideAPI } from 'pyodide';
+/**
+ * Python Runtime Service
+ *
+ * Manages a Pyodide Web Worker to run Python exercises off the main thread.
+ * Falls back to unsupported-result when an exercise has no runtimeSpec.
+ */
+
 import type { Exercise } from '../types';
-import type { PythonRunResult, PythonRuntimeEvent, PythonRuntimePhase } from './aiTypes';
+import type { PythonRunResult, PythonRuntimeEvent } from './aiTypes';
 
-const PYODIDE_ASSET_URL = '/pyodide/';
-const PYODIDE_PACKAGE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.29.4/full/';
-const PYTHON_TIMEOUT_MS = 15000;
+// ── Constants ──
 
-let pyodidePromise: Promise<PyodideAPI> | null = null;
-let packagePromise: Promise<void> | null = null;
+const DEFAULT_TIMEOUT_MS = 15000;
+let nextRequestId = 0;
+
+// ── Worker Management ──
+
+let worker: Worker | null = null;
+let workerReady = false;
+// Store the resolve function for the ready promise so multiple callers can await it
+let workerReadyResolvers: Array<() => void> = [];
+
+function createWorker(): Worker {
+  const w = new Worker(
+    new URL('../workers/pyodideWorker.ts', import.meta.url),
+    { type: 'classic' }
+  );
+
+  w.onmessage = (event: MessageEvent) => {
+    if (event.data?.type === 'ready') {
+      workerReady = true;
+      const resolvers = workerReadyResolvers;
+      workerReadyResolvers = [];
+      resolvers.forEach((resolve) => resolve());
+    }
+    // Other messages are handled per-request via dedicated listeners
+  };
+
+  w.onerror = (err) => {
+    console.error('[PythonRuntime] Worker error:', err);
+    workerReady = false;
+  };
+
+  return w;
+}
+
+function getWorker(): Worker {
+  if (!worker) {
+    worker = createWorker();
+  }
+  return worker;
+}
+
+async function ensureWorkerReady(): Promise<Worker> {
+  const w = getWorker();
+  if (workerReady) return w;
+
+  return new Promise<Worker>((resolve) => {
+    workerReadyResolvers.push(() => resolve(w));
+    // Timeout: if worker never signals ready, resolve anyway after 5s
+    setTimeout(() => {
+      if (!workerReady) {
+        console.warn('[PythonRuntime] Worker ready signal timed out, proceeding anyway');
+        workerReady = true;
+        const resolvers = workerReadyResolvers;
+        workerReadyResolvers = [];
+        resolvers.forEach((r) => r());
+      }
+    }, 5000);
+  });
+}
+
+function terminateWorker() {
+  if (worker) {
+    worker.terminate();
+    worker = null;
+    workerReady = false;
+    workerReadyResolvers = [];
+  }
+}
+
+// ── Event Collector ──
 
 type RunOptions = {
   onEvent?: (event: PythonRuntimeEvent) => void;
@@ -18,15 +90,24 @@ function createEventCollector(onEvent?: (event: PythonRuntimeEvent) => void) {
 
   return {
     events,
-    push(phase: PythonRuntimePhase, message: string, level: PythonRuntimeEvent['level'] = 'info') {
-      const event = { phase, message, level, timestamp: Date.now() };
+    push(
+      phase: PythonRuntimeEvent['phase'],
+      message: string,
+      level: PythonRuntimeEvent['level'] = 'info'
+    ) {
+      const event: PythonRuntimeEvent = { phase, message, level, timestamp: Date.now() };
       events.push(event);
       onEvent?.(event);
     },
   };
 }
 
-function unsupportedResult(message: string): PythonRunResult {
+// ── Unsupported Result Helper ──
+
+function unsupportedResult(
+  message: string,
+  events?: PythonRuntimeEvent[]
+): PythonRunResult {
   return {
     supported: false,
     status: 'unsupported',
@@ -35,122 +116,11 @@ function unsupportedResult(message: string): PythonRunResult {
     durationMs: 0,
     tests: [],
     details: [message],
+    events,
   };
 }
 
-async function getPyodide() {
-  if (!pyodidePromise) {
-    pyodidePromise = import('pyodide').then(({ loadPyodide }) =>
-      loadPyodide({
-        indexURL: PYODIDE_ASSET_URL,
-        packageBaseUrl: PYODIDE_PACKAGE_URL,
-        stdout: () => undefined,
-        stderr: () => undefined,
-      })
-    );
-  }
-  try {
-    return await pyodidePromise;
-  } catch (error) {
-    pyodidePromise = null;
-    throw error;
-  }
-}
-
-async function ensureMlPackages(pyodide: PyodideAPI, progress?: ReturnType<typeof createEventCollector>) {
-  if (!packagePromise) {
-    packagePromise = pyodide
-      .loadPackage(['numpy', 'scikit-learn'], {
-        messageCallback: (message) => {
-          console.info('[Pyodide]', message);
-          progress?.push('loading-packages', message);
-        },
-        errorCallback: (message) => {
-          console.warn('[Pyodide]', message);
-          progress?.push('loading-packages', message, 'warning');
-        },
-      })
-      .then(() => undefined);
-  }
-  try {
-    return await packagePromise;
-  } catch (error) {
-    packagePromise = null;
-    throw error;
-  }
-}
-
-function linearRegressionTestCode(exerciseId: string) {
-  if (exerciseId === 'lr-ex-2') {
-    return `
-
-print("\\n--- Pyodide 自动测试 ---")
-required_names = ["model", "X_train", "X_test", "y_train", "y_test", "y_pred", "r2"]
-missing = [name for name in required_names if name not in globals()]
-if missing:
-    raise AssertionError("缺少变量: " + ", ".join(missing))
-if not hasattr(model, "coef_"):
-    raise AssertionError("model 还没有完成 fit 训练")
-if len(y_pred) != len(y_test):
-    raise AssertionError("y_pred 的长度应当和 y_test 一致")
-if len(model.coef_) != 4:
-    raise AssertionError("多元线性回归应当保留 4 个特征系数")
-if float(r2) < 0.85:
-    raise AssertionError(f"R2 偏低，当前为 {float(r2):.3f}，请检查数据划分、训练和预测流程")
-print(f"测试通过：特征系数数量={len(model.coef_)}, R2={float(r2):.3f}")
-`;
-  }
-
-  return `
-
-print("\\n--- Pyodide 自动测试 ---")
-required_names = ["model", "X_train", "X_test", "y_train", "y_test", "y_pred", "mse", "r2"]
-missing = [name for name in required_names if name not in globals()]
-if missing:
-    raise AssertionError("缺少变量: " + ", ".join(missing))
-if not hasattr(model, "coef_"):
-    raise AssertionError("model 还没有完成 fit 训练")
-if len(y_pred) != len(y_test):
-    raise AssertionError("y_pred 的长度应当和 y_test 一致")
-if float(mse) >= 1000:
-    raise AssertionError(f"MSE 偏高，当前为 {float(mse):.2f}，请检查训练或预测代码")
-if float(r2) <= 0.8:
-    raise AssertionError(f"R2 偏低，当前为 {float(r2):.3f}，请检查模型是否正确训练")
-print(f"测试通过：预测数量={len(y_pred)}, MSE={float(mse):.2f}, R2={float(r2):.3f}")
-`;
-}
-
-function buildRuntimeScript(exercise: Exercise, userCode: string) {
-  if (exercise.algorithmId !== 'linear-regression') {
-    return null;
-  }
-
-  return {
-    tests: [
-      '执行学生 Python 代码',
-      '检查关键训练变量是否存在',
-      '验证模型已完成 fit 训练',
-      '验证预测长度和评估指标是否合理',
-    ],
-    code: `${userCode}\n${linearRegressionTestCode(exercise.id)}`,
-  };
-}
-
-function normalizeError(error: unknown) {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
-
-function withTimeout<T>(promise: Promise<T>, ms: number) {
-  let timeoutId: number | undefined;
-  const timeout = new Promise<T>((_, reject) => {
-    timeoutId = window.setTimeout(() => reject(new Error(`Python 运行超时（${ms / 1000} 秒）`)), ms);
-  });
-
-  return Promise.race<T>([promise, timeout]).finally(() => {
-    if (timeoutId) window.clearTimeout(timeoutId);
-  });
-}
+// ── Main API ──
 
 export async function runPythonExercise(
   exercise: Exercise,
@@ -158,70 +128,137 @@ export async function runPythonExercise(
   options: RunOptions = {}
 ): Promise<PythonRunResult> {
   const progress = createEventCollector(options.onEvent);
-  const runtimeScript = buildRuntimeScript(exercise, userCode);
-  if (!runtimeScript) {
-    progress.push('unsupported', '当前题目暂未接入 Pyodide 固定测试。', 'warning');
-    return {
-      ...unsupportedResult('当前浏览器端 Python 真运行先覆盖线性回归练习；本题仍使用规则检查和 AI 诊断。'),
-      events: progress.events,
-    };
+  const runtimeSpec = exercise.runtimeSpec;
+  const requestId = nextRequestId++;
+
+  // If no runtimeSpec, fall back to unsupported (keep existing behavior)
+  if (!runtimeSpec) {
+    progress.push(
+      'unsupported',
+      '当前题目暂未开启真运行，仍可使用规则检查和 AI 诊断。',
+      'warning'
+    );
+    return unsupportedResult(
+      '当前题目暂未开启真运行，仍可使用规则检查和 AI 诊断。',
+      progress.events
+    );
   }
+
+  progress.push('booting', '正在准备 Python 运行环境...');
 
   const startedAt = performance.now();
-  const stdout: string[] = [];
-  const stderr: string[] = [];
+  const timeoutMs = runtimeSpec.timeoutMs || DEFAULT_TIMEOUT_MS;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let settled = false;
 
-  try {
-    progress.push('booting', '正在启动浏览器端 Python 运行时。');
-    const pyodide = await getPyodide();
-    progress.push('loading-packages', '正在加载 numpy 和 scikit-learn。');
-    await ensureMlPackages(pyodide, progress);
-    progress.push('executing', '正在执行学生代码。');
+  return new Promise<PythonRunResult>((resolve) => {
+    // ── Timeout ──
+    timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      terminateWorker();
+      progress.push('failed', `Python 运行超时（${timeoutMs / 1000} 秒）`, 'error');
+      resolve({
+        supported: true,
+        status: 'error',
+        passed: false,
+        output: '',
+        error: `运行超时（${timeoutMs / 1000} 秒），Worker 已被终止。请检查代码是否有死循环或处理的数据量是否过大。`,
+        durationMs: Math.round(performance.now() - startedAt),
+        tests: ['运行超时'],
+        details: ['代码执行超过时间限制，Worker 已终止。'],
+        events: progress.events,
+      });
+    }, timeoutMs);
 
-    pyodide.setStdout({ batched: (message) => stdout.push(message) });
-    pyodide.setStderr({ batched: (message) => stderr.push(message) });
+    // ── Send execute message to Worker ──
+    ensureWorkerReady()
+      .then((w) => {
+        if (settled) return; // Already timed out
 
-    // Note 1: Each run gets a fresh Python globals dictionary so variables from a previous attempt cannot hide mistakes in the current code.
-    const globals = pyodide.runPython('dict()');
-    try {
-      progress.push('testing', '正在运行固定测试用例。');
-      await withTimeout(
-        pyodide.runPythonAsync(runtimeScript.code, {
-          globals,
-          filename: `<${exercise.id}.py>`,
-        }),
-        PYTHON_TIMEOUT_MS
-      );
-    } finally {
-      globals.destroy?.();
-    }
+        const resultHandler = (event: MessageEvent) => {
+          const data = event.data;
+          if (!data || data.requestId !== requestId) return; // Not our response
 
-    progress.push('complete', 'Python 执行和固定测试均已通过。', 'success');
-    return {
-      supported: true,
-      status: 'success',
-      passed: true,
-      output: stdout.join('\n').trim() || '代码已运行，未捕获到 print 输出。',
-      durationMs: Math.round(performance.now() - startedAt),
-      tests: runtimeScript.tests,
-      details: ['Pyodide 已完成 Python 代码执行和固定测试。'],
-      events: progress.events,
-      packageSource: PYODIDE_PACKAGE_URL,
-    };
-  } catch (error) {
-    console.error('[PythonRuntime] Python execution failed:', error);
-    progress.push('failed', 'Python 执行或固定测试失败。', 'error');
-    return {
-      supported: true,
-      status: 'error',
-      passed: false,
-      output: stdout.join('\n').trim(),
-      error: [stderr.join('\n').trim(), normalizeError(error)].filter(Boolean).join('\n'),
-      durationMs: Math.round(performance.now() - startedAt),
-      tests: runtimeScript.tests,
-      details: ['Python 执行或自动测试失败，AI 会结合报错给出修改方向。'],
-      events: progress.events,
-      packageSource: PYODIDE_PACKAGE_URL,
-    };
-  }
+          if (data.type === 'progress') {
+            progress.push(
+              data.phase,
+              data.message,
+              data.phase === 'failed' ? 'error' : 'info'
+            );
+            return;
+          }
+
+          if (data.type === 'result') {
+            if (settled) return;
+            settled = true;
+            if (timeoutId) clearTimeout(timeoutId);
+            w.removeEventListener('message', resultHandler);
+
+            const durationMs = data.durationMs || Math.round(performance.now() - startedAt);
+            const hasError = !!data.error;
+            const wasCancelled =
+              hasError && data.error.includes('Execution cancelled');
+
+            if (hasError && !wasCancelled) {
+              progress.push('failed', 'Python 执行或测试失败', 'error');
+            } else if (!hasError) {
+              progress.push('complete', 'Python 执行和测试完成', 'success');
+            }
+
+            resolve({
+              supported: true,
+              status: hasError && !wasCancelled ? 'error' : 'success',
+              passed: !hasError,
+              output: data.output || '',
+              error: data.error,
+              durationMs,
+              tests: data.tests || [],
+              details: [
+                hasError
+                  ? 'Python 执行或自动测试失败，AI 会结合报错给出修改方向。'
+                  : 'Python 代码已成功执行并通过自动测试。',
+                ...(data.packagesLoaded?.length
+                  ? [`已加载 Python 包: ${data.packagesLoaded.join(', ')}`]
+                  : []),
+              ],
+              events: progress.events,
+              packageSource: 'Pyodide Web Worker',
+            });
+          }
+        };
+
+        w.addEventListener('message', resultHandler);
+
+        // If already settled (edge case), clean up
+        if (settled) {
+          w.removeEventListener('message', resultHandler);
+          return;
+        }
+
+        w.postMessage({
+          type: 'execute',
+          code: userCode,
+          runtimeSpec,
+          requestId,
+        });
+      })
+      .catch((err) => {
+        if (settled) return;
+        settled = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        progress.push('failed', 'Worker 创建失败', 'error');
+        resolve({
+          supported: true,
+          status: 'error',
+          passed: false,
+          output: '',
+          error: `Worker 创建失败: ${err instanceof Error ? err.message : String(err)}`,
+          durationMs: Math.round(performance.now() - startedAt),
+          tests: [],
+          details: ['Web Worker 初始化失败，请刷新页面后重试。'],
+          events: progress.events,
+        });
+      });
+  });
 }

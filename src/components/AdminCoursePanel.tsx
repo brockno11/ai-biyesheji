@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Plus, Pencil, Trash2, Save, X, Search, Eye, AlertTriangle, CheckCircle2, GraduationCap, Sparkles,
+  Plus, Pencil, Trash2, Save, X, Search, Eye, AlertTriangle, CheckCircle2, GraduationCap,
+  Sparkles, Download, Upload,
 } from 'lucide-react';
 import { algorithms as staticAlgorithms } from '../data/algorithms';
 import { storageService } from '../services/storageService';
 import { aiService } from '../services/aiService';
+import { validateAlgorithm, flattenZodErrors } from '../services/validationService';
 import type { Algorithm } from '../types';
 
 const DEFAULT_ICONS = ['📈', '🎯', '🌳', '🧠', '🤖', '📊', '🔍', '💡', '⚡', '🔬', '📐', '🎓'];
@@ -40,6 +42,9 @@ export default function AdminCoursePanel() {
     keywords: '',
   });
   const [draftLoading, setDraftLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [previewCourse, setPreviewCourse] = useState<Algorithm | null>(null);
+  const importFileRef = useRef<HTMLInputElement>(null);
 
   const allCourses = [...staticAlgorithms, ...customCourses];
   const staticIds = new Set(staticAlgorithms.map((a) => a.id));
@@ -74,10 +79,13 @@ export default function AdminCoursePanel() {
   };
 
   const handleSave = () => {
-    if (!form.name.trim() || !form.intro.trim()) {
-      showToast('error', '请至少填写课程名称和简介');
+    const result = validateAlgorithm(form);
+    if (!result.success) {
+      setFieldErrors(flattenZodErrors(result));
+      showToast('error', '请检查表单中的错误');
       return;
     }
+    setFieldErrors({});
     storageService.saveCustomCourse(form);
     setCustomCourses(storageService.getCustomCourses());
     setShowForm(false);

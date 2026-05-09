@@ -25,6 +25,7 @@ describe('aiService fallback to Mock', () => {
         useCases: [],
         formula: '',
         codeExample: '',
+    videoUrl: '',
       },
     });
 

@@ -17,6 +17,7 @@ const context: AIRequestContext = {
     useCases: [],
     formula: 'y = wx + b',
     codeExample: '',
+    videoUrl: '',
   },
 };
 
