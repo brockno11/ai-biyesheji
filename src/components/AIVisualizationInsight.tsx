@@ -4,6 +4,7 @@ import { aiService } from '../services/aiService';
 import type { Algorithm } from '../types';
 import type { AIMode } from '../services/aiTypes';
 import AIModeBadge from './AIModeBadge';
+import AITextRenderer from './AITextRenderer';
 
 interface Props {
   algorithm?: Algorithm;
@@ -38,7 +39,8 @@ export default function AIVisualizationInsight({ algorithm, visualState }: Props
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
           <Sparkles className="h-4 w-4 text-primary-600" />
@@ -55,8 +57,12 @@ export default function AIVisualizationInsight({ algorithm, visualState }: Props
           </button>
         </div>
       </div>
-      {text && <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{text}</p>}
+      </div>
+      {text && (
+        <div className="border-t border-slate-100 p-4">
+          <AITextRenderer text={text} />
+        </div>
+      )}
     </div>
   );
 }
-

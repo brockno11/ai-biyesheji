@@ -8,12 +8,21 @@ import VideoEmbed from '../components/VideoEmbed';
 import LinearRegressionViz from '../components/LinearRegressionViz';
 import KNNViz from '../components/KNNViz';
 import DecisionTreeViz from '../components/DecisionTreeViz';
+import KMeansViz from '../components/KMeansViz';
 import type { Algorithm } from '../types';
 
 const vizComponents: Record<string, React.ComponentType<{ algorithm?: Algorithm }>> = {
   'linear-regression': LinearRegressionViz,
   knn: KNNViz,
   'decision-tree': DecisionTreeViz,
+  'k-means': KMeansViz,
+};
+
+const categoryLabels: Record<Algorithm['category'], string> = {
+  regression: '回归算法',
+  classification: '分类算法',
+  tree: '树形算法',
+  clustering: '聚类算法',
 };
 
 export default function AlgorithmPage() {
@@ -63,8 +72,7 @@ export default function AlgorithmPage() {
                     {algorithm.difficulty}
                   </span>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                    {algorithm.category === 'regression' ? '回归算法' :
-                     algorithm.category === 'classification' ? '分类算法' : '树形算法'}
+                    {categoryLabels[algorithm.category]}
                   </span>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{algorithm.name}</h1>
@@ -150,13 +158,15 @@ export default function AlgorithmPage() {
           </div>
 
           {/* Video */}
-          <div className="app-card p-6">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
-              <Play className="w-5 h-5 text-red-500" />
-              B 站教学视频
-            </h2>
-            <VideoEmbed url={algorithm.videoUrl} title={`${algorithm.name} - B站视频教程`} />
-          </div>
+          {algorithm.videoUrl && (
+            <div className="app-card p-6">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
+                <Play className="w-5 h-5 text-red-500" />
+                B 站教学视频
+              </h2>
+              <VideoEmbed url={algorithm.videoUrl} title={`${algorithm.name} - B站视频教程`} />
+            </div>
+          )}
 
           {/* Visualization */}
           {VizComponent && (

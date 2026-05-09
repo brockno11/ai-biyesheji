@@ -6,6 +6,7 @@ import {
 import Header from '../components/Header';
 import { useCourses } from '../hooks/useCourses';
 import { storageService } from '../services/storageService';
+import { getAllExercises, getAllQuizQuestions } from '../data/exercises';
 
 const features = [
   {
@@ -27,24 +28,23 @@ const features = [
   {
     icon: Code2,
     title: '在线代码练习',
-    desc: '内置 Monaco Editor，在线编写 Python 代码。智能规则检查即时反馈，指出缺失的 API 和需要改进的地方，在实践中掌握技能。',
+    desc: '内置 Monaco Editor，在线编写 Python 代码。规则检查、Pyodide 真运行和 AI 诊断联动，既看 API 是否完整，也看代码能否真正跑通。',
     color: 'from-emerald-500 to-teal-600',
     bg: 'bg-emerald-50',
-    points: ['Monaco 编辑器', '关键词检查', '即时评分', 'AI 反馈'],
+    points: ['Monaco 编辑器', 'Pyodide 真运行', '即时评分', 'AI 反馈'],
   },
-];
-
-const stats = [
-  { icon: BookOpen, label: '核心算法', value: '3', unit: '个' },
-  { icon: Code2, label: '代码练习', value: '4', unit: '题' },
-  { icon: Target, label: '测验题目', value: '15', unit: '道' },
-  { icon: Bot, label: 'AI 助教', value: '24h', unit: '待命' },
 ];
 
 export default function HomePage() {
   const algorithms = useCourses();
   const progress = storageService.getProgress();
   const completedCount = progress.completedAlgorithms.length;
+  const stats = [
+    { icon: BookOpen, label: '核心算法', value: String(algorithms.length), unit: '个' },
+    { icon: Code2, label: '代码练习', value: String(getAllExercises().length), unit: '题' },
+    { icon: Target, label: '测验题目', value: String(getAllQuizQuestions().length), unit: '道' },
+    { icon: Bot, label: 'AI 助教', value: '24h', unit: '待命' },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -169,11 +169,11 @@ export default function HomePage() {
               精选核心算法，循序渐进
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              从最基础的线性回归开始，逐步深入到 KNN 和决策树，每门课都配有完整的可视化与练习
+              从线性回归、KNN、决策树到 K-Means 聚类，覆盖监督学习和无监督学习的核心入门路径
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
             {algorithms.map((algo, i) => {
               const completed = storageService.isCompleted(algo.id);
               const bestScore = storageService.getBestScore(algo.id);
@@ -183,6 +183,7 @@ export default function HomePage() {
                 regression: 'from-blue-500 to-blue-600',
                 classification: 'from-amber-500 to-orange-600',
                 tree: 'from-emerald-500 to-green-600',
+                clustering: 'from-fuchsia-500 to-purple-600',
               };
 
               const diffColors: Record<string, string> = {

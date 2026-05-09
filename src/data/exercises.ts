@@ -1,4 +1,5 @@
 import type { Exercise, QuizQuestion } from '../types';
+import { storageService } from '../services/storageService';
 
 export const exercises: Exercise[] = [
   {
@@ -395,6 +396,189 @@ print("\\n提示：观察 max_depth 对模型性能的影响！")`,
       },
     ],
   },
+  {
+    id: 'knn-ex-2',
+    algorithmId: 'knn',
+    title: 'KNN 特征缩放对比实验',
+    difficulty: '中级',
+    description: '对同一组客户数据分别使用原始特征和 StandardScaler 标准化特征，比较 KNN 分类准确率变化。',
+    instructions: [
+      '导入 StandardScaler',
+      '先训练未缩放的 KNN 模型',
+      '再对训练集和测试集做标准化',
+      '训练缩放后的 KNN 模型',
+      '比较两个 accuracy_score',
+    ],
+    starterCode: `# KNN 练习：特征缩放对距离的影响
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import ???  # TODO: 导入标准化工具
+
+np.random.seed(42)
+n = 120
+age = np.concatenate([np.random.normal(45, 8, n), np.random.normal(28, 6, n)])
+income = np.concatenate([np.random.normal(4500, 700, n), np.random.normal(9000, 1200, n)])
+X = np.column_stack([age, income])
+y = np.array([0] * n + [1] * n)
+
+# TODO: 划分训练集和测试集
+# X_train, X_test, y_train, y_test = ???
+
+# TODO: 训练未缩放模型
+# raw_model = KNeighborsClassifier(n_neighbors=5)
+# raw_model.???(X_train, y_train)
+# raw_acc = accuracy_score(y_test, raw_model.???(X_test))
+
+# TODO: 标准化特征
+# scaler = ???()
+# X_train_scaled = scaler.???(X_train)
+# X_test_scaled = scaler.???(X_test)
+
+# TODO: 训练缩放后的模型
+# scaled_model = KNeighborsClassifier(n_neighbors=5)
+# scaled_model.fit(X_train_scaled, y_train)
+# scaled_acc = accuracy_score(y_test, scaled_model.predict(X_test_scaled))
+
+print(f"未缩放准确率: {raw_acc:.2%}")
+print(f"标准化后准确率: {scaled_acc:.2%}")`,
+    expectedKeywords: ['StandardScaler', 'fit_transform', 'transform', 'KNeighborsClassifier', 'accuracy_score'],
+    checkRules: [
+      { type: 'keyword', keyword: 'StandardScaler', description: '导入并使用 StandardScaler', points: 20 },
+      { type: 'keyword', keyword: 'fit_transform', description: '对训练集拟合并转换', points: 20 },
+      { type: 'keyword', keyword: 'transform', description: '对测试集使用同一个 scaler 转换', points: 20 },
+      { type: 'keyword', keyword: 'KNeighborsClassifier', description: '训练 KNN 模型', points: 20 },
+      { type: 'keyword', keyword: 'accuracy_score', description: '比较准确率', points: 20 },
+    ],
+  },
+  {
+    id: 'dt-ex-2',
+    algorithmId: 'decision-tree',
+    title: '决策树剪枝参数实验',
+    difficulty: '中级',
+    description: '通过调整 max_depth 和 min_samples_leaf，观察决策树复杂度与泛化能力的关系。',
+    instructions: [
+      '导入 DecisionTreeClassifier',
+      '划分训练集和测试集',
+      '设置 max_depth 和 min_samples_leaf',
+      '训练并预测',
+      '输出不同参数下的准确率',
+    ],
+    starterCode: `# 决策树练习：预剪枝参数
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(7)
+n = 180
+x1 = np.random.normal(0, 1, n)
+x2 = np.random.normal(0, 1, n)
+X = np.column_stack([x1, x2])
+y = ((x1 ** 2 + x2 > 0.8) | (x1 - x2 > 1.2)).astype(int)
+
+# TODO: 划分训练集和测试集
+# X_train, X_test, y_train, y_test = ???
+
+for depth in [2, 3, 5, None]:
+    # TODO: 设置 min_samples_leaf=5，观察预剪枝效果
+    # model = DecisionTreeClassifier(max_depth=depth, min_samples_leaf=???, random_state=42)
+    # model.???(X_train, y_train)
+    # y_pred = model.???(X_test)
+    # acc = ???(y_test, y_pred)
+    print(f"max_depth={depth}: accuracy={acc:.2%}")`,
+    expectedKeywords: ['DecisionTreeClassifier', 'max_depth', 'min_samples_leaf', 'fit', 'predict', 'accuracy_score'],
+    checkRules: [
+      { type: 'keyword', keyword: 'DecisionTreeClassifier', description: '使用决策树分类器', points: 15 },
+      { type: 'keyword', keyword: 'max_depth', description: '设置最大深度', points: 15 },
+      { type: 'keyword', keyword: 'min_samples_leaf', description: '设置叶子最小样本数', points: 20 },
+      { type: 'keyword', keyword: 'fit', description: '训练模型', points: 15 },
+      { type: 'keyword', keyword: 'predict', description: '预测结果', points: 15 },
+      { type: 'keyword', keyword: 'accuracy_score', description: '评估准确率', points: 20 },
+    ],
+  },
+  {
+    id: 'km-ex-1',
+    algorithmId: 'k-means',
+    title: 'K-Means 聚类基础实现',
+    difficulty: '入门',
+    description: '使用 sklearn 的 KMeans 完成二维客户数据聚类，理解无监督学习不依赖标签的特点。',
+    instructions: [
+      '导入 KMeans',
+      '创建二维无标签数据',
+      '设置 n_clusters',
+      '使用 fit_predict 得到聚类标签',
+      '查看 cluster_centers_ 聚类中心',
+    ],
+    starterCode: `# K-Means 练习：客户分群
+import numpy as np
+from sklearn.cluster import ???  # TODO: 导入 KMeans
+
+np.random.seed(42)
+cluster_a = np.random.normal([2, 2], 0.5, size=(60, 2))
+cluster_b = np.random.normal([6, 3], 0.6, size=(60, 2))
+cluster_c = np.random.normal([4, 7], 0.7, size=(60, 2))
+X = np.vstack([cluster_a, cluster_b, cluster_c])
+
+# TODO: 创建 KMeans 模型，设置 n_clusters=3, random_state=42
+# model = ???
+
+# TODO: 使用 fit_predict 得到每个样本的簇编号
+# labels = model.???(X)
+
+# TODO: 获取聚类中心
+# centers = model.???
+
+print("聚类中心:")
+print(centers)
+print("每个簇的样本数量:", np.bincount(labels))`,
+    expectedKeywords: ['KMeans', 'n_clusters', 'fit_predict', 'cluster_centers_', 'bincount'],
+    checkRules: [
+      { type: 'keyword', keyword: 'KMeans', description: '导入并使用 KMeans', points: 25 },
+      { type: 'keyword', keyword: 'n_clusters', description: '设置聚类数量', points: 20 },
+      { type: 'keyword', keyword: 'fit_predict', description: '训练并输出聚类标签', points: 25 },
+      { type: 'keyword', keyword: 'cluster_centers_', description: '查看聚类中心', points: 20 },
+      { type: 'keyword', keyword: 'bincount', description: '统计簇内样本数', points: 10 },
+    ],
+  },
+  {
+    id: 'km-ex-2',
+    algorithmId: 'k-means',
+    title: '肘部法选择 K 值',
+    difficulty: '中级',
+    description: '计算不同 K 值下的 inertia，观察误差下降拐点，理解如何选择较合适的聚类数量。',
+    instructions: ['遍历 K=1 到 6', '训练 KMeans', '记录 inertia_', '观察下降幅度', '解释肘部位置'],
+    starterCode: `# K-Means 练习：肘部法
+import numpy as np
+from sklearn.cluster import KMeans
+
+np.random.seed(8)
+X = np.vstack([
+    np.random.normal([1, 1], 0.35, size=(50, 2)),
+    np.random.normal([5, 2], 0.45, size=(50, 2)),
+    np.random.normal([3, 6], 0.5, size=(50, 2)),
+])
+
+inertias = []
+for k in range(1, 7):
+    # TODO: 创建 KMeans，设置 n_clusters=k
+    # model = ???
+    # model.???(X)
+    # inertias.append(model.???)
+
+print("不同 K 值的 inertia:")
+for k, value in enumerate(inertias, start=1):
+    print(f"K={k}: {value:.2f}")`,
+    expectedKeywords: ['KMeans', 'n_clusters', 'fit', 'inertia_', 'inertias'],
+    checkRules: [
+      { type: 'keyword', keyword: 'KMeans', description: '使用 KMeans', points: 20 },
+      { type: 'keyword', keyword: 'n_clusters', description: '动态设置 K 值', points: 20 },
+      { type: 'keyword', keyword: 'fit', description: '训练模型', points: 20 },
+      { type: 'keyword', keyword: 'inertia_', description: '读取簇内平方和', points: 25 },
+      { type: 'keyword', keyword: 'inertias', description: '保存不同 K 的结果', points: 15 },
+    ],
+  },
 ];
 
 export const quizQuestions: Record<string, QuizQuestion[]> = {
@@ -459,6 +643,30 @@ export const quizQuestions: Record<string, QuizQuestion[]> = {
       correctIndex: 1,
       explanation: 'train_test_split 将数据集划分为训练集和测试集。训练集用于学习模型参数，测试集用于评估模型在未见过的数据上的表现（泛化能力），防止过拟合。',
     },
+    {
+      id: 'lr-quiz-6',
+      algorithmId: 'linear-regression',
+      question: '线性回归中的截距 b 通常表示什么？',
+      options: ['特征为 0 时模型的预测基准值', '模型训练轮数', '样本数量', '误差最大值'],
+      correctIndex: 0,
+      explanation: '在 y = wx + b 中，b 是截距。当 x 为 0 时，模型预测值等于 b，它可以理解为预测的基础水平。',
+    },
+    {
+      id: 'lr-quiz-7',
+      algorithmId: 'linear-regression',
+      question: '如果线性回归在训练集表现很好，但测试集表现很差，最可能说明什么？',
+      options: ['欠拟合', '过拟合', '学习率太小', '没有使用 print'],
+      correctIndex: 1,
+      explanation: '训练集好、测试集差通常说明模型过度贴合训练数据中的细节或噪声，泛化能力不足，也就是过拟合。',
+    },
+    {
+      id: 'lr-quiz-8',
+      algorithmId: 'linear-regression',
+      question: '多元线性回归相比一元线性回归，主要区别是什么？',
+      options: ['只能做分类', '可以同时使用多个特征预测目标值', '不能计算 MSE', '不需要训练数据'],
+      correctIndex: 1,
+      explanation: '多元线性回归可以使用多个输入特征，例如面积、房间数、楼层等，共同预测一个连续目标值。',
+    },
   ],
   'knn': [
     {
@@ -515,6 +723,30 @@ export const quizQuestions: Record<string, QuizQuestion[]> = {
       options: ['k', 'n_neighbors', 'n_estimators', 'neighbors'],
       correctIndex: 1,
       explanation: 'sklearn 中 KNN 分类器使用 n_neighbors 参数设置 K 值。例如：KNeighborsClassifier(n_neighbors=5)。',
+    },
+    {
+      id: 'knn-quiz-6',
+      algorithmId: 'knn',
+      question: 'KNN 预测阶段的主要计算成本来自哪里？',
+      options: ['训练神经网络权重', '计算待预测样本与训练样本的距离', '生成决策树节点', '求解线性方程'],
+      correctIndex: 1,
+      explanation: 'KNN 的训练阶段几乎只是存储数据，预测时需要计算待预测点与大量训练样本的距离，因此预测成本较高。',
+    },
+    {
+      id: 'knn-quiz-7',
+      algorithmId: 'knn',
+      question: '当 K 值设置得过大时，KNN 的决策边界通常会怎样？',
+      options: ['变得更平滑，可能欠拟合', '完全随机', '只受最近一个点影响', '一定达到 100% 准确率'],
+      correctIndex: 0,
+      explanation: 'K 值过大时，预测会受到大量邻居的平均影响，边界变平滑，但也可能忽略局部结构导致欠拟合。',
+    },
+    {
+      id: 'knn-quiz-8',
+      algorithmId: 'knn',
+      question: 'KNN 更适合下面哪类数据场景？',
+      options: ['样本特征尺度差异极大且未处理', '低维、样本量中等、类别边界相对清晰的数据', '必须解释树规则的数据', '只需要无监督聚类的数据'],
+      correctIndex: 1,
+      explanation: 'KNN 在低维、样本量中等、边界较清晰的数据上更容易取得直观效果；高维或尺度差异很大的数据需要谨慎预处理。',
     },
   ],
   'decision-tree': [
@@ -573,14 +805,119 @@ export const quizQuestions: Record<string, QuizQuestion[]> = {
       correctIndex: 1,
       explanation: 'DecisionTreeClassifier 的 criterion 参数支持 "gini"（基尼不纯度）和 "entropy"（信息熵）。两者效果相似，基尼计算稍快，信息熵对不纯度的惩罚更大。',
     },
+    {
+      id: 'dt-quiz-6',
+      algorithmId: 'decision-tree',
+      question: '决策树为什么容易过拟合？',
+      options: ['因为它不能处理分类任务', '因为树太深时会记住训练集细节和噪声', '因为它必须使用梯度下降', '因为它不能使用数值特征'],
+      correctIndex: 1,
+      explanation: '如果不限制深度或叶子节点样本数，决策树会持续划分直到非常细，容易把训练集噪声也学进去。',
+    },
+    {
+      id: 'dt-quiz-7',
+      algorithmId: 'decision-tree',
+      question: '下面哪个参数常用于限制决策树复杂度？',
+      options: ['n_neighbors', 'learning_rate', 'max_depth', 'n_clusters'],
+      correctIndex: 2,
+      explanation: 'max_depth 用于限制树的最大深度，是控制决策树复杂度、缓解过拟合的常见参数。',
+    },
+    {
+      id: 'dt-quiz-8',
+      algorithmId: 'decision-tree',
+      question: '决策树相比 KNN 的一个明显优势是什么？',
+      options: ['完全不需要数据', '预测规则更容易解释成 if-else 路径', '只能做无监督学习', '对所有数据都不会过拟合'],
+      correctIndex: 1,
+      explanation: '决策树的每条预测路径都可以解释成一组 if-else 判断，因此比 KNN 更容易向学生和业务方说明原因。',
+    },
+  ],
+  'k-means': [
+    {
+      id: 'km-quiz-1',
+      algorithmId: 'k-means',
+      question: 'K-Means 属于哪一类机器学习算法？',
+      options: ['监督学习分类算法', '无监督学习聚类算法', '强化学习算法', '深度学习生成算法'],
+      correctIndex: 1,
+      explanation: 'K-Means 不需要样本标签，它根据样本之间的距离自动形成簇，因此属于无监督学习中的聚类算法。',
+    },
+    {
+      id: 'km-quiz-2',
+      algorithmId: 'k-means',
+      question: 'K-Means 中的 K 表示什么？',
+      options: ['样本数量', '特征数量', '聚类簇的数量', '迭代轮数'],
+      correctIndex: 2,
+      explanation: 'K 表示希望算法最终划分出的簇数量。例如 K=3 表示把样本分成 3 个簇。',
+    },
+    {
+      id: 'km-quiz-3',
+      algorithmId: 'k-means',
+      question: 'K-Means 每轮迭代通常包含哪两个核心步骤？',
+      options: ['排序和剪枝', '分配样本和更新中心', '归一化和编码', '训练和反向传播'],
+      correctIndex: 1,
+      explanation: '每轮迭代先把样本分配给最近的中心，再用每个簇内样本的均值更新聚类中心。',
+    },
+    {
+      id: 'km-quiz-4',
+      algorithmId: 'k-means',
+      question: 'inertia_ 在 K-Means 中通常表示什么？',
+      options: ['分类准确率', '簇内平方和', '模型参数数量', '测试集损失'],
+      correctIndex: 1,
+      explanation: 'inertia_ 表示所有样本到其所属聚类中心的距离平方和，越小通常说明簇内更紧凑。',
+    },
+    {
+      id: 'km-quiz-5',
+      algorithmId: 'k-means',
+      question: '使用 K-Means 前，为什么常常需要做特征缩放？',
+      options: ['因为它基于距离计算', '因为它只能处理整数', '因为它必须使用 one-hot 编码', '因为它不能处理二维数据'],
+      correctIndex: 0,
+      explanation: 'K-Means 依赖距离。如果某个特征数值范围特别大，它会主导距离计算，因此常用标准化或归一化。',
+    },
+    {
+      id: 'km-quiz-6',
+      algorithmId: 'k-means',
+      question: '肘部法主要用来解决什么问题？',
+      options: ['选择合适的 K 值', '选择学习率', '选择训练集比例', '选择决策树深度'],
+      correctIndex: 0,
+      explanation: '肘部法观察不同 K 值下 inertia 的下降曲线，寻找下降速度明显变慢的拐点，辅助选择 K。',
+    },
+    {
+      id: 'km-quiz-7',
+      algorithmId: 'k-means',
+      question: '下面哪种数据形状通常不太适合基础 K-Means？',
+      options: ['近似球状簇', '大小相近的簇', '月牙形或环形簇', '二维可分散点簇'],
+      correctIndex: 2,
+      explanation: '基础 K-Means 更偏好球状簇。月牙形、环形等复杂形状通常需要 DBSCAN、谱聚类等方法。',
+    },
+    {
+      id: 'km-quiz-8',
+      algorithmId: 'k-means',
+      question: 'sklearn 中 KMeans 常用哪个方法可以训练模型并直接返回每个样本的簇标签？',
+      options: ['fit_predict', 'train_test_split', 'score_class', 'predict_proba'],
+      correctIndex: 0,
+      explanation: 'fit_predict(X) 会先训练 KMeans，再返回每个样本所属的簇标签，适合聚类入门练习。',
+    },
   ],
 };
 
+function mergeById<T extends { id: string }>(base: T[], custom: T[]): T[] {
+  const merged = new Map(base.map((item) => [item.id, item]));
+  custom.forEach((item) => merged.set(item.id, item));
+  return Array.from(merged.values());
+}
+
+export const getAllExercises = (): Exercise[] =>
+  mergeById(exercises, storageService.getCustomExercises());
+
+export const getAllQuizQuestions = (): QuizQuestion[] =>
+  mergeById(
+    Object.values(quizQuestions).flat(),
+    storageService.getCustomQuizQuestions()
+  );
+
 export const getExercisesByAlgorithm = (algorithmId: string): Exercise[] =>
-  exercises.filter((e) => e.algorithmId === algorithmId);
+  getAllExercises().filter((e) => e.algorithmId === algorithmId);
 
 export const getExerciseById = (id: string): Exercise | undefined =>
-  exercises.find((e) => e.id === id);
+  getAllExercises().find((e) => e.id === id);
 
 export const getQuizByAlgorithm = (algorithmId: string): QuizQuestion[] =>
-  quizQuestions[algorithmId] || [];
+  getAllQuizQuestions().filter((q) => q.algorithmId === algorithmId);

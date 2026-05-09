@@ -1,7 +1,7 @@
 export interface Algorithm {
   id: string;
   name: string;
-  category: 'regression' | 'classification' | 'tree';
+  category: 'regression' | 'classification' | 'tree' | 'clustering';
   difficulty: '入门' | '中级' | '进阶';
   description: string;
   intro: string;
@@ -41,6 +41,13 @@ export interface AIReviewResult {
   problems: string[];
   suggestions: string[];
   nextStep: string;
+  dimensions?: Array<{
+    label: string;
+    score: number;
+    maxScore: number;
+    description: string;
+    status: 'good' | 'warning' | 'bad' | 'neutral';
+  }>;
 }
 
 export interface PracticeRecord {

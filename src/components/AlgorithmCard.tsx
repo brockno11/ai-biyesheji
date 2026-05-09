@@ -12,6 +12,7 @@ const categoryLabels: Record<string, string> = {
   regression: '回归',
   classification: '分类',
   tree: '树形',
+  clustering: '聚类',
 };
 
 interface Props {

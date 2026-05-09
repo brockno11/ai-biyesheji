@@ -4,14 +4,17 @@ import { ArrowLeft, Play, CheckCircle2, BookOpen, Lightbulb } from 'lucide-react
 import { getAlgorithmById } from '../data/algorithms';
 import { useCourseById } from '../hooks/useCourses';
 import { getExercisesByAlgorithm } from '../data/exercises';
-import { checkCode } from '../services/codeCheckService';
+import { checkCode, getMissingKeywords } from '../services/codeCheckService';
+import { buildPracticeReview } from '../services/practiceScoringService';
+import { runPythonExercise } from '../services/pythonRuntimeService';
 import { storageService } from '../services/storageService';
 import { aiService } from '../services/aiService';
 import CodeEditor from '../components/CodeEditor';
 import ScoreCard from '../components/ScoreCard';
 import AICodeReviewCard from '../components/AICodeReviewCard';
+import PythonRunResultCard from '../components/PythonRunResultCard';
 import type { AIReviewResult, Exercise } from '../types';
-import type { AICodeReviewResult, AIMode } from '../services/aiTypes';
+import type { AICodeReviewResult, AIMode, PythonRunResult, PythonRuntimeEvent } from '../services/aiTypes';
 
 export default function PracticePage() {
   const { algorithmId } = useParams<{ algorithmId: string }>();
@@ -26,6 +29,9 @@ export default function PracticePage() {
   const [aiMode, setAiMode] = useState<AIMode>('mock');
   const [aiFallbackReason, setAiFallbackReason] = useState<string | undefined>();
   const [aiLoading, setAiLoading] = useState(false);
+  const [pythonRunning, setPythonRunning] = useState(false);
+  const [pythonResult, setPythonResult] = useState<PythonRunResult | null>(null);
+  const [pythonEvents, setPythonEvents] = useState<PythonRuntimeEvent[]>([]);
 
   const exercise = exercises[currentExIndex] as Exercise | undefined;
 
@@ -34,6 +40,9 @@ export default function PracticePage() {
       setCode(exercise.starterCode);
       setResult(null);
       setAiReview(null);
+      setPythonResult(null);
+      setPythonEvents([]);
+      setAiFallbackReason(undefined);
     }
   }, [exercise]);
 
@@ -50,38 +59,54 @@ export default function PracticePage() {
   const handleCheck = async () => {
     setChecking(true);
     setAiReview(null);
+    setResult(null);
+    setPythonResult(null);
+    setPythonEvents([]);
     setAiFallbackReason(undefined);
 
-    // Simulate delay
+    // Keep a brief visible checking phase so students can see that static checks run before Python execution.
     await new Promise((r) => setTimeout(r, 800));
     const checkResult = checkCode(exercise, code);
-    setResult(checkResult);
+    setChecking(false);
 
-    // Save to localStorage
+    setPythonRunning(true);
+    let runtimeResult: PythonRunResult | undefined;
+    try {
+      runtimeResult = await runPythonExercise(exercise, code, {
+        onEvent: (event) => setPythonEvents((prev) => [...prev, event]),
+      });
+      setPythonResult(runtimeResult);
+    } catch (e) {
+      console.error('[PracticePage] Python runtime failed:', e);
+      runtimeResult = undefined;
+    } finally {
+      setPythonRunning(false);
+    }
+
+    const combinedReview = buildPracticeReview(exercise, code, checkResult, runtimeResult);
+    setResult(combinedReview);
+
     storageService.savePracticeRecord({
       exerciseId: exercise.id,
       algorithmId: algorithm.id,
       code,
-      score: checkResult.score,
-      passed: checkResult.passed,
+      score: combinedReview.score,
+      passed: combinedReview.passed,
       timestamp: Date.now(),
-      feedback: checkResult.summary,
+      feedback: combinedReview.summary,
     });
 
-    setChecking(false);
-
-    // Get structured AI feedback. Mock fallback keeps the demo usable offline.
+    // Get structured AI feedback after local rules and runtime checks.
     setAiLoading(true);
     try {
-      const missingKeywords = exercise.expectedKeywords.filter(
-        (kw) => !code.toLowerCase().includes(kw.toLowerCase())
-      );
+      const missingKeywords = getMissingKeywords(exercise, code);
       const feedback = await aiService.diagnoseCode({
         algorithm,
         exercise,
         userCode: code,
-        localReview: checkResult,
+        localReview: combinedReview,
         missingKeywords,
+        runtimeResult,
         pagePosition: '代码练习页',
       });
       setAiReview(feedback.data);
@@ -89,11 +114,21 @@ export default function PracticePage() {
       setAiFallbackReason(feedback.fallbackReason);
     } catch {
       setAiReview({
-        summary: 'AI 助教暂时不可用，请先根据本地规则检查结果继续修改。',
-        scoreReason: `当前本地规则得分为 ${checkResult.score} 分。`,
-        problems: checkResult.problems.length ? checkResult.problems : ['暂未发现明显规则问题。'],
-        suggestions: checkResult.suggestions.length ? checkResult.suggestions : ['继续检查训练、预测和评估流程是否完整。'],
-        nextStep: checkResult.nextStep,
+        summary: runtimeResult?.passed
+          ? 'AI 助教暂时不可用，但综合评分和 Python 真运行已完成，可先根据运行结果继续优化。'
+          : 'AI 助教暂时不可用，请先根据综合评分和 Python 报错继续修改。',
+        scoreReason: `当前综合评分为 ${combinedReview.score} 分，Python 运行状态为 ${
+          runtimeResult?.status === 'success' ? '通过' : runtimeResult?.status === 'error' ? '失败' : '暂未覆盖'
+        }。`,
+        problems: runtimeResult?.error
+          ? [runtimeResult.error]
+          : combinedReview.problems.length
+            ? combinedReview.problems
+            : ['暂未发现明显规则问题。'],
+        suggestions: combinedReview.suggestions.length
+          ? combinedReview.suggestions
+          : ['继续检查训练、预测和评估流程是否完整。'],
+        nextStep: combinedReview.nextStep,
         encouragement: '先把本地检查跑通，再逐步优化代码质量。',
       });
       setAiMode('mock');
@@ -172,18 +207,18 @@ export default function PracticePage() {
               <h2 className="text-lg font-bold text-gray-900">代码编辑器</h2>
               <button
                 onClick={handleCheck}
-                disabled={checking}
+                disabled={checking || pythonRunning || aiLoading}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-sm hover:shadow-md transition-shadow disabled:opacity-50"
               >
-                {checking ? (
+                {checking || pythonRunning ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    检查中...
+                    {pythonRunning ? '运行中...' : '检查中...'}
                   </>
                 ) : (
                   <>
                     <Play className="w-4 h-4" />
-                    检查代码
+                    运行并评分
                   </>
                 )}
               </button>
@@ -193,6 +228,8 @@ export default function PracticePage() {
 
           {/* Score Card */}
           {result && <ScoreCard result={result} />}
+
+          <PythonRunResultCard result={pythonResult} loading={pythonRunning} events={pythonEvents} />
 
           {aiLoading && (
             <div className="app-card p-5 text-sm text-slate-500">

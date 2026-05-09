@@ -59,22 +59,39 @@ export const aiMockService = {
   codeReview(context: AIRequestContext): AICodeReviewResult {
     const local = context.localReview;
     const missing = context.missingKeywords || [];
+    const runtime = context.runtimeResult;
+    const runtimeProblem = runtime?.error
+      ? `Python 真运行失败：${runtime.error.split('\n').slice(-3).join('\n')}`
+      : undefined;
+    const passedRuntime = runtime?.status === 'success';
     return {
-      summary: local?.passed
-        ? '整体结构已经接近正确，核心训练流程基本搭起来了。'
-        : '代码已经有了雏形，但训练、预测或评估链路还没有完全闭合。',
-      scoreReason: `本地规则评分为 ${local?.score ?? 0} 分，主要依据是关键 API 是否出现以及 TODO 是否补全。`,
-      problems: local?.problems.length
-        ? local.problems
-        : missing.length
-          ? missing.map((kw) => `还需要补充或正确使用 ${kw}`)
-          : ['暂未发现明显规则问题，可以继续检查变量是否前后一致。'],
-      suggestions: local?.suggestions.length
-        ? local.suggestions
-        : ['按“划分数据 → 创建模型 → fit → predict → 评估”的顺序逐行检查。'],
-      nextStep: local?.passed
-        ? '尝试修改参数或换一组数据，观察模型指标如何变化。'
-        : '先补齐缺失 API，再确认每个变量名和训练/测试集对应正确。',
+      summary: passedRuntime
+        ? '本地规则检查和 Python 真运行都已经通过，核心训练流程已经能实际跑起来。'
+        : local?.passed
+          ? '关键词层面已经接近正确，但真实运行还暴露出变量、语法或评估流程问题。'
+          : '代码已经有了雏形，但训练、预测或评估链路还没有完全闭合。',
+      scoreReason: `本地规则评分为 ${local?.score ?? 0} 分；Python 运行状态为 ${
+        runtime?.status === 'success' ? '通过' : runtime?.status === 'error' ? '失败' : '暂未覆盖'
+      }。关键词出现只能说明流程可能完整，真运行结果更能证明代码是否可用。`,
+      problems: runtimeProblem
+        ? [runtimeProblem, ...(local?.problems || [])]
+        : local?.problems.length
+          ? local.problems
+          : missing.length
+            ? missing.map((kw) => `还需要补充或正确使用 ${kw}`)
+            : ['暂未发现明显规则问题，可以继续检查变量是否前后一致。'],
+      suggestions: runtimeProblem
+        ? ['先根据 Python 报错定位对应行，检查变量名、取消注释的 TODO 代码和 sklearn API 调用是否一致。', '不要急着改整段代码，优先让数据划分、fit、predict、指标计算这条链路逐步跑通。']
+        : local?.suggestions.length
+          ? local.suggestions
+          : ['按“划分数据 → 创建模型 → fit → predict → 评估”的顺序逐行检查。'],
+      nextStep: passedRuntime
+        ? '可以尝试修改测试集比例或噪声大小，观察 MSE、R2 等指标如何变化。'
+        : runtimeProblem
+          ? '先修复 Python 报错，再重新点击“检查并运行”，确认真实执行通过。'
+          : local?.passed
+            ? '尝试修改参数或换一组数据，观察模型指标如何变化。'
+            : '先补齐缺失 API，再确认每个变量名和训练/测试集对应正确。',
       encouragement: '你已经走到实践环节了，哪怕现在分数不高，也是在把抽象概念变成真正能力。',
     };
   },
@@ -132,4 +149,3 @@ export const aiMockService = {
     };
   },
 };
-

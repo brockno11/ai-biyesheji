@@ -35,6 +35,21 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 
 ---
 
+## 本轮项目更新中实际使用的 Skills
+
+| Skill | 对应工作 |
+|------|----------|
+| senior-frontend / react | 新增 K-Means 路由接入、后台题库管理组件、首页/后台统计联动 |
+| frontend-design / frontend-ui-ux | 优化课程卡片、管理后台 Tab、题库表单和可视化区域的信息组织 |
+| data-viz-2025 | 新增 `KMeansViz.tsx`，用 ECharts 展示聚类散点、聚类中心、K 值、迭代次数和 inertia |
+| fullstack-dev / api-designer | 保持 DeepSeek Express 代理结构与前端 `/api/ai/chat` 调用方式一致 |
+| senior-qa | 使用 `npm run build` 验证 TypeScript、Vite 构建和新增模块引用 |
+| frontend-code-review | 检查新增组件的状态流、localStorage 合并逻辑和前台读取路径 |
+
+当前项目已经从 3 个算法扩展到 4 个算法，题库从 15 道扩展到 32 道，练习题从 4 道扩展到 8 道，并新增后台题库/练习管理能力。
+
+---
+
 ## 详细清单
 
 ### 1. senior-frontend

@@ -13,6 +13,7 @@ const CATEGORIES: { value: Algorithm['category']; label: string }[] = [
   { value: 'regression', label: '回归算法' },
   { value: 'classification', label: '分类算法' },
   { value: 'tree', label: '树形算法' },
+  { value: 'clustering', label: '聚类算法' },
 ];
 const DIFFICULTIES: Algorithm['difficulty'][] = ['入门', '中级', '进阶'];
 

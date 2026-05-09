@@ -6,6 +6,7 @@ const categoryLabels: Record<string, string> = {
   regression: '回归算法',
   classification: '分类算法',
   tree: '树形算法',
+  clustering: '聚类算法',
 };
 
 const difficultyColors: Record<string, string> = {

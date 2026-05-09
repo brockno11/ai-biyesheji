@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, AlertTriangle, Lightbulb, ArrowRight } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Lightbulb, ArrowRight, Gauge } from 'lucide-react';
 import type { AIReviewResult } from '../types';
 
 interface Props {
@@ -7,7 +7,14 @@ interface Props {
 }
 
 export default function ScoreCard({ result, onContinue }: Props) {
-  const { score, passed, summary, problems, suggestions, nextStep } = result;
+  const { score, passed, summary, problems, suggestions, nextStep, dimensions } = result;
+
+  const dimensionTone = {
+    good: 'border-emerald-100 bg-emerald-50 text-emerald-800',
+    warning: 'border-amber-100 bg-amber-50 text-amber-800',
+    bad: 'border-red-100 bg-red-50 text-red-800',
+    neutral: 'border-slate-100 bg-slate-50 text-slate-700',
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
@@ -27,7 +34,7 @@ export default function ScoreCard({ result, onContinue }: Props) {
             )}
             <div>
               <div className="text-lg font-bold text-gray-900">
-                {passed ? '检查通过！' : '需要改进'}
+                {passed ? '综合评分通过' : '需要改进'}
               </div>
               <div className="text-sm text-gray-600">{summary}</div>
             </div>
@@ -46,6 +53,37 @@ export default function ScoreCard({ result, onContinue }: Props) {
       </div>
 
       <div className="p-6 space-y-4">
+        {dimensions && dimensions.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Gauge className="w-4 h-4 text-primary-500" />
+              <span className="text-sm font-semibold text-gray-800">评分维度</span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {dimensions.map((dimension) => (
+                <div
+                  key={dimension.label}
+                  className={`rounded-xl border p-4 ${dimensionTone[dimension.status]}`}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <span className="text-sm font-bold">{dimension.label}</span>
+                    <span className="text-base font-extrabold">
+                      {dimension.score}/{dimension.maxScore}
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/70">
+                    <div
+                      className="h-full rounded-full bg-current"
+                      style={{ width: `${Math.round((dimension.score / dimension.maxScore) * 100)}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs leading-5 opacity-90">{dimension.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {problems.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-2">

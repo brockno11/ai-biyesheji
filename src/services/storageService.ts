@@ -1,7 +1,11 @@
-import type { Algorithm, PracticeRecord, ProgressData, QuizRecord } from '../types';
+import type { Algorithm, Exercise, PracticeRecord, ProgressData, QuizQuestion, QuizRecord } from '../types';
 
 const STORAGE_KEY = 'ml-platform-progress';
 const COURSES_KEY = 'ml-platform-custom-courses';
+const EXERCISES_KEY = 'ml-platform-custom-exercises';
+const QUIZZES_KEY = 'ml-platform-custom-quizzes';
+
+const canUseStorage = () => typeof window !== 'undefined' && Boolean(window.localStorage);
 
 function getDefaultData(): ProgressData {
   return {
@@ -14,6 +18,7 @@ function getDefaultData(): ProgressData {
 
 function read(): ProgressData {
   try {
+    if (!canUseStorage()) return getDefaultData();
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return getDefaultData();
     return JSON.parse(raw) as ProgressData;
@@ -23,7 +28,23 @@ function read(): ProgressData {
 }
 
 function write(data: ProgressData): void {
+  if (!canUseStorage()) return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function readList<T>(key: string): T[] {
+  try {
+    if (!canUseStorage()) return [];
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeList<T>(key: string, value: T[]) {
+  if (!canUseStorage()) return;
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
 export const storageService = {
@@ -97,18 +118,13 @@ export const storageService = {
   },
 
   reset(): void {
+    if (!canUseStorage()) return;
     localStorage.removeItem(STORAGE_KEY);
   },
 
   // ── Custom Course CRUD ──
   getCustomCourses(): Algorithm[] {
-    try {
-      const raw = localStorage.getItem(COURSES_KEY);
-      if (!raw) return [];
-      return JSON.parse(raw) as Algorithm[];
-    } catch {
-      return [];
-    }
+    return readList<Algorithm>(COURSES_KEY);
   },
 
   saveCustomCourse(course: Algorithm): void {
@@ -119,11 +135,43 @@ export const storageService = {
     } else {
       courses.push(course);
     }
-    localStorage.setItem(COURSES_KEY, JSON.stringify(courses));
+    writeList(COURSES_KEY, courses);
   },
 
   deleteCustomCourse(id: string): void {
     const courses = this.getCustomCourses().filter((c) => c.id !== id);
-    localStorage.setItem(COURSES_KEY, JSON.stringify(courses));
+    writeList(COURSES_KEY, courses);
+  },
+
+  getCustomExercises(): Exercise[] {
+    return readList<Exercise>(EXERCISES_KEY);
+  },
+
+  saveCustomExercise(exercise: Exercise): void {
+    const exercises = this.getCustomExercises();
+    const index = exercises.findIndex((item) => item.id === exercise.id);
+    if (index >= 0) exercises[index] = exercise;
+    else exercises.push(exercise);
+    writeList(EXERCISES_KEY, exercises);
+  },
+
+  deleteCustomExercise(id: string): void {
+    writeList(EXERCISES_KEY, this.getCustomExercises().filter((item) => item.id !== id));
+  },
+
+  getCustomQuizQuestions(): QuizQuestion[] {
+    return readList<QuizQuestion>(QUIZZES_KEY);
+  },
+
+  saveCustomQuizQuestion(question: QuizQuestion): void {
+    const questions = this.getCustomQuizQuestions();
+    const index = questions.findIndex((item) => item.id === question.id);
+    if (index >= 0) questions[index] = question;
+    else questions.push(question);
+    writeList(QUIZZES_KEY, questions);
+  },
+
+  deleteCustomQuizQuestion(id: string): void {
+    writeList(QUIZZES_KEY, this.getCustomQuizQuestions().filter((item) => item.id !== id));
   },
 };

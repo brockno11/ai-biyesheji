@@ -277,6 +277,75 @@ plot_tree(model, feature_names=iris.feature_names,
 plt.show()`,
     videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1gP4y177cf',
   },
+  {
+    id: 'k-means',
+    name: 'K-Means 聚类',
+    category: 'clustering',
+    difficulty: '入门',
+    icon: '🧩',
+    intro: 'K-Means 是经典的无监督聚类算法，会把没有标签的数据自动分成 K 个相似的小组，适合理解“让数据自己站队”的思想。',
+    description:
+      'K-Means 聚类是一种无监督学习算法。它不需要提前给样本贴标签，而是通过不断更新聚类中心，把距离相近的样本分到同一个簇中。算法会先随机或按规则初始化 K 个中心点，然后重复执行“分配样本到最近中心”和“用簇内样本均值更新中心”两个步骤，直到中心基本不再移动或达到迭代次数。它非常适合做用户分群、图像颜色压缩、异常观察和探索性数据分析。',
+    formula: `## 距离度量
+d(x, c) = sqrt(sum((x_i - c_i)^2))
+
+## 优化目标
+min Σ ||x - c_k||²
+
+其中 x 表示样本点，c_k 表示第 k 个聚类中心。K-Means 的目标是让每个样本到所属中心的距离平方和尽可能小。`,
+    steps: [
+      '选择 K 值：先确定希望把数据分成几个簇',
+      '初始化中心：生成 K 个初始聚类中心',
+      '分配样本：把每个样本分给距离最近的中心',
+      '更新中心：计算每个簇内样本的均值作为新中心',
+      '重复迭代：持续分配和更新，直到中心移动很小或达到最大迭代次数',
+      '评估结果：观察簇内平方和 inertia、簇大小是否均衡以及业务解释是否合理',
+    ],
+    advantages: [
+      '原理直观，适合入门理解无监督学习',
+      '计算速度快，适合中小规模数据探索',
+      '可视化效果好，聚类中心移动过程容易展示',
+      '结果便于和业务分群场景结合解释',
+    ],
+    disadvantages: [
+      '需要提前指定 K 值',
+      '对初始中心比较敏感，不同随机种子可能得到不同结果',
+      '更适合球状、大小相近的簇，对复杂形状聚类效果有限',
+      '对特征尺度敏感，通常需要标准化',
+      '容易受到离群点影响',
+    ],
+    useCases: [
+      '客户分群：根据消费频率和消费金额划分用户群体',
+      '图像压缩：把相近颜色聚成少量代表色',
+      '商品分组：根据销量、价格、评分等指标发现商品类型',
+      '学习行为分析：按学习时长、测验得分、练习次数划分学生状态',
+      '异常观察：远离所有聚类中心的点可能值得重点检查',
+    ],
+    codeExample: `import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# 1. 准备二维样本
+np.random.seed(42)
+cluster_a = np.random.normal([2, 2], 0.5, size=(60, 2))
+cluster_b = np.random.normal([6, 3], 0.6, size=(60, 2))
+cluster_c = np.random.normal([4, 7], 0.7, size=(60, 2))
+X = np.vstack([cluster_a, cluster_b, cluster_c])
+
+# 2. 特征缩放
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# 3. 训练 K-Means
+model = KMeans(n_clusters=3, random_state=42, n_init=10)
+labels = model.fit_predict(X_scaled)
+
+# 4. 查看结果
+print("聚类中心:", model.cluster_centers_)
+print("簇内平方和:", model.inertia_)
+print("每个簇的样本数:", np.bincount(labels))`,
+    videoUrl: '',
+  },
 ];
 
 export const getAlgorithmById = (id: string): Algorithm | undefined =>

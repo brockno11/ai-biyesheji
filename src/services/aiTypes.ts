@@ -30,6 +30,7 @@ export type AIRequestContext = {
   userCode?: string;
   localReview?: AIReviewResult;
   missingKeywords?: string[];
+  runtimeResult?: PythonRunResult;
   quizQuestions?: QuizQuestion[];
   quizAnswers?: Record<number, number>;
   quizScore?: number;
@@ -51,6 +52,37 @@ export type AIRequestContext = {
     category: string;
     keywords: string;
   };
+};
+
+export type PythonRunStatus = 'success' | 'error' | 'unsupported';
+
+export type PythonRuntimePhase =
+  | 'booting'
+  | 'loading-packages'
+  | 'executing'
+  | 'testing'
+  | 'complete'
+  | 'failed'
+  | 'unsupported';
+
+export type PythonRuntimeEvent = {
+  phase: PythonRuntimePhase;
+  message: string;
+  level: 'info' | 'success' | 'warning' | 'error';
+  timestamp: number;
+};
+
+export type PythonRunResult = {
+  supported: boolean;
+  status: PythonRunStatus;
+  passed: boolean;
+  output: string;
+  error?: string;
+  durationMs: number;
+  tests: string[];
+  details?: string[];
+  events?: PythonRuntimeEvent[];
+  packageSource?: string;
 };
 
 export type AIServiceResponse<T> = {
@@ -105,4 +137,3 @@ export type AICourseDraftResult = {
   quizQuestions: unknown[];
   practiceExercise: Record<string, unknown>;
 };
-

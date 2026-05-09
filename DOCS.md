@@ -35,11 +35,23 @@
 样式方案：   Tailwind CSS 3
 路由管理：   React Router v6
 代码编辑器： Monaco Editor (@monaco-editor/react)
+Python运行： Pyodide (浏览器端执行线性回归练习)
 图表可视化： ECharts 5 + echarts-for-react
 图标库：     Lucide React
 数据存储：   localStorage (浏览器本地)
 AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 Mock)
 ```
+
+### 2.1.1 当前功能规模（2026-05-09）
+
+| 类型 | 当前数量/状态 | 说明 |
+|------|---------------|------|
+| 内置算法 | 4 个 | 线性回归、KNN、决策树、K-Means 聚类 |
+| 代码练习 | 8 道 | 每个算法 2 道，练习数据支持后台自定义覆盖 |
+| 测验题目 | 32 道 | 每个算法 8 道，测验数据支持后台自定义覆盖 |
+| 可视化组件 | 4 个 | 线性回归、KNN、决策树、K-Means 均有交互式 ECharts/可视化组件 |
+| AI 场景 | 6 类以上 | AI 助教、代码诊断、错题讲解、学习路径、课程草稿、可视化解释 |
+| 后台管理 | 课程 + 题库 | 课程 CRUD、AI 课程草稿、练习题 CRUD、测验题 CRUD |
 
 ### 2.2 项目目录结构
 
@@ -47,13 +59,14 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 src/
 ├── types/index.ts              # 全局 TypeScript 类型
 ├── data/
-│   ├── algorithms.ts           # 3 门内置算法静态数据
-│   └── exercises.ts            # 4 道练习题 + 15 道测验题
+│   ├── algorithms.ts           # 4 门内置算法静态数据
+│   └── exercises.ts            # 内置练习题 + 测验题，支持后台自定义覆盖
 ├── hooks/
 │   └── useCourses.ts           # 合并静态 + 自定义课程的 Hook
 ├── services/
 │   ├── storageService.ts       # localStorage 封装 + 课程 CRUD
-│   ├── codeCheckService.ts     # 基于规则的代码检查引擎
+│   ├── codeCheckService.ts     # 本地规则检查引擎
+│   ├── pythonRuntimeService.ts # Pyodide 浏览器端 Python 真运行
 │   ├── aiService.ts            # 统一 AI 服务入口 (7 个方法)
 │   ├── aiTypes.ts              # AI 类型定义 (消息/上下文/结果)
 │   ├── aiPromptService.ts      # 系统提示词 + 场景 Prompt
@@ -66,6 +79,7 @@ src/
 │   ├── AITutorPanel.tsx        # AI 助教对话面板
 │   ├── AIModeBadge.tsx         # AI 模式徽标 (DeepSeek/Mock)
 │   ├── AICodeReviewCard.tsx    # AI 代码诊断报告卡片
+│   ├── PythonRunResultCard.tsx # Python 运行结果卡片
 │   ├── AIQuizReviewCard.tsx    # AI 错题讲解卡片
 │   ├── AIStudyPlanCard.tsx     # AI 学习计划卡片
 │   ├── AIVisualizationInsight.tsx # AI 可视化洞察组件
@@ -76,18 +90,24 @@ src/
 │   ├── LinearRegressionViz.tsx # 线性回归可视化 (散点图+拟合线+Loss曲线)
 │   ├── KNNViz.tsx              # KNN 可视化 (分类散点+K近邻+测试点拖动)
 │   ├── DecisionTreeViz.tsx     # 决策树可视化 (树结构+分类路径)
-│   └── AdminCoursePanel.tsx    # 课程管理面板 (CRUD)
+│   ├── KMeansViz.tsx           # K-Means 聚类可视化 (散点簇+中心移动+K值调节)
+│   ├── AdminCoursePanel.tsx    # 课程管理面板 (CRUD)
+│   └── AdminQuestionPanel.tsx  # 练习题/测验题管理面板 (CRUD + 本地覆盖)
 ├── pages/
 │   ├── HomePage.tsx            # 首页 (全宽，无侧栏)
 │   ├── AlgorithmPage.tsx       # 算法学习页 (详情+可视化+AI助手)
-│   ├── PracticePage.tsx        # 代码练习页 (Monaco+检查+AI反馈)
+│   ├── PracticePage.tsx        # 代码练习页 (Monaco+规则检查+Pyodide运行+AI反馈)
 │   ├── QuizPage.tsx            # 测验页 (选择题+自动评分)
 │   ├── ProgressPage.tsx        # 学习中心 (进度追踪+下一步推荐)
 │   ├── ProfilePage.tsx         # 个人中心 (学习仪表盘+管理入口)
-│   └── AdminPage.tsx           # 管理后台 (系统概览+课程管理)
+│   └── AdminPage.tsx           # 管理后台 (系统概览+课程管理+题库管理)
 ├── App.tsx                     # 路由配置
 ├── main.tsx                    # 入口
 └── index.css                   # Tailwind + 全局样式
+public/
+└── pyodide/                    # Pyodide 核心运行文件，由 npm run sync:pyodide 同步
+scripts/
+└── sync-pyodide-assets.mjs     # 同步 Pyodide wasm/stdlib/lockfile 到 public
 ```
 
 ### 2.3 路由设计
@@ -139,7 +159,7 @@ src/
 | 顶部导航 | Logo + 首页 + 学习中心 + 个人中心 |
 | Hero 区域 | 平台 Slogan + 副标题 + 4 个统计指标卡片 (算法数/练习题/测验题/AI助教) |
 | 特色卡片 | 3 张卡片展示 AI 助教 / 算法可视化 / 代码练习，每张含功能点标签 |
-| 课程展示 | 3 门算法卡片 (图标 + 难度标签 + 简介 + 微型进度条) |
+| 课程展示 | 4 门算法卡片 (线性回归 / KNN / 决策树 / K-Means，图标 + 难度标签 + 简介 + 微型进度条) |
 | 学习路径 | Step 01→04 四步流程图 (课程学习 → 可视化探索 → 代码练习 → 测验巩固) |
 | CTA 区域 | 学习进度统计 + 继续学习 / 详细进度入口 |
 | Footer | 项目信息 |
@@ -200,31 +220,36 @@ src/
 |------|------|
 | 练习信息卡 | 难度标签 + 题目切换 (上/下一题) + 标题 + 描述 + 操作指引列表 |
 | Monaco 编辑器 | VS Code Dark 主题，Python 语法高亮，400px 高度 |
-| "检查代码"按钮 | 点击触发规则检查 |
-| ScoreCard 结果卡 | 通过/不通过状态 + 得分 + 问题列表 + 建议 + 下一步 |
+| "检查并运行"按钮 | 点击触发规则检查、Pyodide Python 真运行和 AI 诊断 |
+| ScoreCard 结果卡 | 综合评分 + 四个评分维度 + 问题列表 + 建议 + 下一步 |
+| PythonRunResultCard | 展示 Pyodide 运行输出、自动测试结果和错误信息 |
 
 **右侧面板**：
 
 | 模块 | 内容 |
 |------|------|
 | API 清单 | 实时显示 expectedKeywords 的完成状态 (✓/○) |
-| AI 反馈区 | 代码检查后自动请求 AI 诊断反馈 |
+| AI 反馈区 | 规则检查和 Python 运行后自动请求 AI 诊断反馈 |
 
-**代码检查逻辑** (`codeCheckService.ts`)：
+**代码练习验证流程**：
 1. 遍历 exercise.checkRules
 2. 对每个 keyword 规则：用正则匹配代码中是否包含该关键词
 3. 统计 TODO 残留数量
 4. 加权计算总分 (每个规则有独立 points)
 5. 得分 ≥ 60 为"通过"
-6. 结果保存到 localStorage
+6. 对线性回归练习调用 Pyodide，在浏览器端执行用户 Python 代码和固定测试代码
+7. 捕获 Python 输出；如果执行失败，展示错误信息
+8. 按核心 API、TODO 完成度、Python 可执行性、固定测试表现计算综合评分
+9. 将综合评分、运行结果和报错一起发送给 AI，生成结构化诊断
+10. 结果保存到 localStorage
 
 **操作逻辑**：
 1. 用户从算法页点击"去做代码练习" → 进入此页
 2. 阅读左侧题目说明和操作指引
 3. 在编辑器中将 TODO 替换为正确代码
-4. 点击"检查代码"→ 等待 ~0.8s 模拟延迟
-5. 查看得分和问题列表
-6. 右侧面板显示 AI 反馈 (loading → 结果)
+4. 点击"检查并运行"→ 先看规则得分，再看 Pyodide 运行输出
+5. 如果 Python 运行失败，查看错误信息
+6. 页面显示 AI 诊断报告，AI 会结合规则检查和运行报错给出修改方向
 7. 修改代码 → 再次检查
 8. 通过后可切换到下一题
 
@@ -299,11 +324,11 @@ src/
 
 ### 3.7 管理后台 (AdminPage)
 
-**功能定位**：平台数据监控 + 课程 CRUD 管理。
+**功能定位**：平台数据监控 + 课程 CRUD 管理 + 题库/练习管理。
 
 **页面布局**：左侧管理导航 + 右侧内容区
 
-**两个 Tab**：
+**三个 Tab**：
 
 #### Tab 1：系统概览
 
@@ -394,7 +419,7 @@ src/
 
 #### AICodeReviewCard
 
-在代码练习页中，用户点击"检查代码"后展示。包含：
+在代码练习页中，用户点击"检查并运行"后展示。包含：
 - AI 对得分的解读
 - 代码问题列表和修复建议
 - 下一步学习方向
@@ -533,7 +558,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 ---
 
-## 六、代码检查引擎
+## 六、代码练习验证引擎
 
 ### 6.1 规则类型
 
@@ -542,32 +567,56 @@ AI_ENABLE_MOCK_FALLBACK=true
 | `keyword` | 检查代码中是否包含指定关键词 | `LinearRegression`, `fit`, `predict` |
 | `structure` | 检查代码结构 | 检查特定模式 |
 
-### 6.2 检查流程
+### 6.2 Pyodide 真运行
+
+当前轻量版本先覆盖线性回归练习：
+
+| 覆盖范围 | 说明 |
+|----------|------|
+| 执行方式 | 浏览器端加载 Pyodide，执行学生 Python 代码 |
+| 依赖包 | `numpy`、`scikit-learn` |
+| 运行文件 | `npm run sync:pyodide` 将 Pyodide wasm、stdlib 和 lockfile 同步到 `public/pyodide` |
+| 自动测试 | 检查关键变量、模型是否 fit、预测长度、MSE/R2 等指标 |
+| 输出捕获 | 捕获 `print` 输出并展示在 Python 运行结果卡片 |
+| 错误处理 | 捕获语法错误、变量未定义、断言失败和超时，并交给 AI 解释 |
+| 兜底策略 | 非线性回归练习暂显示“暂未覆盖”，继续使用规则检查 + AI 诊断 |
+
+### 6.3 综合评分维度
+
+| 维度 | 分值 | 说明 |
+|------|------|------|
+| 核心 API 使用 | 40 | 只检查真正会执行的代码，注释里的关键词不计分 |
+| TODO 完成度 | 20 | TODO 越少得分越高，未完成占位会扣分 |
+| Python 可执行性 | 25 | Pyodide 能真实运行才得分 |
+| 固定测试表现 | 15 | 通过变量、预测长度、MSE/R2 等自动测试才得分 |
+
+### 6.4 检查流程
 
 ```
-用户点击"检查代码"
+用户点击"检查并运行"
   ↓
 遍历 exercise.checkRules
   ↓
 对每个 keyword 规则:
-  正则匹配 code.includes(keyword) ?
+  先移除 Python 注释，再正则匹配 keyword ?
   ├─ Yes → 得分 += rule.points
   └─ No  → 添加到 problems[] + suggestions[]
   ↓
 统计 TODO 残留数
   ↓
-计算总分: (earnedPoints / totalPoints) × 100
+生成规则检查结果
   ↓
-判断通过: score >= 60
+线性回归练习调用 Pyodide 执行 Python
+  ├─ 成功 → 展示 print 输出和自动测试通过
+  ├─ 失败 → 展示 Python 错误或测试断言失败
+  └─ 未覆盖 → 展示暂未支持提示
   ↓
-生成 summary + nextStep
+计算四维综合评分并保存到 localStorage
   ↓
-保存到 localStorage
-  ↓
-触发 AI 诊断
+触发 AI 诊断，传入规则结果 + Python 运行结果
 ```
 
-### 6.3 评分等级
+### 6.5 评分等级
 
 | 分数 | 等级 | 反馈策略 |
 |------|------|----------|
@@ -590,8 +639,9 @@ AI_ENABLE_MOCK_FALLBACK=true
                      ├─ 与 AI 助教对话
                      ├─ 点击"代码练习"
                      │   ├─ 写代码
-                     │   ├─ 检查 → 看得分和建议
-                     │   ├─ AI 反馈
+                     │   ├─ 规则检查 → 看得分和建议
+                     │   ├─ Pyodide 真运行 → 看输出或错误
+                     │   ├─ AI 诊断 → 根据规则和报错给修改方向
                      │   └─ 切换题目
                      └─ 点击"测验挑战"
                          ├─ 逐题作答
@@ -604,11 +654,15 @@ AI_ENABLE_MOCK_FALLBACK=true
 ```
 首页 / 顶部导航 → 个人中心 → 账户与管理 → 课程管理入口 → 管理后台
                                                        ├─ 系统概览 (数据一览)
-                                                       └─ 课程管理
-                                                           ├─ 添加课程 (表单)
-                                                           ├─ 编辑课程 (表单预填)
-                                                           ├─ 删除课程 (确认弹窗)
-                                                           └─ 搜索过滤
+                                                       ├─ 课程管理
+                                                       │   ├─ 添加课程 (表单)
+                                                       │   ├─ 编辑课程 (表单预填)
+                                                       │   ├─ 删除课程 (确认弹窗)
+                                                       │   └─ 搜索过滤
+                                                       └─ 题库管理
+                                                           ├─ 新增/编辑/删除练习题
+                                                           ├─ 新增/编辑/删除测验题
+                                                           └─ 覆盖编辑内置题目
 ```
 
 ---
@@ -619,11 +673,11 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 | 优点 | 说明 |
 |------|------|
-| **零门槛运行** | `npm install && npm run dev` 即可启动，无需数据库、无需后端、无需 API Key |
+| **零数据库依赖** | `npm install && npm run dev` 即可启动；课程和学习数据本地存储，AI 使用轻量 Node/Express 代理，无 API Key 时自动走 Mock |
 | **完整的演示闭环** | 首页→课程→可视化→练习→测验→学习中心，所有页面可完整走通 |
 | **AI 离线可用** | Mock 模式覆盖所有 AI 功能，不依赖外部服务 |
 | **交互式可视化** | 三个算法均支持参数调节和实时反馈，适合教学演示 |
-| **代码即时反馈** | 基于规则的检查不需要 Python 运行时，0.8s 出结果 |
+| **代码验证更可信** | 规则检查 + 线性回归 Pyodide 真运行 + AI 诊断，既看 API 是否完整，也看代码能否跑通 |
 | **数据持久化** | localStorage 存储学习记录和管理员添加的课程，刷新不丢失 |
 | **UI 设计规范** | 清爽的蓝绿学习工具风格，顶部导航和侧边栏路径清晰 |
 | **响应式布局** | 首页、课程页、学习中心和个人中心做了响应式适配 |
@@ -634,9 +688,9 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 | 缺点 | 说明 | 改进方向 |
 |------|------|----------|
-| **无真实代码执行** | 代码检查仅做关键词匹配，不能真正运行 Python | 接入 Pyodide (浏览器端 Python) 或后端沙箱 |
+| **真实代码执行覆盖有限** | 当前 Pyodide 真运行优先覆盖线性回归练习，KNN/决策树仍以规则检查为主 | 扩展 Pyodide 固定测试到 KNN、决策树和更多练习 |
 | **无用户系统** | 单用户本地模式，不支持多用户和数据同步 | 添加后端 (Node.js/Go) + 数据库 (SQLite/PostgreSQL) |
-| **静态题目数量有限** | 练习题和测验题写死在代码中 | 支持管理员在后台添加/编辑题目 |
+| **静态题目数量有限** | 已支持管理员在后台新增/编辑/删除自定义练习题和测验题，并可对内置题目做本地覆盖 | 后续可增加综合测验和批量导入 |
 | **可视化组件有限** | 仅覆盖三个算法 | 扩展 SVM、Random Forest、神经网络等 |
 | **AI Mock 回复固定** | Mock 回复是预设文本，不能真正理解上下文 | 接入大模型 API，实现真正的智能对话 |
 | **无代码分割** | 单个 JS Bundle 1.3MB+ (Monaco Editor + ECharts) | 使用 dynamic import() 实现代码分割 |
@@ -663,8 +717,8 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 ### 9.1 短期 (1-2 周可完成)
 
-- [ ] 接入 Pyodide 实现浏览器端 Python 代码真执行
-- [ ] 管理员可添加/编辑练习题和测验题
+- [ ] 扩展 Pyodide 真运行覆盖范围到 KNN、决策树和更多练习题
+- [x] 管理员可添加/编辑/删除练习题和测验题
 - [ ] 增加更多预设 AI Mock 回复变体
 - [ ] 代码分割优化首屏加载
 - [ ] 添加暗色模式
@@ -675,7 +729,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 - [ ] 用户注册登录 (JWT)
 - [ ] 数据库持久化 (PostgreSQL / SQLite)
 - [ ] 学习数据可视化分析面板
-- [ ] 新增 5+ 算法 (SVM、随机森林、神经网络、K-Means、PCA)
+- [ ] 新增更多算法 (SVM、随机森林、神经网络、PCA、朴素贝叶斯等)
 - [ ] 对接大模型微调 (Fine-tuning) 提升 AI 助教质量
 
 ### 9.3 长期
@@ -827,25 +881,44 @@ generateCourseDraft(context)
 | 场景 | 功能 |
 |------|------|
 | 课程页 / AI 助教 | 带算法上下文问答，支持解释概念、诊断代码、学习建议、来道题、总结本节、举生活例子 |
-| 代码练习页 | 先做本地规则检查，再生成结构化 AI 代码诊断报告 |
+| 代码练习页 | 先做本地规则检查，再执行 Pyodide 真运行，展示阶段进度和输出，最后生成结构化 AI 代码诊断报告 |
 | 测验页 | 提交后可触发 AI 错题讲解，输出薄弱点、错题分析、复习建议和相似题 |
 | 学习中心 | 根据 localStorage 学习记录生成 AI 学习路径推荐和今日计划 |
-| 可视化组件 | 可点击“AI 解释当前现象”，解释参数变化对模型表现的影响 |
-| 管理后台 | 可输入算法名称、难度、分类和关键词，生成课程草稿，填入表单后由管理员确认保存 |
+| 可视化组件 | 可点击“AI 解释当前现象”，解释参数变化对模型表现的影响；K-Means 会解释 K 值、迭代、inertia 和簇分布 |
+| 管理后台 | 可生成课程草稿；也可管理课程、练习题和测验题，新增内容会进入前台学习流程 |
 
 ### 12.6 答辩演示步骤
 
 1. 运行 `npm run dev`，同时启动 Vite 前端和 Express AI 代理。
 2. 打开 `http://localhost:3000`。
 3. 进入任意课程页，展示 AI 助教模式徽标和快捷提问。
-4. 进入代码练习页，点击“检查代码”，展示本地规则评分和 AI 代码诊断报告。
-5. 进入测验页，答题并提交，点击“AI 讲解我的错题”。
-6. 进入学习中心，展示 AI 学习路径推荐。
-7. 进入个人中心 → 管理后台，展示 AI 生成课程草稿。
+4. 可访问 `http://localhost:8787/api/ai/status` 检查 AI 代理状态，不会泄露 API Key。
+5. 进入代码练习页，点击“检查并运行”，展示本地规则评分、Python 运行阶段、运行结果和 AI 代码诊断报告。
+6. 进入测验页，答题并提交，点击“AI 讲解我的错题”。
+7. 进入学习中心，展示 AI 学习路径推荐。
+8. 进入个人中心 → 管理后台，展示 AI 生成课程草稿，并演示题库管理新增/覆盖编辑题目。
 
 ---
 
 ## 十三、Agent 交接备忘
+
+### 当前内容扩展说明（2026-05-09）
+
+本轮已补齐“算法数量偏少”和“题库/练习管理偏弱”的问题：
+
+- 内置算法从 3 门扩展为 4 门，新增 **K-Means 聚类**，与线性回归、KNN、决策树形成“回归 / 分类 / 树模型 / 无监督聚类”的入门组合。
+- 新增 `KMeansViz.tsx`，使用 ECharts 展示聚类散点、聚类中心、K 值调节、迭代次数、簇内分散度、inertia 和最大簇样本数，并接入“AI 解释当前现象”。
+- 练习题扩展为 8 道，每个算法 2 道；K-Means 新增基础聚类实现和肘部法练习。
+- 测验题扩展为 32 道，每个算法 8 道；K-Means 覆盖无监督学习、K 值、分配/更新步骤、inertia、特征缩放、肘部法、适用数据形状和 sklearn API。
+- 管理后台新增 **题库管理** Tab，可新增、编辑、删除自定义练习题和测验题；内置题目支持“本地覆盖编辑”，删除覆盖后恢复默认题目。
+- `storageService.ts` 已扩展自定义练习题和测验题的 localStorage CRUD；`getExercisesByAlgorithm`、`getQuizByAlgorithm` 会自动合并内置题目与后台自定义题目。
+
+答辩演示时可补充展示：
+
+1. 首页统计指标会动态显示当前算法、练习题和测验题数量。
+2. 进入 K-Means 课程页，拖动 K 值、迭代次数和簇内分散度，观察聚类中心变化。
+3. 点击 K-Means 可视化下方“生成解释”，展示 AI 对当前聚类现象的讲解。
+4. 进入管理后台 → 题库管理，新增一道测验题或覆盖编辑内置题目，再回到对应测验页验证题目已生效。
 
 ### 13.1 环境准备（新 Agent 首次接手）
 
@@ -882,6 +955,9 @@ npx tsc --noEmit && npx vite build
 | DeepSeek API 调用 | `server/services/deepseekService.ts` |
 | 后端路由 | `server/routes/ai.ts` |
 | 环境变量模板 | `.env.example` |
+| Python 运行时 | `src/services/pythonRuntimeService.ts` |
+| 综合评分服务 | `src/services/practiceScoringService.ts` |
+| Pyodide 资源同步 | `scripts/sync-pyodide-assets.mjs` |
 
 ### 13.3 已知注意事项
 
@@ -890,13 +966,17 @@ npx tsc --noEmit && npx vite build
 - **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
 - **Mock 覆盖范围**：所有 11 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
 - **10 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
-- **代码检查** 仅作关键词匹配（`codeCheckService.ts`），不真实执行 Python。
+- **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts`），当前优先覆盖线性回归练习；其他题目继续使用规则检查 + AI 诊断。
+- **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
+- **K-Means** 视频链接暂缺，等待补充。
 - **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
 
 ### 13.4 最近更新（2026-05-09）
 
 | 提交 | 内容 |
 |------|------|
+| 当前工作区 | 新增 K-Means 课程与可视化；Pyodide 真运行（线性回归）；练习题 8 道，测验题 32 道；题库管理后台；代码注释过滤；修复 runtime null safety、重复 BVid |
+| `e19f841` | 文档 Agent 交接更新 |
 | `cf2e421` | 修复 DeepSeek thinking 参数、移除无效 reasoningEffort、代码质量优化 |
 | `0239f87` | AI 模块升级、10 个 Skills、文档对齐 |
 | `4bcfcd3` | 文档更新和导航优化 |
@@ -904,4 +984,4 @@ npx tsc --noEmit && npx vite build
 ---
 
 > 文档生成日期：2026-05-09
-> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI 模块、学习中心和个人仪表盘 UI 优化)
+> 项目版本：1.0.0 (MVP，已完成 DeepSeek AI 模块、Pyodide 线性回归真运行、K-Means 聚类课程、32 道测验题、题库管理后台和学习中心/个人仪表盘 UI 优化)

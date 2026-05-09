@@ -2,17 +2,20 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Shield, LayoutDashboard, BookOpen, BarChart3,
-  Users, TrendingUp, Database, HardDrive, Activity,
+  Users, TrendingUp, Database, HardDrive, Activity, ClipboardList,
 } from 'lucide-react';
 import { algorithms as staticAlgorithms } from '../data/algorithms';
+import { getAllExercises, getAllQuizQuestions } from '../data/exercises';
 import { storageService } from '../services/storageService';
 import AdminCoursePanel from '../components/AdminCoursePanel';
+import AdminQuestionPanel from '../components/AdminQuestionPanel';
 
-type AdminTab = 'dashboard' | 'courses';
+type AdminTab = 'dashboard' | 'courses' | 'questions';
 
 const adminTabs: { key: AdminTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: 'dashboard', label: '系统概览', icon: LayoutDashboard },
   { key: 'courses', label: '课程管理', icon: BookOpen },
+  { key: 'questions', label: '题库管理', icon: ClipboardList },
 ];
 
 export default function AdminPage() {
@@ -28,8 +31,8 @@ export default function AdminPage() {
     totalCourses: allCourses.length,
     builtInCourses: staticAlgorithms.length,
     customCourses: customCourses.length,
-    totalExercises: 4, // from static data
-    totalQuizzes: 15,
+    totalExercises: getAllExercises().length,
+    totalQuizzes: getAllQuizQuestions().length,
     totalPracticeRecords: progress.practiceRecords.length,
     totalQuizRecords: progress.quizRecords.length,
     completedAlgorithms: progress.completedAlgorithms.length,
@@ -165,7 +168,7 @@ export default function AdminPage() {
                               </td>
                               <td className="px-5 py-3">
                                 <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                                  {{ regression: '回归', classification: '分类', tree: '树形' }[course.category]}
+                                  {{ regression: '回归', classification: '分类', tree: '树形', clustering: '聚类' }[course.category]}
                                 </span>
                               </td>
                               <td className="px-5 py-3">
@@ -221,9 +224,11 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : activeTab === 'courses' ? (
               /* ═══ Course Management ═══ */
               <AdminCoursePanel />
+            ) : (
+              <AdminQuestionPanel />
             )}
           </div>
         </div>

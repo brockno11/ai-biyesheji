@@ -1,5 +1,39 @@
 import type { Exercise, AIReviewResult } from '../types';
 
+function removeCommentFromLine(line: string) {
+  let quote: '"' | "'" | null = null;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const prev = line[index - 1];
+
+    if ((char === '"' || char === "'") && prev !== '\\') {
+      quote = quote === char ? null : quote || char;
+    }
+
+    if (char === '#' && !quote) {
+      return line.slice(0, index);
+    }
+  }
+
+  return line;
+}
+
+export function getExecutablePythonCode(code: string) {
+  return code
+    .split('\n')
+    .map(removeCommentFromLine)
+    .join('\n');
+}
+
+export function getMissingKeywords(exercise: Exercise, code: string) {
+  const executableCode = getExecutablePythonCode(code);
+  return exercise.expectedKeywords.filter((keyword) => {
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return !new RegExp(escaped, 'i').test(executableCode);
+  });
+}
+
 export function checkCode(
   exercise: Exercise,
   code: string
@@ -8,6 +42,7 @@ export function checkCode(
   const suggestions: string[] = [];
   let totalPoints = 0;
   let earnedPoints = 0;
+  const executableCode = getExecutablePythonCode(code);
 
   for (const rule of exercise.checkRules) {
     totalPoints += rule.points;
@@ -15,11 +50,11 @@ export function checkCode(
     if (rule.type === 'keyword' && rule.keyword) {
       const escaped = rule.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(escaped, 'i');
-      if (regex.test(code)) {
+      if (regex.test(executableCode)) {
         earnedPoints += rule.points;
       } else {
         problems.push(`缺少关键 API：${rule.keyword}`);
-        suggestions.push(`请添加 "${rule.keyword}" 到你的代码中（${rule.description}）`);
+        suggestions.push(`请在真正会执行的代码里使用 "${rule.keyword}"（${rule.description}），只写在注释里不会计分。`);
       }
     }
 
@@ -36,7 +71,7 @@ export function checkCode(
 
   // Count unresolved TODO markers (case-insensitive, word boundary)
   const todoMatches = code.match(/\bTODO\b/gi) || [];
-  if (todoMatches.length > 2) {
+  if (todoMatches.length > 0) {
     problems.push(`还有 ${todoMatches.length} 处未完成的代码（TODO 标记）`);
     suggestions.push('请逐个完成 TODO 标记的代码部分');
   }
