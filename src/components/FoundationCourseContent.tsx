@@ -14,7 +14,6 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import type { Algorithm } from '../types';
 import AITutorPanel from './AITutorPanel';
-import LessonTimeline from './LessonTimeline';
 import InteractiveTask from './InteractiveTask';
 import { lessonProgressService } from '../services/lessonProgressService';
 
@@ -189,19 +188,9 @@ export default function FoundationCourseContent({
       </div>
 
       {/* ─── Three-Column Layout ─── */}
-      <div className="flex gap-6">
-        {/* LEFT: Lesson Timeline Nav */}
-        <div className="w-64 shrink-0 hidden xl:block sticky top-20 self-start">
-          <LessonTimeline
-            lessons={sortedLessons}
-            currentLessonId={currentLesson.id}
-            completedLessons={completedLessons}
-            onSelect={navigateToLesson}
-          />
-        </div>
-
+      <div className="flex gap-6 justify-center">
         {/* CENTER: Lesson Content */}
-        <div className="flex-1 min-w-0 space-y-6">
+        <div className="w-full max-w-[820px] space-y-6">
           {/* Lesson Header */}
           <div>
             <div className="flex items-center gap-2 mb-1">
