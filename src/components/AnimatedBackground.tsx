@@ -36,9 +36,9 @@ export default function AnimatedBackground() {
       y: Math.random() * h,
       vx: (Math.random() - 0.5) * 0.6,
       vy: (Math.random() - 0.5) * 0.6,
-      size: Math.random() * 2.5 + 1,
-      opacity: Math.random() * 0.4 + 0.1,
-      hue: Math.random() * 40 + 210, // blue-cyan range
+      size: Math.random() * 2 + 0.8,
+      opacity: Math.random() * 0.25 + 0.06,
+      hue: Math.random() * 60 + 195, // soft blue-teal range
     }));
 
     const onMouse = (e: MouseEvent) => {
@@ -56,9 +56,9 @@ export default function AnimatedBackground() {
       // Draw mouse glow
       if (mouseOnScreen) {
         const gradient = ctx.createRadialGradient(mx, my, 0, mx, my, 280);
-        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.08)');
-        gradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.03)');
-        gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+        gradient.addColorStop(0, 'rgba(148, 163, 184, 0.05)');
+        gradient.addColorStop(0.5, 'rgba(148, 163, 184, 0.02)');
+        gradient.addColorStop(1, 'rgba(148, 163, 184, 0)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
       }
@@ -98,7 +98,7 @@ export default function AnimatedBackground() {
       }
 
       // Draw connections between nearby particles
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.06)';
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.04)';
       ctx.lineWidth = 0.5;
       const particles = particlesRef.current;
       for (let i = 0; i < particles.length; i++) {

@@ -340,20 +340,19 @@ export default function HomePage() {
         </section>
 
         {/* ════════════════ CTA / Progress ════════════════ */}
-        <section className="relative py-24 md:py-32">
-          {/* Solid gradient background for this section to stand out */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-accent-700" />
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-float" style={{ animationDelay: '0s' }} />
-            <div className="absolute bottom-0 left-0 w-72 h-72 bg-white rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
-          </div>
+        <section className="relative py-24 md:py-32 overflow-hidden">
+          {/* Soft gradient that blends with page background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary-50/60 via-white to-accent-50/40" />
+          {/* Subtle decorative blobs */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary-400/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent-400/5 rounded-full blur-3xl" />
 
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <Reveal>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
                 {completedCount > 0 ? '继续你的学习之旅' : '开启机器学习之旅'}
               </h2>
-              <p className="text-white/70 text-lg mb-12 max-w-xl mx-auto leading-relaxed">
+              <p className="text-gray-500 text-lg mb-12 max-w-xl mx-auto leading-relaxed">
                 {completedCount > 0
                   ? `你已完成 ${completedCount}/${algorithms.length} 个算法，继续保持！每一步都离目标更近。`
                   : '从零开始，系统学习机器学习核心算法。AI 助教全程陪伴，让学习不孤单。'}
@@ -370,10 +369,10 @@ export default function HomePage() {
                 ].map((s) => {
                   const count = useCountUp(s.value, 1200, true);
                   return (
-                    <div key={s.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:scale-105">
-                      <div className="text-3xl font-extrabold text-white mb-1 tabular-nums">{count}</div>
-                      <div className="text-sm text-white/70 font-medium">{s.label}</div>
-                      <div className="text-xs text-white/40 mt-0.5">{s.sub}</div>
+                    <div key={s.label} className="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-gray-100/60 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:-translate-y-1">
+                      <div className="text-3xl font-extrabold text-gray-900 mb-1 tabular-nums">{count}</div>
+                      <div className="text-sm text-gray-500 font-medium">{s.label}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">{s.sub}</div>
                     </div>
                   );
                 })}
@@ -383,7 +382,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 to={`/algorithms/${algorithms[0]?.id || 'linear-regression'}`}
-                className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-white text-primary-700 rounded-2xl font-bold text-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-primary-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30 hover:scale-105 active:scale-95"
               >
                 <GraduationCap className="w-5 h-5" />
                 {completedCount > 0 ? '继续学习' : '开始第一课'}
@@ -391,7 +390,7 @@ export default function HomePage() {
               </Link>
               <Link
                 to="/progress"
-                className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-white/15 text-white rounded-2xl font-semibold text-lg transition-all duration-300 hover:bg-white/25 backdrop-blur-sm border border-white/20"
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-gray-200 bg-white/80 backdrop-blur-sm text-gray-600 rounded-2xl font-semibold text-lg transition-all duration-300 hover:bg-white hover:border-primary-200 hover:text-primary-600 hover:shadow-md"
               >
                 <TrendingUp className="w-5 h-5" />
                 详细进度
