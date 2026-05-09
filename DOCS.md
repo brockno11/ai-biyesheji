@@ -975,7 +975,7 @@ npx tsc --noEmit && npx vite build
 
 | 提交 | 内容 |
 |------|------|
-| 当前工作区 | AI 工作流横幅组件；后端频率限制/Key 脱敏/统一错误码/JSON 修复；AbortController 文档注释 |
+| 当前工作区 | 14 个 Vitest 测试（首页/算法页/代码检查/AI Mock/AI fallback/测验/localStorage）；测试脚本 `npm test` |
 | `2608c8f` | K-Means 课程与可视化；Pyodide 真运行；练习 8 道，测验 32 道；题库管理后台；代码注释过滤 |
 | `e19f841` | 文档 Agent 交接更新 |
 | `cf2e421` | 修复 DeepSeek thinking 参数、代码质量优化 |
@@ -993,6 +993,25 @@ npx tsc --noEmit && npx vite build
 | JSON 修复 | `server/services/deepseekService.ts` | `tryParseJson()` 自动从 Markdown 提取 JSON |
 | 请求超时 | `server/services/deepseekService.ts` | 服务端 20s，客户端 22s（先于客户端超时） |
 | AbortController | `src/services/aiService.ts` | 支持页面切换时取消请求，finally 清理计时器 |
+
+### 13.6 测试
+
+```bash
+npm test          # 运行全部测试（CI 模式）
+npm run test:watch # 监听模式
+```
+
+| # | 测试文件 | 覆盖范围 |
+|---|---------|----------|
+| 1 | `homepage.test.tsx` | 首页渲染、AI 工作流横幅 |
+| 2 | `algorithmPage.test.tsx` | 算法详情页按 id 渲染 |
+| 3 | `codeCheck.test.ts` | 关键词检查满分、TODO 扣分、缺失关键词检测 |
+| 4 | `aiMockService.test.ts` | Mock AI 代码诊断结构完整性、概念解释 |
+| 5 | `aiService.fallback.test.ts` | DeepSeek 不可用时自动降级到 Mock |
+| 6 | `quiz.test.ts` | 每算法 8 题、全对/全错评分 |
+| 7 | `storageService.test.ts` | 练习记录保存/读取、自定义课程持久化 |
+
+测试框架：Vitest + @testing-library/react + jsdom。配置文件 `vitest.config.ts`。
 
 ---
 
