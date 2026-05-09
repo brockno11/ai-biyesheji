@@ -332,7 +332,7 @@ export default function AdminCoursePanel() {
       </div>
 
       {/* Course Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -374,9 +374,9 @@ export default function AdminCoursePanel() {
                     </td>
                     <td className="px-4 py-3">
                       {isStatic ? (
-                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">内置</span>
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-200">内置</span>
                       ) : (
-                        <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">自定义</span>
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-medium border border-blue-200">自定义</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

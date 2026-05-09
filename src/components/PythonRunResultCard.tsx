@@ -24,6 +24,29 @@ function eventTone(level: PythonRuntimeEvent['level']) {
   return 'border-slate-200 bg-slate-50 text-slate-700';
 }
 
+/* ─── Error type classification ─── */
+const errorTypeMap: Array<{ pattern: RegExp; label: string }> = [
+  { pattern: /SyntaxError/i, label: '语法错误' },
+  { pattern: /NameError/i, label: '变量未定义' },
+  { pattern: /ImportError|ModuleNotFoundError/i, label: '依赖缺失' },
+  { pattern: /ValueError/i, label: '数据维度错误' },
+  { pattern: /NotFittedError/i, label: '模型未训练' },
+  { pattern: /TimeoutError/i, label: '执行超时' },
+  { pattern: /TypeError/i, label: '类型错误' },
+  { pattern: /IndexError/i, label: '索引错误' },
+  { pattern: /KeyError/i, label: '键错误' },
+  { pattern: /AttributeError/i, label: '属性错误' },
+  { pattern: /ZeroDivisionError/i, label: '除零错误' },
+  { pattern: /FileNotFoundError/i, label: '文件未找到' },
+];
+
+function classifyError(error: string): string | null {
+  for (const entry of errorTypeMap) {
+    if (entry.pattern.test(error)) return entry.label;
+  }
+  return null;
+}
+
 function RuntimeTimeline({ events }: { events: PythonRuntimeEvent[] }) {
   if (events.length === 0) return null;
 
@@ -162,9 +185,16 @@ export default function PythonRunResultCard({ result, loading = false, events = 
 
         {result.error && (
           <div className="rounded-xl border border-red-100 bg-red-50 p-4">
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-red-800">
-              <XCircle className="h-4 w-4" />
-              错误信息
+            <div className="mb-2 flex items-center gap-2 flex-wrap">
+              <span className="flex items-center gap-1.5 text-sm font-bold text-red-800">
+                <XCircle className="h-4 w-4" />
+                错误信息
+              </span>
+              {classifyError(result.error) && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-200 text-red-800 border border-red-300">
+                  {classifyError(result.error)}
+                </span>
+              )}
             </div>
             <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-6 text-red-800">
               {result.error}

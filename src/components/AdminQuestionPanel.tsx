@@ -253,17 +253,17 @@ export default function AdminQuestionPanel() {
           <p className="text-sm text-gray-500">支持新增题目，也支持对内置题目做本地覆盖编辑。</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+          <div className="inline-flex rounded-xl border border-white/60 bg-white/70 backdrop-blur-md p-1 shadow-sm">
             <button
               onClick={() => setMode('exercise')}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${mode === 'exercise' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-300 ${mode === 'exercise' ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
             >
               <Code2 className="h-4 w-4" />
               练习题
             </button>
             <button
               onClick={() => setMode('quiz')}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${mode === 'quiz' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-300 ${mode === 'quiz' ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
             >
               <ClipboardList className="h-4 w-4" />
               测验题
@@ -309,9 +309,9 @@ export default function AdminQuestionPanel() {
       </div>
 
       {mode === 'exercise' ? (
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-            <div className="text-sm font-bold text-gray-900">练习题共 {exerciseList.length} 道</div>
+            <div className="text-sm font-extrabold text-gray-900 tracking-tight">练习题共 {exerciseList.length} 道</div>
             <button onClick={openNewExercise} className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">
               <Plus className="h-4 w-4" />
               新增练习
@@ -324,7 +324,11 @@ export default function AdminQuestionPanel() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-gray-900">{exercise.title}</span>
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{courseName(exercise.algorithmId)}</span>
-                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">{exercise.source}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${
+                      exercise.source === '内置' ? 'bg-gray-100 text-gray-600 border-gray-200' :
+                      exercise.source === '自定义' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                      'bg-amber-100 text-amber-700 border-amber-200'
+                    }`}>{exercise.source}</span>
                   </div>
                   <p className="mt-1 line-clamp-2 text-sm text-gray-500">{exercise.description}</p>
                 </div>
@@ -344,9 +348,9 @@ export default function AdminQuestionPanel() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-            <div className="text-sm font-bold text-gray-900">测验题共 {quizList.length} 道</div>
+            <div className="text-sm font-extrabold text-gray-900 tracking-tight">测验题共 {quizList.length} 道</div>
             <button onClick={openNewQuiz} className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">
               <Plus className="h-4 w-4" />
               新增测验
@@ -359,7 +363,11 @@ export default function AdminQuestionPanel() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-gray-900">{question.question}</span>
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{courseName(question.algorithmId)}</span>
-                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">{question.source}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${
+                      question.source === '内置' ? 'bg-gray-100 text-gray-600 border-gray-200' :
+                      question.source === '自定义' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                      'bg-amber-100 text-amber-700 border-amber-200'
+                    }`}>{question.source}</span>
                   </div>
                   <p className="mt-1 text-sm text-gray-500">正确答案：{question.options[question.correctIndex]}</p>
                 </div>
@@ -388,7 +396,7 @@ export default function AdminQuestionPanel() {
       )}
 
       {showExerciseForm && (
-        <div className="rounded-2xl border border-primary-100 bg-white p-5 shadow-lg">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-bold text-gray-900">编辑练习题</h3>
             <button onClick={() => setShowExerciseForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
@@ -432,7 +440,7 @@ export default function AdminQuestionPanel() {
       )}
 
       {showQuizForm && (
-        <div className="rounded-2xl border border-primary-100 bg-white p-5 shadow-lg">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-bold text-gray-900">编辑测验题</h3>
             <button onClick={() => setShowQuizForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">

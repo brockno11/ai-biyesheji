@@ -41,7 +41,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-white/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
@@ -75,7 +75,7 @@ export default function AdminPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Admin Sidebar */}
           <aside className="lg:w-52 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-3">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-3">
               <div className="px-3 py-2 mb-2">
                 <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                   管理导航
@@ -89,9 +89,9 @@ export default function AdminPage() {
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
                         isActive
-                          ? 'bg-amber-50 text-amber-700 shadow-sm'
+                          ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 shadow-sm border border-amber-200'
                           : 'text-gray-600 hover:bg-gray-50'
                       }`}
                     >
@@ -117,18 +117,18 @@ export default function AdminPage() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { icon: BookOpen, label: '课程总数', value: String(stats.totalCourses), sub: `${stats.builtInCourses} 内置 + ${stats.customCourses} 自定义`, color: 'text-blue-600', bg: 'bg-blue-50' },
-                    { icon: Database, label: '练习记录', value: String(stats.totalPracticeRecords), sub: '条代码提交', color: 'text-green-600', bg: 'bg-green-50' },
-                    { icon: Activity, label: '测验记录', value: String(stats.totalQuizRecords), sub: '次知识测验', color: 'text-purple-600', bg: 'bg-purple-50' },
-                    { icon: TrendingUp, label: '完成率', value: `${Math.round((stats.completedAlgorithms / Math.max(stats.totalCourses, 1)) * 100)}%`, sub: `${stats.completedAlgorithms}/${stats.totalCourses} 门`, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+                    { icon: BookOpen, label: '课程总数', value: String(stats.totalCourses), sub: `${stats.builtInCourses} 内置 + ${stats.customCourses} 自定义`, gradient: 'from-blue-500 to-cyan-500' },
+                    { icon: Database, label: '练习记录', value: String(stats.totalPracticeRecords), sub: '条代码提交', gradient: 'from-emerald-500 to-teal-500' },
+                    { icon: Activity, label: '测验记录', value: String(stats.totalQuizRecords), sub: '次知识测验', gradient: 'from-violet-500 to-purple-500' },
+                    { icon: TrendingUp, label: '完成率', value: `${Math.round((stats.completedAlgorithms / Math.max(stats.totalCourses, 1)) * 100)}%`, sub: `${stats.completedAlgorithms}/${stats.totalCourses} 门`, gradient: 'from-amber-500 to-yellow-500' },
                   ].map((s) => {
                     const Icon = s.icon;
                     return (
-                      <div key={s.label} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-                        <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center mb-3`}>
-                          <Icon className={`w-5 h-5 ${s.color}`} />
+                      <div key={s.label} className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mb-3 shadow-sm`}>
+                          <Icon className="w-5 h-5 text-white" />
                         </div>
-                        <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
+                        <div className="text-2xl font-extrabold text-gray-900 tracking-tight">{s.value}</div>
                         <div className="text-xs text-gray-500 mt-1">{s.label}</div>
                         <div className="text-[10px] text-gray-400">{s.sub}</div>
                       </div>
@@ -137,7 +137,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Course Overview */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-100">
                     <h3 className="text-base font-bold text-gray-900">课程清单</h3>
                   </div>
@@ -180,9 +180,9 @@ export default function AdminPage() {
                               </td>
                               <td className="px-5 py-3">
                                 {isStatic ? (
-                                  <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">内置</span>
+                                  <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-200">内置</span>
                                 ) : (
-                                  <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">自定义</span>
+                                  <span className="text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-medium border border-blue-200">自定义</span>
                                 )}
                               </td>
                               <td className="px-5 py-3 text-sm text-gray-600">{practiceCount} 次</td>
@@ -201,24 +201,24 @@ export default function AdminPage() {
 
                 {/* System Info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <HardDrive className="w-4 h-4 text-gray-400" />
                       <span className="text-sm font-semibold text-gray-700">存储方式</span>
                     </div>
                     <p className="text-sm text-gray-500">浏览器 localStorage，数据仅存在于本地设备</p>
                   </div>
-                  <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <Users className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-semibold text-gray-700">用户模式</span>
+                      <span className="text-sm font-bold text-gray-700">用户模式</span>
                     </div>
                     <p className="text-sm text-gray-500">单用户本地模式，无需登录注册，开箱即用</p>
                   </div>
-                  <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                  <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <BarChart3 className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-semibold text-gray-700">技术栈</span>
+                      <span className="text-sm font-bold text-gray-700">技术栈</span>
                     </div>
                     <p className="text-sm text-gray-500">React 18 + TypeScript + Vite + Tailwind CSS + ECharts + Monaco Editor</p>
                   </div>
