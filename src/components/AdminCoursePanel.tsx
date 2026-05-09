@@ -70,10 +70,10 @@ export default function AdminCoursePanel() {
   const openEdit = (course: Algorithm) => {
     setForm({
       ...course,
-      steps: [...course.steps],
-      advantages: [...course.advantages],
-      disadvantages: [...course.disadvantages],
-      useCases: [...course.useCases],
+      steps: [...(course.steps || [])],
+      advantages: [...(course.advantages || [])],
+      disadvantages: [...(course.disadvantages || [])],
+      useCases: [...(course.useCases || [])],
     });
     setEditingId(course.id);
     setFieldErrors({});
@@ -205,14 +205,14 @@ export default function AdminCoursePanel() {
     value: string
   ) => {
     setForm((prev) => {
-      const arr = [...prev[field]];
+      const arr = [...(prev[field] as string[] || [])];
       arr[index] = value;
       return { ...prev, [field]: arr };
     });
   };
 
   const addArrayItem = (field: 'steps' | 'advantages' | 'disadvantages' | 'useCases') => {
-    setForm((prev) => ({ ...prev, [field]: [...prev[field], ''] }));
+    setForm((prev) => ({ ...prev, [field]: [...(prev[field] as string[] || []), ''] }));
   };
 
   const removeArrayItem = (
@@ -220,7 +220,7 @@ export default function AdminCoursePanel() {
     index: number
   ) => {
     setForm((prev) => {
-      const arr = prev[field].filter((_, i) => i !== index);
+      const arr = (prev[field] as string[] | undefined || []).filter((_, i) => i !== index);
       return { ...prev, [field]: arr.length === 0 ? [''] : arr };
     });
   };
@@ -522,7 +522,7 @@ export default function AdminCoursePanel() {
                         className="text-xs text-primary-600 hover:text-primary-700 font-medium">+ 添加一项</button>
                     </div>
                     <div className="space-y-2">
-                      {form[field].map((item, i) => (
+                      {(form[field] as string[] || []).map((item, i) => (
                         <div key={i} className="flex gap-2">
                           <input type="text" value={item} onChange={(e) => updateArrayItem(field, i, e.target.value)}
                             placeholder={`${labels[field]} ${i + 1}...`}
@@ -615,41 +615,41 @@ export default function AdminCoursePanel() {
                   <pre className="text-xs text-gray-700 bg-gray-50 rounded-xl p-3 font-mono whitespace-pre-wrap">{previewCourse.formula}</pre>
                 </div>
               )}
-              {previewCourse.steps.length > 0 && previewCourse.steps[0] !== '' && (
+              {(previewCourse.steps || []).length > 0 && (previewCourse.steps || [])[0] !== '' && (
                 <div>
                   <p className="text-sm font-semibold text-gray-600 mb-1">算法步骤</p>
                   <ol className="list-decimal list-inside space-y-1">
-                    {previewCourse.steps.filter(Boolean).map((s, i) => (
+                    {(previewCourse.steps || []).filter(Boolean).map((s, i) => (
                       <li key={i} className="text-sm text-gray-700">{s}</li>
                     ))}
                   </ol>
                 </div>
               )}
-              {previewCourse.advantages.length > 0 && previewCourse.advantages[0] !== '' && (
+              {(previewCourse.advantages || []).length > 0 && (previewCourse.advantages || [])[0] !== '' && (
                 <div>
                   <p className="text-sm font-semibold text-gray-600 mb-1">优点</p>
                   <ul className="list-disc list-inside space-y-1">
-                    {previewCourse.advantages.filter(Boolean).map((a, i) => (
+                    {(previewCourse.advantages || []).filter(Boolean).map((a, i) => (
                       <li key={i} className="text-sm text-green-700">{a}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {previewCourse.disadvantages.length > 0 && previewCourse.disadvantages[0] !== '' && (
+              {(previewCourse.disadvantages || []).length > 0 && (previewCourse.disadvantages || [])[0] !== '' && (
                 <div>
                   <p className="text-sm font-semibold text-gray-600 mb-1">缺点</p>
                   <ul className="list-disc list-inside space-y-1">
-                    {previewCourse.disadvantages.filter(Boolean).map((d, i) => (
+                    {(previewCourse.disadvantages || []).filter(Boolean).map((d, i) => (
                       <li key={i} className="text-sm text-red-700">{d}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {previewCourse.useCases.length > 0 && previewCourse.useCases[0] !== '' && (
+              {(previewCourse.useCases || []).length > 0 && (previewCourse.useCases || [])[0] !== '' && (
                 <div>
                   <p className="text-sm font-semibold text-gray-600 mb-1">适用场景</p>
                   <ul className="list-disc list-inside space-y-1">
-                    {previewCourse.useCases.filter(Boolean).map((u, i) => (
+                    {(previewCourse.useCases || []).filter(Boolean).map((u, i) => (
                       <li key={i} className="text-sm text-blue-700">{u}</li>
                     ))}
                   </ul>

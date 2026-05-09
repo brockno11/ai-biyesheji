@@ -29,6 +29,7 @@ const categoryLabels: Record<Algorithm['category'], string> = {
   classification: '分类算法',
   tree: '树形算法',
   clustering: '聚类算法',
+  basic: '基础课程',
 };
 
 function Section({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -126,81 +127,93 @@ export default function AlgorithmPage() {
               <p className="text-gray-600 leading-relaxed mb-6">{algorithm.description}</p>
 
               {/* Pros & Cons */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-green-50/70 rounded-xl p-4 border border-green-100">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-green-700 mb-3">
-                    <ThumbsUp className="w-4 h-4" />
-                    优点
-                  </h3>
-                  <ul className="space-y-2">
-                    {algorithm.advantages.map((adv, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-green-800">
-                        <span className="text-green-400 mt-0.5 flex-shrink-0">✓</span>
-                        {adv}
-                      </li>
-                    ))}
-                  </ul>
+              {(algorithm.advantages || algorithm.disadvantages) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {algorithm.advantages && algorithm.advantages.length > 0 && (
+                    <div className="bg-green-50/70 rounded-xl p-4 border border-green-100">
+                      <h3 className="flex items-center gap-2 text-sm font-bold text-green-700 mb-3">
+                        <ThumbsUp className="w-4 h-4" />
+                        优点
+                      </h3>
+                      <ul className="space-y-2">
+                        {algorithm.advantages.map((adv, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-green-800">
+                            <span className="text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                            {adv}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {algorithm.disadvantages && algorithm.disadvantages.length > 0 && (
+                    <div className="bg-red-50/70 rounded-xl p-4 border border-red-100">
+                      <h3 className="flex items-center gap-2 text-sm font-bold text-red-700 mb-3">
+                        <AlertCircle className="w-4 h-4" />
+                        缺点
+                      </h3>
+                      <ul className="space-y-2">
+                        {algorithm.disadvantages.map((dis, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-red-800">
+                            <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+                            {dis}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-                <div className="bg-red-50/70 rounded-xl p-4 border border-red-100">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-red-700 mb-3">
-                    <AlertCircle className="w-4 h-4" />
-                    缺点
-                  </h3>
-                  <ul className="space-y-2">
-                    {algorithm.disadvantages.map((dis, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-red-800">
-                        <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                        {dis}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              )}
             </div>
           </Section>
 
           {/* Section 3: 公式与步骤 */}
-          <Section className="mt-6">
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
-              <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
-                <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm">
-                  <BookOpen className="w-4 h-4" />
-                </span>
-                公式与步骤
-              </h2>
+          {(algorithm.formula || (algorithm.steps && algorithm.steps.length > 0)) && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm">
+                    <BookOpen className="w-4 h-4" />
+                  </span>
+                  公式与步骤
+                </h2>
 
-              {/* Formula */}
-              <div className="mb-6">
-                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-                  核心公式
-                </h3>
-                <div className="bg-gray-900 text-gray-100 rounded-xl p-5 overflow-x-auto border border-gray-700">
-                  <pre className="text-sm leading-relaxed font-mono whitespace-pre-wrap">
-                    {algorithm.formula}
-                  </pre>
-                </div>
-              </div>
-
-              {/* Steps */}
-              <div>
-                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-500" />
-                  算法步骤
-                </h3>
-                <div className="space-y-3">
-                  {algorithm.steps.map((step, i) => (
-                    <div key={i} className="flex items-start gap-3 group">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-100 to-accent-100 text-primary-700 flex items-center justify-center flex-shrink-0 text-sm font-bold group-hover:bg-gradient-to-br group-hover:from-primary-500 group-hover:to-accent-500 group-hover:text-white group-hover:shadow-md transition-all duration-300">
-                        {i + 1}
-                      </div>
-                      <p className="text-sm text-gray-700 pt-1.5 leading-relaxed">{step}</p>
+                {/* Formula */}
+                {algorithm.formula && (
+                  <div className="mb-6">
+                    <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+                      核心公式
+                    </h3>
+                    <div className="bg-gray-900 text-gray-100 rounded-xl p-5 overflow-x-auto border border-gray-700">
+                      <pre className="text-sm leading-relaxed font-mono whitespace-pre-wrap">
+                        {algorithm.formula}
+                      </pre>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {/* Steps */}
+                {(algorithm.steps && algorithm.steps.length > 0) && (
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-500" />
+                      算法步骤
+                    </h3>
+                    <div className="space-y-3">
+                      {(algorithm.steps || []).map((step, i) => (
+                        <div key={i} className="flex items-start gap-3 group">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-100 to-accent-100 text-primary-700 flex items-center justify-center flex-shrink-0 text-sm font-bold group-hover:bg-gradient-to-br group-hover:from-primary-500 group-hover:to-accent-500 group-hover:text-white group-hover:shadow-md transition-all duration-300">
+                            {i + 1}
+                          </div>
+                          <p className="text-sm text-gray-700 pt-1.5 leading-relaxed">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </Section>
+            </Section>
+          )}
 
           {/* Section 4: 交互式可视化 */}
           {VizComponent && (
@@ -224,21 +237,23 @@ export default function AlgorithmPage() {
           )}
 
           {/* Section 5: Python 代码示例 */}
-          <Section className="mt-6">
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
-              <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
-                <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-sm">
-                  <Code2 className="w-4 h-4" />
-                </span>
-                Python 代码示例
-              </h2>
-              <div className="bg-gray-900 text-gray-100 rounded-xl p-5 overflow-x-auto border border-gray-700">
-                <pre className="text-sm leading-relaxed font-mono whitespace-pre-wrap">
-                  {algorithm.codeExample}
-                </pre>
+          {algorithm.codeExample && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-sm">
+                    <Code2 className="w-4 h-4" />
+                  </span>
+                  Python 代码示例
+                </h2>
+                <div className="bg-gray-900 text-gray-100 rounded-xl p-5 overflow-x-auto border border-gray-700">
+                  <pre className="text-sm leading-relaxed font-mono whitespace-pre-wrap">
+                    {algorithm.codeExample}
+                  </pre>
+                </div>
               </div>
-            </div>
-          </Section>
+            </Section>
+          )}
 
           {/* Section 6: B 站教学视频 */}
           {algorithm.videoUrl && (

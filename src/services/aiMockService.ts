@@ -46,7 +46,7 @@ export const aiMockService = {
   },
 
   summarizeLesson(context: AIRequestContext): string {
-    return `本节 ${algorithmName(context)} 可以总结成三点：\n1. 核心思想：${context.algorithm?.intro || '理解算法如何做预测'}\n2. 关键步骤：${context.algorithm?.steps.slice(0, 3).join('；') || '先理解流程'}\n3. 易错点：不要只记 API，要知道每一步为什么存在。\n\n学完后建议马上做一题练习巩固。`;
+    return `本节 ${algorithmName(context)} 可以总结成三点：\n1. 核心思想：${context.algorithm?.intro || '理解算法如何做预测'}\n2. 关键步骤：${(context.algorithm?.steps || []).slice(0, 3).join('；') || '先理解流程'}\n3. 易错点：不要只记 API，要知道每一步为什么存在。\n\n学完后建议马上做一题练习巩固。`;
   },
 
   lifeExample(context: AIRequestContext): string {

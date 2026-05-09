@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 
 // Lazy-loaded pages for code splitting
 const AlgorithmPage = lazy(() => import('./pages/AlgorithmPage'));
+const CoursePage = lazy(() => import('./pages/CoursePage'));
 const PracticePage = lazy(() => import('./pages/PracticePage'));
 const QuizPage = lazy(() => import('./pages/QuizPage'));
 const ProgressPage = lazy(() => import('./pages/ProgressPage'));
@@ -50,7 +51,7 @@ export default function App() {
             path="/algorithms/:id"
             element={
               <Suspense fallback={<PageLoader />}>
-                <AlgorithmPage />
+                <CoursePage />
               </Suspense>
             }
           />

@@ -59,6 +59,7 @@ export default function HomePage() {
   ];
 
   const catTag: Record<string, string> = {
+    basic: 'from-teal-400 to-cyan-500',
     regression: 'from-blue-500 to-blue-600',
     classification: 'from-amber-500 to-orange-600',
     tree: 'from-emerald-500 to-green-600',

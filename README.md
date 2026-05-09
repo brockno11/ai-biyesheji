@@ -2,7 +2,7 @@
 
 > **文档导航**：快速了解项目 → 当前页；深入技术细节 → **[DOCS.md](./DOCS.md)**；AI Agent 开发 → **[SKILLS.md](./SKILLS.md)**
 >
-> **当前版本：v2.5.3** | 最近更新：粒子动效首页、Pyodide Worker 全算法真运行、React.lazy 代码拆分、Zod 数据校验、AI 安全加固
+> **当前版本：v2.6.0** | 最近更新：粒子动效首页、Pyodide Worker 全算法真运行、React.lazy 代码拆分、Zod 数据校验、AI 安全加固
 
 ## 项目简介
 
@@ -31,7 +31,7 @@
 
 ### 当前项目状态（2026-05-09）
 
-- 内置算法：4 个（线性回归、KNN、决策树、K-Means 聚类）
+- 内置课程：6 门（2 门基础概念课 + 4 门算法课），面向零基础渐进式学习
 - 代码练习：8 道（每个算法 2 道）
 - 测验题目：32 道（每个算法 8 道）
 - 可视化组件：4 个（LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz）

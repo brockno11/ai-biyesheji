@@ -1,18 +1,45 @@
+export type CourseType = 'foundation' | 'algorithm' | 'project';
+
+export interface CourseConcept {
+  title: string;
+  description: string;
+  example?: string;
+}
+
+export interface CourseAnalogy {
+  title: string;
+  content: string;
+}
+
+export interface CourseMisunderstanding {
+  wrong: string;
+  correct: string;
+}
+
 export interface Algorithm {
   id: string;
   name: string;
-  category: 'regression' | 'classification' | 'tree' | 'clustering';
+  type?: CourseType;
+  category: 'regression' | 'classification' | 'tree' | 'clustering' | 'basic';
   difficulty: '入门' | '中级' | '进阶';
   description: string;
   intro: string;
-  formula: string;
-  steps: string[];
-  advantages: string[];
-  disadvantages: string[];
-  useCases: string[];
-  codeExample: string;
+  formula?: string;
+  steps?: string[];
+  advantages?: string[];
+  disadvantages?: string[];
+  useCases?: string[];
+  codeExample?: string;
   videoUrl: string;
   icon: string;
+  // Foundation course fields
+  learningObjectives?: string[];
+  concepts?: CourseConcept[];
+  analogies?: CourseAnalogy[];
+  commonMisunderstandings?: CourseMisunderstanding[];
+  visualizationType?: string;
+  hasPractice?: boolean;
+  hasQuiz?: boolean;
 }
 
 import type { PythonRuntimeSpec } from '../services/aiTypes';
