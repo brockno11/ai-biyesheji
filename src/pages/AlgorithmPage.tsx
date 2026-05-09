@@ -14,6 +14,7 @@ import LinearRegressionViz from '../components/LinearRegressionViz';
 import KNNViz from '../components/KNNViz';
 import DecisionTreeViz from '../components/DecisionTreeViz';
 import KMeansViz from '../components/KMeansViz';
+import ErrorBoundary from '../components/ErrorBoundary';
 import type { Algorithm } from '../types';
 
 const vizComponents: Record<string, React.ComponentType<{ algorithm?: Algorithm }>> = {
@@ -215,7 +216,9 @@ export default function AlgorithmPage() {
                   <span className="text-base">💡</span>
                   试试拖动参数观察变化
                 </p>
-                <VizComponent algorithm={algorithm} />
+                <ErrorBoundary>
+                  <VizComponent algorithm={algorithm} />
+                </ErrorBoundary>
               </div>
             </Section>
           )}

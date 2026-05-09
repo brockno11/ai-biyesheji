@@ -178,7 +178,7 @@ export default function KMeansViz({ algorithm }: { algorithm?: Algorithm }) {
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
         <div className="rounded-xl border border-slate-200 bg-white p-3">
-          <ReactECharts option={option} style={{ height: 420 }} />
+          <ReactECharts notMerge={true} option={option} style={{ height: 420 }} />
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
           {[

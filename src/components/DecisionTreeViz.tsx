@@ -294,7 +294,7 @@ export default function DecisionTreeViz({ algorithm }: { algorithm?: Algorithm }
 
       {/* Tree Chart */}
       <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-        <ReactECharts option={chartOption} style={{ height: 450 }} />
+        <ReactECharts notMerge={true} option={chartOption} style={{ height: 450 }} />
       </div>
 
       {/* Sample Path */}

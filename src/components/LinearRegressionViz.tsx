@@ -203,10 +203,10 @@ export default function LinearRegressionViz({ algorithm }: { algorithm?: Algorit
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-          <ReactECharts option={scatterOption} style={{ height: 380 }} />
+          <ReactECharts notMerge={true} option={scatterOption} style={{ height: 380 }} />
         </div>
         <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-          <ReactECharts option={lossOption} style={{ height: 380 }} />
+          <ReactECharts notMerge={true} option={lossOption} style={{ height: 380 }} />
         </div>
       </div>
 

@@ -225,8 +225,16 @@ export default function KNNViz({ algorithm }: { algorithm?: Algorithm }) {
           style={{ height: 420 }}
           onEvents={{
             click: (params: { data?: [number, number] }) => {
-              if (params.data) {
-                setTestPoint({ x: params.data[0], y: params.data[1] });
+              try {
+                if (params?.data && Array.isArray(params.data) && params.data.length >= 2) {
+                  const x = Number(params.data[0]);
+                  const y = Number(params.data[1]);
+                  if (!isNaN(x) && !isNaN(y)) {
+                    setTestPoint({ x, y });
+                  }
+                }
+              } catch (e) {
+                console.warn('[KNNViz] Click handler error:', e);
               }
             },
           }}
