@@ -134,6 +134,22 @@ export interface Exercise {
   expectedKeywords: string[];
   checkRules: CheckRule[];
   runtimeSpec?: PythonRuntimeSpec;
+  enabled?: boolean;
+  source?: string; // '内置' | '自定义' | '覆盖' | 'AI生成'
+}
+
+export interface QuizQuestion {
+  id: string;
+  algorithmId: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  enabled?: boolean;
+  source?: string; // '内置' | '自定义' | '覆盖' | 'AI生成'
+  conceptId?: string;
+  lessonId?: string;
+  difficulty?: '入门' | '中级' | '进阶';
 }
 
 export interface CheckRule {
@@ -167,15 +183,6 @@ export interface PracticeRecord {
   passed: boolean;
   timestamp: number;
   feedback: string;
-}
-
-export interface QuizQuestion {
-  id: string;
-  algorithmId: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
 }
 
 export interface QuizRecord {
