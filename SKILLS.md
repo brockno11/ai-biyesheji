@@ -26,6 +26,16 @@
 | 18 | markitdown | 文档转换 | PDF/DOCX/PPTX/XLSX → Markdown |
 | 19 | latex-thesis-zh | 论文 | 中文 LaTeX 学位论文辅助 |
 
+## v3.1.0 本轮使用的 Skills
+
+| Skill | 对应工作 |
+|------|----------|
+| fullstack-dev | Express 后端架构设计、服务端 JSON 持久化(原子写入)、adminStorageService、Token 鉴权中间件 |
+| api-designer | /api/admin REST API 设计(统一响应格式/错误码/CRUD/导入导出)、curl 自动化测试 |
+| senior-frontend | adminApiService 前端接入、AdminPage 后端状态卡片/登录表单/操作日志 Tab、数据合并策略、后端离线 fallback |
+| frontend-code-review | 全链路 TypeScript 检查、.gitignore 安全审计 |
+| senior-qa | npm test / npm run build / npx tsc 三合一验证 |
+
 ## v3.0.0 本轮使用的 Skills
 
 | Skill | 对应工作 |

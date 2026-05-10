@@ -2,7 +2,7 @@
 
 > **文档导航**：快速了解项目 → 当前页；深入技术细节 → **[DOCS.md](./DOCS.md)**；AI Agent 开发 → **[SKILLS.md](./SKILLS.md)**；课程全览 → **[COURSE_METHODOLOGY.md](./COURSE_METHODOLOGY.md)**
 >
-> **当前版本：v3.0.0** | 最近更新：身份认证系统+全面代码审计+文档系统同步+用户体验优化
+> **当前版本：v3.1.0** | 最近更新：轻量级管理员后端管理系统 + Express 管理 API + 服务端 JSON 持久化 + 操作日志
 
 ## 项目简介
 
@@ -21,14 +21,14 @@
 | ECharts 5 + echarts-for-react | 交互式算法可视化 |
 | Lucide React | 图标库 |
 | localStorage | 学习进度 + 自定义课程/题库 + 概念掌握度 |
-| Node / Express (端口 8787) | DeepSeek API 后端代理 |
+| Node / Express (端口 8787) | DeepSeek AI 代理 + 管理员后端管理 API + 服务端 JSON 持久化 |
 | DeepSeek API | 真实 AI 助教 (11种场景)；默认 Mock 离线兜底 |
 | Zod v4 | 管理员表单校验 + AI 输出结构校验 |
 | Vitest + @testing-library/react | 测试框架 (25 用例 / 9 文件) |
 
 ## 功能模块
 
-### 当前项目状态（2026-05-11，v3.0.0）
+### 当前项目状态（2026-05-11，v3.1.0）
 
 - **内置课程：9 门**（3 门基础概念课 + 6 门算法课），按入门→中级难度编排
   - 基础课 1：机器学习入门与完整流程 (6 个小节)
@@ -112,6 +112,7 @@ npm run build        # 生产构建
 7. **内容完整**：9 门课程、12 道练习(全Pyodide)、78 道测验、15 图解+10 互动实验
 8. **B站视频全覆盖**：6/6 算法有 B站视频，强制手动播放不打扰学习
 9. **身份认证系统**：登录/注册/游客模式，学生与管理员角色分级，localStorage 持久化
+10. **管理员后端管理**：Express 管理 API + Token 鉴权 + 服务端 JSON 持久化 + 操作日志 + 导入导出 + 后端离线 fallback
 
 ## AI Agent 开发指引
 

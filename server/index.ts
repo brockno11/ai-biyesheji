@@ -2,6 +2,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 import aiRouter from './routes/ai';
+import adminRouter, { authRouter } from './routes/admin';
 
 // ── In-memory rate limiter ──────────────────────────────────────────
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -15,7 +16,7 @@ function rateLimiter(
 ) {
   const path = req.path;
   // Skip rate limiting for health and status endpoints
-  if (path === '/api/health' || path === '/api/ai/status') {
+  if (path === '/api/health' || path === '/api/ai/status' || path.startsWith('/api/admin')) {
     return next();
   }
 
@@ -70,6 +71,8 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/ai', aiRouter);
+app.use('/api/admin/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 // Global error handler — never expose error.stack to the client
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

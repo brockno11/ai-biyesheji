@@ -2,6 +2,7 @@ node_modules/
 dist/
 .vite/
 public/pyodide/
+server/data/backups/*.json
 
 .env
 .env.*
