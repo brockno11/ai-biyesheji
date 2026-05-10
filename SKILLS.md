@@ -48,13 +48,13 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 
 | Skill | 对应工作 |
 |------|----------|
-| senior-frontend | 课程数据重构、AlgorithmPage 模块重排、SmartParagraph/MistakeCard 共享组件 |
-| frontend-design / frontend-ui-ux | 通俗理解+常见误区 Section 设计、课程排版分段优化、答案选项随机分布 |
-| data-viz-2025 | 15 个教学图解组件（AI/ML/DL嵌套图、任务对比图、算法直觉图等） |
-| shadcn-ui / ui-designer | 统一卡片/徽标/步骤指示器 UI 风格 |
+| senior-frontend | 课程数据重构、AlgorithmPage模块重排、10个互动组件、ConceptMasteryService |
+| frontend-design / frontend-ui-ux | 通俗理解+常见误区+评估调参Section、段落排版、答案随机分布 |
+| data-viz-2025 | 15个教学图解 + 10个交互实验(回归指标/分类指标/过拟合/超参数/CV) |
+| shadcn-ui / ui-designer | 统一卡片/徽标/步骤指示器/互动组件 UI 风格 |
 | fullstack-dev / api-designer | DeepSeek Express 代理维护 |
 | senior-qa | npm test / npm run build / npx tsc 三合一验证 |
-| frontend-code-review | 全站"开发中"占位清理、类型安全检查 |
+| frontend-code-review | 全站占位清理、类型安全检查、14/14 interactionType实现 |
 
 当前项目已从 3 个算法扩展到 6 个算法（9 门课程含 3 门基础课），题库从 15 道扩展到 72 道，练习题从 4 道扩展到 12 道，Skills 从 10 个扩展到 19 个。
 
