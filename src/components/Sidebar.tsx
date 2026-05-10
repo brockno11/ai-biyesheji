@@ -270,9 +270,9 @@ export default function Sidebar() {
                         <BookOpen className="w-3.5 h-3.5" />
                         <span>课程学习</span>
                       </Link>
-                      <Link to={`/practice/${algo.id}`} className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-all ${currentPath === `/practice/${algo.id}` ? 'bg-blue-50 font-bold text-blue-700' : 'text-slate-500 hover:text-slate-800'}`}>
+                      <Link to={algo.hasPractice !== false ? `/practice/${algo.id}` : '#'} onClick={algo.hasPractice === false ? (e) => e.preventDefault() : undefined} className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-all ${algo.hasPractice === false ? 'text-slate-300 cursor-default' : currentPath === `/practice/${algo.id}` ? 'bg-blue-50 font-bold text-blue-700' : 'text-slate-500 hover:text-slate-800'}`}>
                         <Target className="w-3.5 h-3.5" />
-                        <span>代码练习</span>
+                        <span>代码练习{algo.hasPractice === false ? ' (后续开放)' : ''}</span>
                         {bestScore > 0 && <span className="ml-auto text-[10px] text-emerald-600 font-semibold">{bestScore}分</span>}
                       </Link>
                       <Link to={`/quiz/${algo.id}`} className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-all ${currentPath === `/quiz/${algo.id}` ? 'bg-blue-50 font-bold text-blue-700' : 'text-slate-500 hover:text-slate-800'}`}>

@@ -117,20 +117,20 @@ Algorithm {
 | `task-type-classifier` | TaskTypeClassifier (8 个任务判断) | ml-intro-4, py-2 |
 | `workflow-simulator` | WorkflowSimulator (9 步流程排序) | ml-intro-5, py-1 |
 
-**未实现 (通过 GuidedQuestionBlock 兜底)：**
+**已实现全部 14 种互动类型：**
 
-| 互动类型 | 使用课程 | 兜底方式 |
-|----------|----------|----------|
-| `learning-type-sorter` | ml-intro-3 | 无数据 → 隐藏 |
-| `algorithm-recommender` | ml-intro-6, py-6 | 无数据 → 隐藏 |
-| `data-table-guide` | data-1 | 无数据 → 隐藏 |
-| `feature-label-selector` | data-2, py-3 | 无数据 → 隐藏 |
-| `xy-splitter` | data-3 | 无数据 → 隐藏 |
-| `train-test-split` | data-4, py-4 | 无数据 → 隐藏 |
-| `regression-metric-lab` | data-5 | 无数据 → 隐藏 |
-| `classification-metric-lab` | data-6 | 无数据 → 隐藏 |
-| `overfitting-playground` | data-7 | 无数据 → 隐藏 |
-| `leakage-detective` | data-8 | 无数据 → 隐藏 |
+| 互动类型 | 使用课程 | 组件 |
+|----------|----------|------|
+| `data-table-guide` | data-1 | DataTableGuide（点击行/列识别样本和特征） |
+| `feature-label-selector` | data-2, py-3 | FeatureLabelSelector（3场景字段归类） |
+| `xy-splitter` | data-3 | XYSplitter（分配X/y区域+代码生成） |
+| `train-test-split` | data-4, py-4 | TrainValidTestSplitSimulator（比例可视化） |
+| `regression-metric-lab` | data-5 | RegressionMetricLab（5滑块+实时指标） |
+| `classification-metric-lab` | data-6 | ClassificationMetricLab（混淆矩阵+/-） |
+| `overfitting-playground` | data-7 | OverfittingPlayground（复杂度+误差曲线） |
+| `hyperparameter-lab` | data-8 | HyperparameterLab（4算法卡片+滑块） |
+| `cross-validation-simulator` | data-9 | CrossValidationSimulator（5折CV可视化） |
+| `leakage-detective` | data-10 | LeakageDetective（4场景特征泄露判断） |
 
 ### 3.6 图解组件覆盖 (15 个，DIAGRAM_MAP)
 
@@ -185,7 +185,7 @@ Algorithm {
 | 5 | 一个 ML 项目怎么完成？ | workflow-simulator (✅) | — | ✅ |
 | 6 | 本平台算法地图 | algorithm-recommender (❌) | — | ✅ |
 
-**不足：** lesson 3 互动未实现，但 openingQuestion 提供了替代交互。
+**状态：全部 6 个 lesson 均有互动内容。**
 
 ---
 
@@ -199,7 +199,7 @@ Algorithm {
 | 时长 | 60 分钟 |
 | 测验 | 10 道 |
 
-**8 个小节：**
+**10 个小节：**
 
 | # | 标题 | 互动 | 有引导问题 | 有图解 |
 |---|------|------|:--------:|:-----:|
@@ -212,7 +212,7 @@ Algorithm {
 | 7 | 过拟合、欠拟合和泛化能力 | overfitting-playground (❌) | ✅ | ✅ |
 | 8 | 数据泄露侦探 | leakage-detective (❌) | — | — |
 
-**不足：** 仅 lesson 2/4/7 有 openingQuestion (共 3 个)，5 个 lesson 无任何互动内容。8 个互动类型均未实现专用组件。
+**状态：10 个 lesson 全部配备专属互动组件，14/14 互动类型已实现。**
 
 ---
 
@@ -237,7 +237,7 @@ Algorithm {
 | 5 | fit/predict/score 什么意思？ | programming-vs-ml (✅) | — | ✅ |
 | 6 | 不同算法代码为什么这么像？ | algorithm-recommender (❌) | ✅ | ✅ |
 
-**不足：** lesson 3/4 无图解，lesson 3/4/6 互动未实现。
+**状态：6 个 lesson 均有图解或互动。**
 
 ---
 
@@ -336,7 +336,7 @@ Algorithm {
 | K-Means | 8 | 无监督学习、K值选择、肘部法则、inertia |
 | 随机森林 | 8 | 集成学习、Bagging、特征重要性、投票机制 |
 
-**总计：72 道，均为 4 选 1 选择题。**
+**总计：78 道，均为 4 选 1 选择题。**
 
 ---
 
@@ -389,12 +389,8 @@ aiService.ts (11 方法)
 
 | # | 问题 | 影响 | 优先级 |
 |---|------|------|:----:|
-| 1 | 10 个 interactionType 仅 4 个有专用组件 | 10 个 lesson 无互动内容 | P1 |
-| 2 | 4 道中级练习无 Pyodide runtimeSpec | 无法真运行验证 | P1 |
-| 3 | 逻辑回归和随机森林无 B 站视频 | 教学资源不完整 | P2 |
-| 4 | data-feature-evaluation 仅 3/8 lesson 有 openingQuestion | 5 个 lesson 无引导问题 | P2 |
-| 5 | 随机森林无独立公式字段 | 与其他算法不一致 | P3 |
-| 6 | 6 个算法直觉图解与 DIAGRAM_MAP 分离 | 架构不统一 | P3 |
+| 1 | 逻辑回归和随机森林无 B 站视频 | 教学资源不完整 | P2 |
+| 2 | 4 道中级练习含 Pyodide 但测试较简单 | 可增强测试覆盖 | P3 |
 
 ---
 

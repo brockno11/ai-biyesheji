@@ -48,7 +48,7 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 |------|---------------|------|
 | 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据/特征/模型评估与泛化能力、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
 | 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道），全部含 Pyodide 真运行和固定测试 |
-| 测验题目 | 72 道 | 覆盖全部 9 门课程（基础课 24 道 + 算法课 48 道），支持后台自定义覆盖 |
+| 测验题目 | 78 道 | 覆盖全部 9 门课程（基础课 30 道 + 算法课 48 道），支持后台自定义覆盖 |
 | 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
 | AI 场景 | 11 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |
 | 后台管理 | 课程 + 题库 | 课程 CRUD、AI 课程草稿、练习题 CRUD、测验题 CRUD |
@@ -923,7 +923,7 @@ generateCourseDraft(context)
 - 课程体系：9 门课程（3 基础 + 6 算法），按入门→中级难度编排，含 20 个小节的微课化基础课。
 - 算法课程：线性回归、KNN、逻辑回归、决策树、K-Means、随机森林，每门含通俗理解、引导思考、图解、常见误区。
 - 练习题：12 道，覆盖全部 6 门算法（每门 2 道），线性回归/KNN/决策树/K-Means 含 Pyodide 真运行。
-- 测验题：72 道，覆盖全部 9 门课程。
+- 测验题：78 道，覆盖全部 9 门课程（基础课 30 道 + 算法课 48 道）。
 - 可视化：6 个交互式 ECharts 可视化组件 + 15 个 Tailwind 教学图解组件。
 - AI 助教：11 种 AI 场景，DeepSeek 在线 + Mock 离线双模式。
 - 新增组件：SmartParagraph（智能分段渲染）、MistakeCard（共享对比卡）、GuidedQuestionBlock（引导问答兜底）。
