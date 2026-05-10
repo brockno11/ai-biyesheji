@@ -979,17 +979,24 @@ npx tsc --noEmit && npx vite build
 
 | 提交 | 内容 |
 |------|------|
+| `ba0a910` | 代码审计修复：Rules of Hooks 违规、stale closure、死代码清理、服务端日志安全 |
+| `f9bc508` | 文档同步：README 版本徽标 + 课程数量更新至 v2.8.1 |
+| `f888150` | 课程内容充实（代码示例扩展）；学习路径按入门→中级重排；B站视频移至核心思想下方；AI 总结本节按钮 |
+| `599e431` | 引导式问答：6 个 foundation lesson openingQuestion + 即时反馈 + AI 陪学按钮 |
+| `ed79caa` | 新增逻辑回归 + 随机森林课程（v2.8.0）：LogisticRegressionViz + RandomForestViz + 16 道测验 + ensemble 分类 |
+| `9bc0cf5` | 布局修复：删除 FoundationCourseContent 重复 LessonTimeline，正文 820px 宽 |
+| `78917e5` | 文档同步 v2.7.0 |
 | `f02b858` | 基础课微课化：14 个 lesson 小节 + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
-| `e78e7b0` | 2 门基础概念课（ML 入门+数据评估）+ 3 个交互演示组件 + CoursePage 改造 + 17 道新测验题 |
-| `b12387b` | K-Means 视频补充；ProgressPage 学习诊断（代码/概念能力分析+个性化推荐理由） |
-| `9214825` | 修复图表点击白屏 Bug；新增 ErrorBoundary + notMerge 渲染优化 |
-| `cf9dc85` | 文档最终同步：changelog 补全、版本号统一 v2.5.2 |
-| `333d99b` | 内页视觉统一：算法页分段学习路径、练习页步骤流水线+分层提示+错误分类、学习中心仪表盘、后台玻璃风格 |
-| `97500e0` | AI 可信度：诊断依据卡片、硬规则防幻觉、Zod 校验所有 AI JSON 输出；文档 v2.5.0 |
-| `777eb74` | 首页视觉统一：移除突兀深蓝块，粒子颜色柔化，全页面流畅过渡 |
-| `15d67ba` | 粒子动态背景 + 鼠标交互；超大 Hero 按钮；全局毛玻璃统一风格 |
-| `890bfd4` | 首页动效重制：滚动渐入、数字滚动、渐变文字、浮动光球；3 个新 Skills |
-| `d7057c8` | Pyodide Worker 多算法支持；Zod 数据校验；React.lazy 代码拆分（主包 86KB）；bundle 分析脚本 |
+| `e78e7b0` | 2 门基础概念课 + 3 个交互演示 + CoursePage 改造 + 17 道测验题 |
+| `b12387b` | K-Means 视频补充；ProgressPage 学习诊断 |
+| `9214825` | 修复图表白屏 Bug；ErrorBoundary + notMerge |
+| `cf9dc85` | 文档同步 v2.5.2 |
+| `333d99b` | 内页视觉统一 |
+| `97500e0` | AI 可信度：诊断依据 + 硬规则 + Zod 校验 |
+| `777eb74` | 首页视觉统一 |
+| `15d67ba` | 粒子动效首页 |
+| `890bfd4` | 首页动效重制 + 3 个新 Skills |
+| `d7057c8` | Pyodide Worker + Zod + React.lazy |
 | `7f38c47` | 14 个 Vitest 测试；`npm test` 脚本 |
 | `487bed5` | AI 工作流横幅；后端频率限制/Key 脱敏/统一错误码/JSON 修复 |
 | `2608c8f` | K-Means 课程与可视化；Pyodide 真运行；练习 8 道，测验 32 道；题库管理后台；代码注释过滤 |
@@ -1043,14 +1050,14 @@ npm run test:watch # 监听模式
 | **v2.2.0** | AI 工作流横幅 + 后端安全加固（频率限制/Key 脱敏/统一错误码/JSON 修复） |
 | **v2.3.0** | 14 个 Vitest 测试 + Zod 数据校验 + 管理面板增强（预览/导入导出/恢复默认） |
 | **v2.4.0** | Pyodide Web Worker 全算法真运行 + React.lazy 代码拆分（主包 86KB） + Bundle 分析 |
-| **v2.5.0** | 首页沉浸式重制：粒子动态背景 + 鼠标交互 + 滚动渐入 + 数字滚动 + 毛玻璃统一风格 + 13 个 Agent Skills |
-| **v2.5.1** | AI 可信度提升：诊断依据卡片 + 硬规则防幻觉 + Zod 校验所有 AI JSON 输出；文档版本统一 |
-| **v2.5.2** | 内页视觉统一：算法页分段学习路径 + 练习页步骤流水线/分层提示/错误分类 + 学习中心仪表盘 + 后台玻璃风格 |
-| **v2.8.1** | 基础课微课化：14 个 lesson 小节 + 二级 Sidebar 学习路径导航 + 5 个交互任务组件 + lesson 进度存储 |
-| **v2.6.0** | 2 门基础概念课（ML 入门+数据评估）+ 3 个交互演示 + CoursePage 改造 + 17 道新测验题 + AI 课程类型适配 |
-| **v2.5.3** | K-Means 视频补充 + ProgressPage 学习诊断（代码能力/概念理解分析 + 个性化推荐理由） |
+| **v2.5.0** | 首页沉浸式重制：粒子动态背景 + 鼠标交互 + 毛玻璃统一风格 + 13 个 Skills |
+| **v2.5.3** | AI 可信度 + 内页视觉统一 + K-Means 视频 + ProgressPage 学习诊断 |
+| **v2.6.0** | 2 门基础概念课 + 3 个交互演示 + CoursePage 改造 + 17 道新测验题 |
+| **v2.7.0** | 基础课微课化：14 个 lesson + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
+| **v2.8.0** | 逻辑回归 + 随机森林课程：LogisticRegressionViz + RandomForestViz + 16 道测验 |
+| **v2.8.1** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 |
 
 ---
 
 > 文档生成日期：2026-05-10
-> 项目版本：2.7.0
+> 项目版本：2.8.1
