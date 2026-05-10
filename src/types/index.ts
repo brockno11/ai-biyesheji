@@ -30,7 +30,9 @@ export type InteractionType =
   | "regression-metric-lab"
   | "classification-metric-lab"
   | "overfitting-playground"
-  | "leakage-detective";
+  | "leakage-detective"
+  | "hyperparameter-lab"
+  | "cross-validation-simulator";
 
 export interface LessonCheckpointQuestion {
   id: string;
@@ -94,6 +96,12 @@ export interface Algorithm {
   advantages?: string[];
   disadvantages?: string[];
   useCases?: string[];
+  evaluationGuide?: {
+    metrics: string[];
+    tuningTips: string[];
+    overfittingRisk?: string;
+    practicalAdvice?: string[];
+  };
   codeExample?: string;
   videoUrl: string;
   icon: string;
