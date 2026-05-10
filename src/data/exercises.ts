@@ -1894,14 +1894,18 @@ function mergeById<T extends { id: string }>(base: T[], custom: T[]): T[] {
   return Array.from(merged.values());
 }
 
-export const getAllExercises = (): Exercise[] =>
-  mergeById(exercises, storageService.getCustomExercises());
+export const getAllExercises = (includeDisabled = false): Exercise[] => {
+  const all = mergeById(exercises, storageService.getCustomExercises());
+  return includeDisabled ? all : all.filter((e) => e.enabled !== false);
+};
 
-export const getAllQuizQuestions = (): QuizQuestion[] =>
-  mergeById(
+export const getAllQuizQuestions = (includeDisabled = false): QuizQuestion[] => {
+  const all = mergeById(
     Object.values(quizQuestions).flat(),
     storageService.getCustomQuizQuestions()
   );
+  return includeDisabled ? all : all.filter((q) => q.enabled !== false);
+};
 
 export const getExercisesByAlgorithm = (algorithmId: string): Exercise[] =>
   getAllExercises().filter((e) => e.algorithmId === algorithmId);
