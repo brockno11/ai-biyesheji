@@ -223,22 +223,23 @@ export default function AlgorithmPage() {
             </Section>
           )}
 
-          {/* B 站教学视频 */}
-          {algorithm.videoUrl && (
+          {/* Section: 引导思考 */}
+          {algorithm.guidedQuestions && algorithm.guidedQuestions.length > 0 && (
             <Section className="mt-6">
               <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
-                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
-                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white text-sm">
-                    <Play className="w-4 h-4" />
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-2">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm">
+                    <HelpCircle className="w-4 h-4" />
                   </span>
-                  B 站教学视频
+                  引导思考
                 </h2>
-                <VideoEmbed url={algorithm.videoUrl} title={`${algorithm.name} - B站视频教程`} />
+                <p className="text-gray-500 text-sm mb-4">回答以下问题，检验你对这个算法的理解</p>
+                <GuidedQuestionsInline questions={algorithm.guidedQuestions} algorithmId={algorithm.id} />
               </div>
             </Section>
           )}
 
-          {/* Section 3: 公式与步骤 */}
+          {/* Section: 公式与步骤 */}
           {(algorithm.formula || (algorithm.steps && algorithm.steps.length > 0)) && (
             <Section className="mt-6">
               <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
@@ -309,21 +310,6 @@ export default function AlgorithmPage() {
           )}
 
           {/* Guided Questions — mini-interactions below visualization */}
-          {algorithm.guidedQuestions && algorithm.guidedQuestions.length > 0 && (
-            <Section className="mt-6">
-              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
-                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-2">
-                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm">
-                    <HelpCircle className="w-4 h-4" />
-                  </span>
-                  引导思考
-                </h2>
-                <p className="text-gray-500 text-sm mb-4">回答以下问题，检验你对这个算法的理解</p>
-                <GuidedQuestionsInline questions={algorithm.guidedQuestions} algorithmId={algorithm.id} />
-              </div>
-            </Section>
-          )}
-
           {/* Section: 这个算法怎么评估与调参 */}
           {algorithm.evaluationGuide && (
             <Section className="mt-6">
@@ -400,6 +386,25 @@ export default function AlgorithmPage() {
                     {algorithm.codeExample}
                   </pre>
                 </div>
+              </div>
+            </Section>
+          )}
+
+          {/* Section: 视频巩固 */}
+          {algorithm.videoUrl && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white text-sm">
+                    <Play className="w-4 h-4" />
+                  </span>
+                  视频巩固
+                </h2>
+                <p className="text-gray-500 text-sm mb-3 flex items-center gap-1.5">
+                  <span className="text-base">📺</span>
+                  学完本节后，通过视频巩固和拓展理解
+                </p>
+                <VideoEmbed url={algorithm.videoUrl} title={`${algorithm.name} - B站视频教程`} />
               </div>
             </Section>
           )}
