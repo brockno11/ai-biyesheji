@@ -134,7 +134,7 @@ export function FeatureLabelSelector({ onComplete }: InteractionProps) {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [selections, setSelections] = useState<Record<number, string>>({});
   const s = FLS_SCENARIOS[scenarioIdx];
-  const allDone = Object.values(selections).filter((v) => v).length === s.fields.length;
+  const allDone = s.fields.every((_, i) => !!selections[scenarioIdx * 10 + i]);
 
   return (
     <div className="space-y-3">
