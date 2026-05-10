@@ -1,5 +1,5 @@
 | **v2.8.0** | 逻辑回归 + 随机森林课程 + 两个新可视化组件 + 16 道测验 || **v2.8.2** | 课程2升级10小节 + 10个互动组件 + 评估调参模块 + 概念掌握度 + 管理员双表单 + AlgorithmPage模块重排 |
-| **v2.8.1** | 代码审计修复 + 学习路径重排 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 |# 基于 AI 赋能的机器学习算法教学平台 — 完整文档
+| **v2.8.2** | 代码审计修复 + 学习路径重排 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 |# 基于 AI 赋能的机器学习算法教学平台 — 完整文档
 
 ## 一、项目概述
 
@@ -578,7 +578,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 ### 6.2 Pyodide 真运行
 
-当前版本已通过 Pyodide + Web Worker 覆盖全部 4 个算法的核心练习：
+当前版本已通过 Pyodide + Web Worker 覆盖全部 6 门算法的核心练习：
 
 | 覆盖范围 | 说明 |
 |----------|------|
@@ -690,7 +690,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 | **完整的演示闭环** | 首页→课程→可视化→练习→测验→学习中心，所有页面可完整走通 |
 | **AI 离线可用** | Mock 模式覆盖所有 AI 功能，不依赖外部服务 |
 | **交互式可视化** | 四个算法均支持参数调节和实时反馈，适合教学演示 |
-| **代码验证更可信** | 规则检查 + Pyodide Worker 真运行（覆盖 4 个算法）+ 综合评分 + AI 诊断，既看 API 是否完整，也看代码能否跑通 |
+| **代码验证更可信** | 规则检查 + Pyodide Worker 真运行（覆盖 6 门算法）+ 综合评分 + AI 诊断，既看 API 是否完整，也看代码能否跑通 |
 | **数据持久化** | localStorage 存储学习记录和管理员添加的课程，刷新不丢失 |
 | **UI 设计规范** | 清爽的蓝绿学习工具风格，顶部导航和侧边栏路径清晰 |
 | **响应式布局** | 首页、课程页、学习中心和个人中心做了响应式适配 |
@@ -728,7 +728,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 ### 9.1 短期 (1-2 周可完成)
 
 - [ ] 增加 Playwright E2E 测试，覆盖完整学习闭环
-- [x] Pyodide Worker 覆盖全部 4 个算法核心练习
+- [x] Pyodide Worker 覆盖全部 6 门算法核心练习
 - [x] 管理员可添加/编辑/删除练习题和测验题
 - [x] React.lazy 代码分割（主包 86KB）
 - [ ] 优化 Pyodide 首次加载体验：预热、加载进度
@@ -984,7 +984,7 @@ npx tsc --noEmit && npx vite build
 - **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
 - **Mock 覆盖范围**：所有 11 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
 - **19 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
-- **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 4 个算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
+- **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 6 门算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
 - **K-Means** 视频已配置 B站 BV号（BV1sM4y1U7Ph），如有更合适的可替换。
 - **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
