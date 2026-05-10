@@ -8,6 +8,18 @@ import {
   GripVertical,
 } from 'lucide-react';
 import type { InteractionType } from '../types';
+import {
+  DataTableGuide,
+  FeatureLabelSelector,
+  XYSplitter,
+  TrainValidTestSplitSimulator,
+  RegressionMetricLab,
+  ClassificationMetricLab,
+  OverfittingPlayground,
+  HyperparameterLab,
+  CrossValidationSimulator,
+  LeakageDetective,
+} from './foundation-interactions';
 
 interface FallbackQuestion {
   id: string;
@@ -1055,6 +1067,16 @@ const IMPLEMENTED_TYPES = new Set<InteractionType>([
   'ai-ml-dl-map',
   'task-type-classifier',
   'workflow-simulator',
+  'data-table-guide',
+  'feature-label-selector',
+  'xy-splitter',
+  'train-test-split',
+  'regression-metric-lab',
+  'classification-metric-lab',
+  'overfitting-playground',
+  'hyperparameter-lab',
+  'cross-validation-simulator',
+  'leakage-detective',
 ]);
 
 export default function InteractiveTask({ type, onComplete, onAskAI, fallbackQuestions }: Props) {
@@ -1088,6 +1110,27 @@ export default function InteractiveTask({ type, onComplete, onAskAI, fallbackQue
       <WorkflowSimulator onComplete={handleComplete} onAskAI={onAskAI} />
     );
   }
+
+  if (type === 'data-table-guide')
+    return <DataTableGuide onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'feature-label-selector')
+    return <FeatureLabelSelector onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'xy-splitter')
+    return <XYSplitter onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'train-test-split')
+    return <TrainValidTestSplitSimulator onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'regression-metric-lab')
+    return <RegressionMetricLab onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'classification-metric-lab')
+    return <ClassificationMetricLab onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'overfitting-playground')
+    return <OverfittingPlayground onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'hyperparameter-lab')
+    return <HyperparameterLab onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'cross-validation-simulator')
+    return <CrossValidationSimulator onComplete={handleComplete} onAskAI={onAskAI} />;
+  if (type === 'leakage-detective')
+    return <LeakageDetective onComplete={handleComplete} onAskAI={onAskAI} />;
 
   // Fallback: use GuidedQuestionBlock if questions available, otherwise hide
   if (fallbackQuestions && fallbackQuestions.length > 0) {

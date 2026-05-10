@@ -456,7 +456,7 @@ export default function FoundationCourseContent({
               })()}
 
               {/* Interactive Task — only show when content is available */}
-              {(currentLesson.guidedQuestions?.length || currentLesson.openingQuestion || /^(programming-vs-ml|ai-ml-dl-map|task-type-classifier|workflow-simulator)$/.test(currentLesson.interactionType)) && (
+              {(currentLesson.guidedQuestions?.length || currentLesson.openingQuestion || /^(programming-vs-ml|ai-ml-dl-map|task-type-classifier|workflow-simulator|data-table-guide|feature-label-selector|xy-splitter|train-test-split|regression-metric-lab|classification-metric-lab|overfitting-playground|hyperparameter-lab|cross-validation-simulator|leakage-detective)$/.test(currentLesson.interactionType)) && (
                 <Section icon={Play} title="动手试试">
                   <p className="text-gray-500 text-sm mb-4">
                     完成以下互动练习，加深理解
