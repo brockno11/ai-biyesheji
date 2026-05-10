@@ -386,7 +386,8 @@ export default function AdminQuestionPanel() {
       )}
 
       {showExerciseForm && (
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setShowExerciseForm(false); }}>
+        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto m-4">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-bold text-gray-900">编辑练习题</h3>
             <button onClick={() => setShowExerciseForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
@@ -427,10 +428,12 @@ export default function AdminQuestionPanel() {
             保存练习
           </button>
         </div>
+        </div>
       )}
 
       {showQuizForm && (
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setShowQuizForm(false); }}>
+        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto m-4">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-bold text-gray-900">编辑测验题</h3>
             <button onClick={() => setShowQuizForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
@@ -473,6 +476,7 @@ export default function AdminQuestionPanel() {
             <Save className="h-4 w-4" />
             保存测验题
           </button>
+        </div>
         </div>
       )}
 
