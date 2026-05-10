@@ -135,7 +135,12 @@ export interface Exercise {
   checkRules: CheckRule[];
   runtimeSpec?: PythonRuntimeSpec;
   enabled?: boolean;
-  source?: string; // '内置' | '自定义' | '覆盖' | 'AI生成'
+  source?: 'builtin' | 'custom' | 'ai';
+  hints?: string[];
+  solutionCode?: string;
+  teachingNotes?: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface QuizQuestion {
@@ -146,10 +151,12 @@ export interface QuizQuestion {
   correctIndex: number;
   explanation: string;
   enabled?: boolean;
-  source?: string; // '内置' | '自定义' | '覆盖' | 'AI生成'
+  source?: 'builtin' | 'custom' | 'ai';
   conceptId?: string;
   lessonId?: string;
   difficulty?: '入门' | '中级' | '进阶';
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface CheckRule {

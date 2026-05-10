@@ -223,6 +223,13 @@ export function buildStudyPlanMessages(context: AIRequestContext): AIMessage[] {
 }
 
 export function buildCourseDraftMessages(context: AIRequestContext): AIMessage[] {
+  const input = context.courseDraftInput;
+  const name = input?.name || '新算法';
+  const difficulty = input?.difficulty || '入门';
+  const category = input?.category || 'classification';
+  const keywords = input?.keywords || '无';
+  const type = input?.type || 'algorithm';
+  const requirements = input?.requirements || '无';
   return [
     { role: 'system', content: JSON_SYSTEM_PROMPT },
     {
@@ -230,19 +237,100 @@ export function buildCourseDraftMessages(context: AIRequestContext): AIMessage[]
       content: `请生成一份机器学习课程草稿，返回 JSON：
 {
   "name": "算法名称",
-  "intro": "简介",
-  "description": "详细说明",
+  "intro": "简介（50字以内）",
+  "description": "详细说明（含核心思想、通俗理解、引导思考、常见误区）",
   "steps": ["步骤1", "步骤2"],
   "pros": ["优点1", "优点2"],
   "cons": ["缺点1", "缺点2"],
   "useCases": ["场景1", "场景2"],
-  "formula": "核心公式",
-  "codeExample": "Python 示例代码",
+  "formula": "核心公式（Markdown格式）",
+  "codeExample": "完整Python示例代码（含注释）",
   "quizQuestions": [],
   "practiceExercise": {}
 }
 
-管理员输入：${JSON.stringify(context.courseDraftInput || {}, null, 2)}`,
+课程名称：${name}
+难度：${difficulty}
+分类：${category}
+关键词：${keywords}
+课程类型：${type}
+额外要求：${requirements}
+
+生成要求：
+${type === 'foundation' ? '- 这是基础概念课，要生成 lessons 结构，每节含故事、解释、互动和测验' : '- 这是算法课，要生成核心思想、通俗理解、引导思考、公式步骤、评估调参、常见误区、代码示例'}
+- 内容要完整充实，不能只生成简介
+- 中文输出，面向本科初学者`,
+    },
+  ];
+}
+
+export function buildExerciseDraftMessages(context: AIRequestContext): AIMessage[] {
+  const input = context.exerciseDraftInput;
+  const courseName = input?.courseName || '未知';
+  const courseId = input?.courseId || '';
+  const difficulty = input?.difficulty || '入门';
+  const requirements = input?.requirements || '生成一道基础练习题';
+  return [
+    { role: 'system', content: JSON_SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: `请生成一道机器学习代码练习题，返回 JSON：
+{
+  "title": "练习标题",
+  "description": "练习描述（含目标和背景）",
+  "difficulty": "入门",
+  "instructions": ["步骤1：导入库", "步骤2：划分数据", "步骤3：训练模型"],
+  "starterCode": "# TODO: 补全代码\\nimport numpy as np\\n...",
+  "expectedKeywords": ["LinearRegression", "fit", "predict"],
+  "hints": ["提示1：注意导入顺序", "提示2：先fit再predict"],
+  "teachingNotes": "教学要点说明"
+}
+
+课程：${courseName} (${courseId})
+难度：${difficulty}
+要求：${requirements}
+
+生成要求：
+- starterCode 必须包含 TODO 标记，让学生补全关键代码
+- expectedKeywords 是需要检查的核心 API（如 fit、predict、score）
+- hints 给出3-5条递进提示，先给方向再给具体API
+- 中文输出`,
+    },
+  ];
+}
+
+export function buildQuizDraftMessages(context: AIRequestContext): AIMessage[] {
+  const input = context.quizDraftInput;
+  const courseName = input?.courseName || '未知';
+  const courseId = input?.courseId || '';
+  const difficulty = input?.difficulty || '入门';
+  const lessonId = input?.lessonId || '';
+  const conceptId = input?.conceptId || '';
+  const requirements = input?.requirements || '生成一道概念理解题';
+  return [
+    { role: 'system', content: JSON_SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: `请生成一道 4 选 1 机器学习选择题，返回 JSON：
+{
+  "question": "题目内容",
+  "options": ["选项A", "选项B", "选项C", "选项D"],
+  "correctIndex": 0,
+  "explanation": "详细解析，解释为什么这个答案正确，其他选项错在哪里",
+  "difficulty": "入门"
+}
+
+课程：${courseName} (${courseId})
+难度：${difficulty}
+${lessonId ? `关联小节：${lessonId}` : ''}
+${conceptId ? `关联概念：${conceptId}` : ''}
+要求：${requirements}
+
+生成要求：
+- 4个选项必须有区分度，不能太明显
+- 正确选项分散在A/B/C/D中，不要总是A或D
+- 解析要详细，说明正确思路和常见错误原因
+- 中文输出`,
     },
   ];
 }

@@ -45,8 +45,15 @@ export default function AdminCoursePanel() {
     difficulty: '入门' as Algorithm['difficulty'],
     category: 'regression' as Algorithm['category'],
     keywords: '',
+    requirements: '',
+    audience: '零基础' as string,
+    needInteraction: true,
+    needQuiz: true,
+    needCodeExample: true,
+    style: '通俗' as string,
   });
   const [draftLoading, setDraftLoading] = useState(false);
+  const [showDraftDetails, setShowDraftDetails] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [previewCourse, setPreviewCourse] = useState<Algorithm | null>(null);
   const importFileRef = useRef<HTMLInputElement>(null);
@@ -120,13 +127,25 @@ export default function AdminCoursePanel() {
 
   const handleGenerateDraft = async () => {
     if (!draftInput.name.trim()) {
-      showToast('error', '请先输入算法名称');
+      showToast('error', '请先输入课程名称');
       return;
     }
     setDraftLoading(true);
     try {
+      const requirements = [
+        `面向对象：${draftInput.audience}`,
+        draftInput.needInteraction ? '需要互动实验' : '',
+        draftInput.needQuiz ? '需要配套测验' : '',
+        draftInput.needCodeExample ? '需要代码示例' : '',
+        `课程风格：${draftInput.style}`,
+        draftInput.requirements || '',
+      ].filter(Boolean).join('；');
       const result = await aiService.generateCourseDraft({
-        courseDraftInput: { ...draftInput, type: form.type || 'algorithm' } as typeof draftInput & { type?: string },
+        courseDraftInput: {
+          ...draftInput,
+          type: form.type || 'algorithm',
+          requirements,
+        } as typeof draftInput & { type?: string; requirements?: string },
         pagePosition: '管理后台课程生成',
       });
       const draft = result.data;
@@ -323,7 +342,7 @@ export default function AdminCoursePanel() {
           <input
             value={draftInput.name}
             onChange={(e) => setDraftInput((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder="算法名称，如 SVM"
+            placeholder="课程名称，如 SVM"
             className="rounded-xl border border-white/80 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           />
           <select
@@ -358,6 +377,55 @@ export default function AdminCoursePanel() {
             {draftLoading ? '生成中...' : '生成草稿'}
           </button>
         </div>
+        <button
+          onClick={() => setShowDraftDetails(!showDraftDetails)}
+          className="mt-3 text-xs text-primary-600 hover:text-primary-700 font-medium"
+        >
+          {showDraftDetails ? '收起课程设计要求 ▲' : '展开课程设计要求 ▼'}
+        </button>
+        {showDraftDetails && (
+          <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 mb-1">面向对象</label>
+              <select value={draftInput.audience} onChange={(e) => setDraftInput((prev) => ({ ...prev, audience: e.target.value }))} className="w-full rounded-xl border border-white/80 bg-white px-3 py-2 text-sm">
+                <option value="零基础">零基础</option>
+                <option value="有 Python 基础">有 Python 基础</option>
+                <option value="中级">中级</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 mb-1">课程风格</label>
+              <select value={draftInput.style} onChange={(e) => setDraftInput((prev) => ({ ...prev, style: e.target.value }))} className="w-full rounded-xl border border-white/80 bg-white px-3 py-2 text-sm">
+                <option value="通俗">通俗易懂</option>
+                <option value="严谨">严谨学术</option>
+                <option value="答辩展示友好">答辩展示友好</option>
+              </select>
+            </div>
+            <div className="flex items-end gap-4 pb-1">
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" checked={draftInput.needInteraction} onChange={(e) => setDraftInput((prev) => ({ ...prev, needInteraction: e.target.checked }))} className="rounded" />
+                <span className="text-xs text-gray-600">含互动</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" checked={draftInput.needQuiz} onChange={(e) => setDraftInput((prev) => ({ ...prev, needQuiz: e.target.checked }))} className="rounded" />
+                <span className="text-xs text-gray-600">含测验</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" checked={draftInput.needCodeExample} onChange={(e) => setDraftInput((prev) => ({ ...prev, needCodeExample: e.target.checked }))} className="rounded" />
+                <span className="text-xs text-gray-600">含代码</span>
+              </label>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 mb-1">额外要求</label>
+              <input
+                value={draftInput.requirements}
+                onChange={(e) => setDraftInput((prev) => ({ ...prev, requirements: e.target.value }))}
+                placeholder="想包含的知识点等"
+                className="w-full rounded-xl border border-white/80 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Course Table */}

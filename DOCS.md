@@ -51,7 +51,7 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 | 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道），全部含 Pyodide 真运行和固定测试 |
 | 测验题目 | 78 道 | 覆盖全部 9 门课程（基础课 30 道 + 算法课 48 道），支持后台自定义覆盖 |
 | 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
-| AI 场景 | 11 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |
+| AI 场景 | 13 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |
 | 后台管理 | 课程 + 题库 | 课程 CRUD、AI 课程草稿、练习题 CRUD、测验题 CRUD |
 
 ### 2.2 项目目录结构
@@ -101,7 +101,7 @@ src/
 │   ├── RandomForestViz.tsx     # 随机森林可视化 (多棵树投票+特征重要性)
 │   ├── KMeansViz.tsx           # K-Means 聚类可视化 (散点簇+中心移动+K值调节)
 │   ├── AdminCoursePanel.tsx    # 课程管理面板 (CRUD)
-│   └── AdminQuestionPanel.tsx  # 练习题/测验题管理面板 (CRUD + 本地覆盖)
+│   └── AdminQuestionPanel.tsx  # 题库管理面板 (CRUD + AI生成 + 启用停用 + 筛选搜索 + 导入导出)
 ├── pages/
 │   ├── HomePage.tsx            # 首页 (全宽，无侧栏)
 │   ├── AlgorithmPage.tsx       # 算法学习页 (详情+可视化+AI助手)
@@ -367,6 +367,41 @@ scripts/
 6. 点击编辑 → 修改 → 保存
 7. 点击删除 → 确认弹窗 → 删除
 8. 新增的课程自动出现在前端所有页面中
+
+#### Tab 3：题库管理
+
+| 功能 | 操作 |
+|------|------|
+| 统计卡片 | 练习题/测验题总数、已启用、已停用、自定义/AI数量 |
+| 筛选栏 | 按课程、来源（内置/自定义/AI生成）、启用状态、关键词搜索筛选 |
+| 新增练习 | 弹出表单：绑定算法课程*、标题*、难度、描述*、步骤说明、关键词（自动生成检查规则）、初始代码*、提示/教学笔记（折叠可选）、启用开关 |
+| 新增测验 | 弹出表单：绑定课程*、难度、题干*、4选项*、正确答案标记*、解析*、启用开关；基础课可选填lessonId/conceptId |
+| AI 生成练习 | 先选择课程+难度+要求 → AI返回草稿 → 管理员编辑 → 保存；Mock可用 |
+| AI 生成测验 | 先选择课程+难度+要求（基础课可选lessonId/conceptId）→ AI返回4选1草稿 → 管理员编辑 → 保存；Mock可用 |
+| 启用/停用 | 每条题目有启用/停用切换按钮，停用的题目前台不可见但后台保留 |
+| 更多操作（下拉菜单） | 导出题库、导入题库、恢复默认题库（红色警告+二次确认弹窗） |
+| 编辑题目 | 内置题目"覆盖编辑"（本地overide）、自定义/AI题目直接编辑 |
+| 删除题目 | 仅自定义和AI生成题目可删，内置题目不可删 |
+
+**题目数据模型字段（通用）**：
+- `id`、`algorithmId`（绑定课程）、`difficulty`（入门/中级/进阶）
+- `enabled`（是否启用，默认true）、`source`（builtin/custom/ai）
+- `createdAt`、`updatedAt`（时间戳）
+
+**练习题额外字段**：`title`、`description`、`instructions`、`starterCode`、`expectedKeywords`、`checkRules`、`hints`、`teachingNotes`、`runtimeSpec`（可选）
+
+**测验题额外字段**：`question`、`options`（固定4个）、`correctIndex`、`explanation`、`conceptId`（可选）、`lessonId`（可选）
+
+**操作逻辑**：
+1. 切换到"题库管理"→ 看到统计卡片 + 筛选栏 + 题目列表
+2. 练习题/测验题 Tab 切换 → 列表和统计随之切换
+3. 筛选栏按课程/来源/状态/关键词过滤 → 实时更新列表
+4. 点击"新增练习"或"新增测验"→ 弹出表单 → 填写 → 保存 → Toast反馈
+5. 点击"AI 生成练习"或"AI 生成测验"→ 选择参数 → 生成 → 编辑草稿 → 保存
+6. 点击启用/停用按钮 → 切换状态 → Toast反馈
+7. 点击"更多操作"→ 导出/导入/恢复默认（危险操作红色+确认）
+8. 编辑或覆盖编辑题目 → 修改 → 保存
+9. 新增的题目自动出现在前台练习/测验页面
 
 ### 3.8 算法可视化组件
 
@@ -689,7 +724,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 | **零数据库依赖** | `npm install && npm run dev` 即可启动；课程和学习数据本地存储，AI 使用轻量 Node/Express 代理，无 API Key 时自动走 Mock |
 | **完整的演示闭环** | 首页→课程→可视化→练习→测验→学习中心，所有页面可完整走通 |
 | **AI 离线可用** | Mock 模式覆盖所有 AI 功能，不依赖外部服务 |
-| **交互式可视化** | 四个算法均支持参数调节和实时反馈，适合教学演示 |
+| **交互式可视化** | 六个算法均支持参数调节和实时反馈，适合教学演示 |
 | **代码验证更可信** | 规则检查 + Pyodide Worker 真运行（覆盖 6 门算法）+ 综合评分 + AI 诊断，既看 API 是否完整，也看代码能否跑通 |
 | **数据持久化** | localStorage 存储学习记录和管理员添加的课程，刷新不丢失 |
 | **UI 设计规范** | 清爽的蓝绿学习工具风格，顶部导航和侧边栏路径清晰 |
@@ -706,7 +741,7 @@ AI_ENABLE_MOCK_FALLBACK=true
 | **缺少 E2E 测试** | 已有 14 个 Vitest 单元/组件测试，但缺少完整用户路径自动化测试 | 增加 Playwright 端到端测试 |
 | **Pyodide 首次加载较慢** | numpy / scikit-learn 首次加载可能受网络影响 | 增加预热、缓存、加载进度提示 |
 | **AI 依赖外部服务** | DeepSeek 在线模式受网络和额度影响 | 保留 Mock，后续支持多模型切换 |
-| **题目深度仍可增强** | 已有 32 道题，但综合项目题不足 | 增加综合测验、项目式练习、难度分层 |
+| **题目深度仍可增强** | 已有 78 道题，但综合项目题不足 | 增加综合测验、项目式练习、难度分层 |
 | **移动端复杂交互可继续优化** | Monaco 和 ECharts 在小屏仍有局限 | 移动端抽屉式 AI、代码编辑提示、卡片化后台 |
 
 ### 8.3 适用性和局限
@@ -925,8 +960,8 @@ generateCourseDraft(context)
 - 互动组件：14/14 InteractionType 全部实现，含 10 个专属互动实验组件。
 - 练习题：12 道，12/12 均含 Pyodide 真运行+固定测试。
 - 测验题：78 道，覆盖全部 9 门课程。
-- 图解组件：15 个教学图解 + 6 个算法直觉图解。
-- AI 助教：11 种 AI 场景 + 概念掌握度追踪。
+- 图解组件：15 个教学图解（9 个基础课图解 + 6 个算法直觉图解）。
+- AI 助教：13 种 AI 场景 + 概念掌握度追踪。
 - 管理后台：课程 CRUD（foundation/algorithm 双表单 + AI 草稿）+ 题库 CRUD（AI 生成 + 启用/停用）。
 - 新增服务：conceptMasteryService（概念掌握度追踪）。
 - 模块重排：AlgorithmPage 引导思考前置、视频后置、评估调参 Section。
@@ -982,7 +1017,7 @@ npx tsc --noEmit && npx vite build
 - **模型 `deepseek-v4-flash` 是推理模型**，后端默认 `thinking: disabled`。仅在 JSON 模式（代码诊断/错题讲解等）启用 thinking。不要去掉这个默认值，否则简单问答会返回空响应。
 - **`.env` 已 gitignore**，新 Agent 需自行创建。
 - **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
-- **Mock 覆盖范围**：所有 11 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
+- **Mock 覆盖范围**：所有 13 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
 - **19 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
 - **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 6 门算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
@@ -1076,4 +1111,4 @@ npm run test:watch # 监听模式
 ---
 
 > 文档生成日期：2026-05-10
-> 项目版本：2.8.1
+> 项目版本：2.8.2

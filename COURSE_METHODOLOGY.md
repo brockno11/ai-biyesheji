@@ -197,7 +197,7 @@ Algorithm {
 | 类型 | foundation |
 | 难度 | 入门 |
 | 时长 | 60 分钟 |
-| 测验 | 10 道 |
+| 测验 | 16 道 |
 
 **10 个小节：**
 
@@ -282,14 +282,14 @@ Algorithm {
 
 | 算法 | 练习 1 (入门) | 练习 2 (中级) | Pyodide |
 |------|:-----------:|:-----------:|:------:|
-| 线性回归 | lr-ex-1 | lr-ex-2 | lr-ex-1 ✅ lr-ex-2 ❌ |
-| KNN | knn-ex-1 | knn-ex-2 | knn-ex-1 ✅ knn-ex-2 ❌ |
+| 线性回归 | lr-ex-1 | lr-ex-2 | ✅✅ |
+| KNN | knn-ex-1 | knn-ex-2 | ✅✅ |
 | 逻辑回归 | logr-ex-1 | logr-ex-2 | ✅✅ |
-| 决策树 | dt-ex-1 | dt-ex-2 | dt-ex-1 ✅ dt-ex-2 ❌ |
-| K-Means | km-ex-1 | km-ex-2 | km-ex-1 ✅ km-ex-2 ❌ |
+| 决策树 | dt-ex-1 | dt-ex-2 | ✅✅ |
+| K-Means | km-ex-1 | km-ex-2 | ✅✅ |
 | 随机森林 | rf-ex-1 | rf-ex-2 | ✅✅ |
 
-**总计：12 道，7 道含 Pyodide runtimeSpec**
+**总计：12 道，12/12 均含 Pyodide runtimeSpec（真运行+固定测试）**
 
 ### 5.2 练习验证流程
 
@@ -327,7 +327,7 @@ Algorithm {
 | 课程 | 题数 | 题型 |
 |------|:---:|------|
 | 机器学习入门与完整流程 | 7 | 概念辨析、包含关系、任务类型判断、流程排序 |
-| 数据、特征、标签与模型评估 | 10 | 数据结构、指标理解、过拟合识别、数据泄露 |
+| 数据、特征、标签与模型评估 | 16 | 数据结构、指标理解、过拟合识别、数据泄露 |
 | Python 代码入门 | 7 | 库分工、代码流程、fit/predict/sklearn API |
 | 线性回归 | 8 | 回归概念、MSE/R²、梯度下降、过拟合 |
 | KNN | 8 | 距离度量、K值影响、特征缩放、懒惰学习 |
@@ -342,7 +342,7 @@ Algorithm {
 
 ## 七、AI 助教系统
 
-### 7.1 11 种 AI 场景
+### 7.1 13 种 AI 场景
 
 | 方法 | 场景 | Zod 校验 | thinking |
 |------|------|:------:|:------:|
@@ -353,6 +353,8 @@ Algorithm {
 | reviewQuiz | 错题讲解 | ✅ | enabled |
 | generateStudyPlan | 学习计划 | ✅ | enabled |
 | generateCourseDraft | 课程草稿 | ✅ | enabled |
+| generateExerciseDraft | AI 生成练习题 | ✅ | enabled |
+| generateQuizDraft | AI 生成测验题 | ✅ | enabled |
 | generateQuiz | 出题 | — | disabled |
 | summarizeLesson | 总结本节 | — | disabled |
 | lifeExample | 生活例子 | — | disabled |
@@ -361,13 +363,30 @@ Algorithm {
 ### 7.2 双模式架构
 
 ```
-aiService.ts (11 方法)
+aiService.ts (13 方法)
   ├─ try: callAIProxy() → /api/ai/chat → Express → DeepSeek API
   │   ├─ 成功 → mode: 'deepseek'
   │   └─ 失败 → withFallback() → aiMockService
   │       └─ 返回 mode: 'mock' + fallbackReason
   └─ 安全：API Key 仅在后端环境变量，22s 客户端超时 > 20s 服务端超时
 ```
+
+### 7.3 题库管理 AI 生成流程
+
+**AI 生成练习题流程**：
+1. 管理员选择课程（仅算法课）+ 难度 + 输入生成要求
+2. AI 返回草稿：title、description、instructions、starterCode、expectedKeywords、hints、teachingNotes
+3. 草稿填入编辑表单，管理员可修改
+4. 保存后写入 localStorage，source='ai'，enabled=true
+5. Mock 模式下根据所选课程生成合理草稿
+
+**AI 生成测验题流程**：
+1. 管理员选择课程（基础课或算法课）+ 难度 + 输入生成要求
+2. 基础课可选填 lessonId/conceptId
+3. AI 返回草稿：question、options（4个）、correctIndex、explanation、difficulty
+4. 草稿填入编辑表单，管理员可修改
+5. 保存后写入 localStorage，source='ai'，enabled=true
+6. Mock 模式下根据所选课程返回对应知识点的合理题目
 
 ---
 
@@ -379,9 +398,11 @@ aiService.ts (11 方法)
 | 基础课使用微课结构 (FoundationLesson) | 零基础用户需要渐进式引导 |
 | SmartParagraph 自动分段 | 避免大段文字堆积，按句号自动拆段落 |
 | 所有文本渲染不依赖外部图片 | 纯 Tailwind + SVG + Lucide，离线可用 |
-| Mock AI 覆盖全部 11 种场景 | 无 API Key 时完整演示 |
+| Mock AI 覆盖全部 13 种场景 | 无 API Key 时完整演示 |
 | 管理后台仅从个人中心进入 | 避免导航栏干扰学习主路径 |
 | hasPractice/hasQuiz 字段控制按钮显隐 | 灵活控制练习/测验入口 |
+| 题目 enabled 开关 | 停用题目不删除，仅隐藏；内置题目可本地覆盖停用 |
+| 题库管理支持 AI 生成 | AI 生成练习题+测验题，Mock 根据课程返回合理草稿 |
 
 ---
 
@@ -389,8 +410,7 @@ aiService.ts (11 方法)
 
 | # | 问题 | 影响 | 优先级 |
 |---|------|------|:----:|
-| 1 | 逻辑回归和随机森林无 B 站视频 | 教学资源不完整 | P2 |
-| 2 | 4 道中级练习含 Pyodide 但测试较简单 | 可增强测试覆盖 | P3 |
+| 1 | 部分中级练习的 Pyodide 测试断言较简单 | 可增强测试覆盖 | P3 |
 
 ---
 

@@ -1,6 +1,8 @@
 import type {
   AICodeReviewResult,
   AICourseDraftResult,
+  AIExerciseDraftResult,
+  AIQuizDraftResult,
   AIQuizReviewResult,
   AIRequestContext,
   AIStudyPlanResult,
@@ -146,6 +148,81 @@ export const aiMockService = {
       codeExample: '# Python 示例代码\n# TODO: 根据具体算法补充 sklearn 或手写实现',
       quizQuestions: [],
       practiceExercise: {},
+    };
+  },
+
+  exerciseDraft(context: AIRequestContext): AIExerciseDraftResult {
+    const input = context.exerciseDraftInput;
+    const courseName = input?.courseName || '当前算法';
+    const courseId = input?.courseId || 'linear-regression';
+    const isClassification = ['knn', 'logistic-regression', 'decision-tree', 'random-forest'].includes(courseId);
+    const modelName = courseId === 'linear-regression' ? 'LinearRegression' :
+      courseId === 'knn' ? 'KNeighborsClassifier' :
+      courseId === 'logistic-regression' ? 'LogisticRegression' :
+      courseId === 'decision-tree' ? 'DecisionTreeClassifier' :
+      courseId === 'k-means' ? 'KMeans' :
+      'RandomForestClassifier';
+    return {
+      title: `${courseName} 基础练习`,
+      description: `使用 sklearn 的 ${modelName} 完成${isClassification ? '分类' : '回归/聚类'}模型的训练、预测和评估。`,
+      difficulty: (input?.difficulty as '入门' | '中级' | '进阶') || '入门',
+      instructions: [
+        `导入 ${modelName} 和相关模块`,
+        '使用 train_test_split 划分数据集',
+        '创建模型实例并训练',
+        '进行预测并评估模型性能',
+      ],
+      starterCode: `# ${courseName} 练习\nimport numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import ${isClassification ? 'accuracy_score' : 'mean_squared_error, r2_score'}\n# TODO: 导入 ${modelName}\n\n# TODO: 划分训练集和测试集\n# X_train, X_test, y_train, y_test = ...\n\n# TODO: 创建并训练模型\n# model = ...\n\n# TODO: 预测并评估\n# y_pred = ...\n`,
+      expectedKeywords: ['train_test_split', 'fit', 'predict', modelName],
+      hints: [
+        `先导入 ${modelName}`,
+        '用 train_test_split 划分数据，test_size=0.2',
+        '创建模型实例后调用 .fit() 训练',
+        '用 .predict() 获取预测结果',
+        `用 ${isClassification ? 'accuracy_score' : 'mean_squared_error'} 评估`,
+      ],
+      teachingNotes: `这道题训练学生掌握 ${modelName} 的基本训练流程：导入→划分→创建→训练→预测→评估。重点检查 fit/predict 的使用顺序和评估指标的选择。`,
+    };
+  },
+
+  quizDraft(context: AIRequestContext): AIQuizDraftResult {
+    const input = context.quizDraftInput;
+    const courseName = input?.courseName || '当前课程';
+    const courseId = input?.courseId || 'linear-regression';
+    const questionBank: Record<string, AIQuizDraftResult> = {
+      'linear-regression': {
+        question: '在线性回归中，MSE（均方误差）的值越小说明什么？',
+        options: ['模型预测值与真实值差距越大', '模型预测值与真实值差距越小', '模型训练速度越快', '数据量越大'],
+        correctIndex: 1,
+        explanation: 'MSE 衡量预测值与真实值之间的平均平方误差，值越小说明预测越接近真实值。但需注意，过小的 MSE 可能意味着过拟合。',
+        difficulty: '入门',
+      },
+      'knn': {
+        question: 'KNN 算法中 K 值过小会导致什么问题？',
+        options: ['模型过于简单，欠拟合', '模型对噪声点过于敏感，容易过拟合', '训练速度变慢', '预测结果不再变化'],
+        correctIndex: 1,
+        explanation: 'K 值越小，模型越容易受到少数噪声点的影响，导致过拟合；K 值越大，决策边界越平滑，但可能欠拟合。',
+        difficulty: '入门',
+      },
+      'decision-tree': {
+        question: '决策树中限制最大深度（max_depth）的主要目的是什么？',
+        options: ['加快训练速度', '减少内存占用', '防止过拟合', '增加模型复杂度'],
+        correctIndex: 2,
+        explanation: '限制 max_depth 可以防止树长得太深而记住训练数据的噪声（过拟合），是决策树最重要的正则化参数。',
+        difficulty: '入门',
+      },
+    };
+    return questionBank[courseId] || {
+      question: `在 ${courseName} 中，以下关于模型评估的说法哪个是正确的？`,
+      options: [
+        '训练集准确率越高，模型一定越好',
+        '测试集表现才是衡量泛化能力的关键',
+        '不需要划分训练集和测试集',
+        '模型参数越多越好',
+      ],
+      correctIndex: 1,
+      explanation: '测试集上的表现反映了模型的泛化能力。训练集准确率高可能只是"背下了"训练数据（过拟合），真正重要的是在未见过的数据上的表现。',
+      difficulty: '入门',
     };
   },
 };

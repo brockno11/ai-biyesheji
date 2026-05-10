@@ -18,7 +18,9 @@ export type AIActionType =
   | 'generateQuiz'
   | 'summarizeLesson'
   | 'lifeExample'
-  | 'explainVisualization';
+  | 'explainVisualization'
+  | 'generateExerciseDraft'
+  | 'generateQuizDraft';
 
 export type AIRequestContext = {
   actionType?: AIActionType;
@@ -51,6 +53,22 @@ export type AIRequestContext = {
     difficulty: string;
     category: string;
     keywords: string;
+    type?: string;
+    requirements?: string;
+  };
+  exerciseDraftInput?: {
+    courseId: string;
+    courseName: string;
+    difficulty: string;
+    requirements: string;
+  };
+  quizDraftInput?: {
+    courseId: string;
+    courseName: string;
+    difficulty: string;
+    requirements: string;
+    lessonId?: string;
+    conceptId?: string;
   };
 };
 
@@ -144,4 +162,29 @@ export type AICourseDraftResult = {
   codeExample: string;
   quizQuestions: unknown[];
   practiceExercise: Record<string, unknown>;
+};
+
+export type AIExerciseDraftResult = {
+  title: string;
+  description: string;
+  difficulty: '入门' | '中级' | '进阶';
+  instructions: string[];
+  starterCode: string;
+  expectedKeywords: string[];
+  hints: string[];
+  teachingNotes: string;
+  runtimeSpec?: {
+    packages?: string[];
+    testCode?: string;
+  };
+};
+
+export type AIQuizDraftResult = {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  difficulty: '入门' | '中级' | '进阶';
+  conceptId?: string;
+  lessonId?: string;
 };

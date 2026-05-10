@@ -4,6 +4,8 @@ import {
   buildChatMessages,
   buildCodeReviewMessages,
   buildCourseDraftMessages,
+  buildExerciseDraftMessages,
+  buildQuizDraftMessages,
   buildQuizReviewMessages,
   buildStudyPlanMessages,
 } from './aiPromptService';
@@ -13,12 +15,16 @@ import {
   aiQuizReviewSchema,
   aiStudyPlanSchema,
   aiCourseDraftSchema,
+  aiExerciseDraftSchema,
+  aiQuizDraftSchema,
 } from './validationService';
 import type {
   AIActionType,
   AICodeReviewResult,
   AICourseDraftResult,
+  AIExerciseDraftResult,
   AIMessage,
+  AIQuizDraftResult,
   AIQuizReviewResult,
   AIRequestContext,
   AIServiceResponse,
@@ -222,6 +228,40 @@ export const aiService = {
 
   generateQuiz(context: AIRequestContext) {
     return chatAction('generateQuiz', context, () => aiMockService.generateQuiz(context));
+  },
+
+  generateExerciseDraft(context: AIRequestContext) {
+    return withFallback<AIExerciseDraftResult>(
+      async () => {
+        const raw = await callAIProxy({
+          messages: buildExerciseDraftMessages(context),
+          jsonMode: true,
+          thinking: 'enabled',
+          maxTokens: 1200,
+        });
+        const parsed = parseJsonOrThrow<unknown>(raw);
+        return validateAIOutput(aiExerciseDraftSchema, parsed, '练习题草稿');
+      },
+      () => aiMockService.exerciseDraft(context),
+      'generateExerciseDraft'
+    );
+  },
+
+  generateQuizDraft(context: AIRequestContext) {
+    return withFallback<AIQuizDraftResult>(
+      async () => {
+        const raw = await callAIProxy({
+          messages: buildQuizDraftMessages(context),
+          jsonMode: true,
+          thinking: 'enabled',
+          maxTokens: 1000,
+        });
+        const parsed = parseJsonOrThrow<unknown>(raw);
+        return validateAIOutput(aiQuizDraftSchema, parsed, '测验题草稿');
+      },
+      () => aiMockService.quizDraft(context),
+      'generateQuizDraft'
+    );
   },
 
   summarizeLesson(context: AIRequestContext) {

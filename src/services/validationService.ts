@@ -130,6 +130,31 @@ export const aiCourseDraftSchema = z.object({
   practiceExercise: z.record(z.string(), z.unknown()).default({}),
 });
 
+export const aiExerciseDraftSchema = z.object({
+  title: z.string().min(1, '标题不能为空'),
+  description: z.string().min(1, '描述不能为空'),
+  difficulty: z.enum(['入门', '中级', '进阶']),
+  instructions: z.array(z.string()),
+  starterCode: z.string().min(1, '初始代码不能为空'),
+  expectedKeywords: z.array(z.string()),
+  hints: z.array(z.string()).default([]),
+  teachingNotes: z.string().default(''),
+  runtimeSpec: z.object({
+    packages: z.array(z.string()).optional(),
+    testCode: z.string().optional(),
+  }).optional(),
+});
+
+export const aiQuizDraftSchema = z.object({
+  question: z.string().min(1, '题目不能为空'),
+  options: z.array(z.string()).length(4, '必须恰好4个选项'),
+  correctIndex: z.number().int().min(0).max(3),
+  explanation: z.string().min(1, '解析不能为空'),
+  difficulty: z.enum(['入门', '中级', '进阶']),
+  conceptId: z.string().optional(),
+  lessonId: z.string().optional(),
+});
+
 /** Validate and return parsed AI output; on failure, throws with details for fallback */
 export function validateAIOutput<T>(schema: z.ZodSchema<T>, raw: unknown, label: string): T {
   const result = schema.safeParse(raw);
