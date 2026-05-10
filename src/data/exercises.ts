@@ -652,6 +652,340 @@ for k, value in enumerate(inertias, start=1):
       { type: 'keyword', keyword: 'inertias', description: '保存不同 K 的结果', points: 15 },
     ],
   },
+  // ── 逻辑回归 ──
+  {
+    id: 'logr-ex-1',
+    algorithmId: 'logistic-regression',
+    title: '逻辑回归分类器基础实现',
+    difficulty: '入门',
+    description: '使用 sklearn 的 LogisticRegression 完成二分类任务。导入模型、训练、预测并评估准确率。',
+    instructions: [
+      '导入 LogisticRegression 模型类',
+      '使用 train_test_split 划分数据集',
+      '使用 fit 方法训练模型',
+      '使用 predict 方法预测',
+      '使用 accuracy_score 评估准确率',
+    ],
+    starterCode: `# 逻辑回归分类练习
+import numpy as np
+from sklearn.linear_model import ???  # TODO: 导入正确的类
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# 生成二分类数据
+np.random.seed(42)
+n = 100
+X0 = np.random.randn(n, 2) * 1.5 + [2, 2]
+X1 = np.random.randn(n, 2) * 1.5 + [6, 6]
+X = np.vstack([X0, X1])
+y = np.array([0]*n + [1]*n)
+
+# TODO: 划分训练集和测试集
+# X_train, X_test, y_train, y_test = ???
+
+# TODO: 创建 LogisticRegression 模型
+# model = ???
+
+# TODO: 训练模型
+# model.???
+
+# TODO: 预测
+# y_pred = ???
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"准确率: {accuracy:.2%}")`,
+    expectedKeywords: ['LogisticRegression', 'train_test_split', 'fit', 'predict', 'accuracy_score'],
+    checkRules: [
+      { type: 'keyword', keyword: 'LogisticRegression', description: '导入逻辑回归模型', points: 25 },
+      { type: 'keyword', keyword: 'train_test_split', description: '划分训练集和测试集', points: 20 },
+      { type: 'keyword', keyword: 'fit', description: '训练模型', points: 20 },
+      { type: 'keyword', keyword: 'predict', description: '预测', points: 20 },
+      { type: 'keyword', keyword: 'accuracy_score', description: '评估准确率', points: 15 },
+    ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 100
+X0 = np.random.randn(n, 2) * 1.5 + [2, 2]
+X1 = np.random.randn(n, 2) * 1.5 + [6, 6]
+X = np.vstack([X0, X1])
+y = np.array([0]*n + [1]*n)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'coef_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if len(y_pred) != len(y_test):
+    raise AssertionError(f"y_pred 长度({len(y_pred)})应与 y_test({len(y_test)})一致")
+acc = accuracy_score(y_test, y_pred)
+assert float(acc) >= 0.8, f"准确率偏低 ({float(acc):.2%})，请检查模型训练是否正确"
+print(f"测试通过：准确率={float(acc):.2%}")
+      `,
+      expectedVariables: ['model', 'X_train', 'X_test', 'y_train', 'y_test', 'y_pred'],
+      timeoutMs: 15000,
+    },
+  },
+  {
+    id: 'logr-ex-2',
+    algorithmId: 'logistic-regression',
+    title: '概率预测与阈值理解',
+    difficulty: '中级',
+    description: '使用 predict_proba 获取分类概率，理解不同阈值如何影响分类结果。',
+    instructions: [
+      '导入 LogisticRegression',
+      '训练模型',
+      '使用 predict_proba 获取概率',
+      '根据概率和阈值生成预测类别',
+      '对比不同阈值的结果',
+    ],
+    starterCode: `# 逻辑回归概率与阈值练习
+import numpy as np
+from sklearn.linear_model import ???  # TODO: 导入正确的类
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 100
+X0 = np.random.randn(n, 2) * 1.2 + [3, 3]
+X1 = np.random.randn(n, 2) * 1.2 + [7, 7]
+X = np.vstack([X0, X1])
+y = np.array([0]*n + [1]*n)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# TODO: 创建并训练 LogisticRegression 模型
+# model = ???
+# model.???
+
+# TODO: 获取概率预测（不是类别）
+# y_proba = model.???
+
+# 用不同阈值生成类别
+threshold = 0.5
+y_pred_default = (y_proba[:, 1] >= threshold).astype(int)
+print(f"阈值 {threshold}: 准确率 = {accuracy_score(y_test, y_pred_default):.2%}")
+
+threshold_low = 0.3
+y_pred_low = (y_proba[:, 1] >= threshold_low).astype(int)
+print(f"阈值 {threshold_low}: 准确率 = {accuracy_score(y_test, y_pred_low):.2%}")
+
+print(f"前5个样本的正类概率: {y_proba[:5, 1]}")`,
+    expectedKeywords: ['LogisticRegression', 'predict_proba', 'fit', 'accuracy_score'],
+    checkRules: [
+      { type: 'keyword', keyword: 'LogisticRegression', description: '导入逻辑回归模型', points: 25 },
+      { type: 'keyword', keyword: 'fit', description: '训练模型', points: 20 },
+      { type: 'keyword', keyword: 'predict_proba', description: '获取概率预测', points: 30 },
+      { type: 'keyword', keyword: 'accuracy_score', description: '评估准确率', points: 25 },
+    ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 100
+X0 = np.random.randn(n, 2) * 1.2 + [3, 3]
+X1 = np.random.randn(n, 2) * 1.2 + [7, 7]
+X = np.vstack([X0, X1])
+y = np.array([0]*n + [1]*n)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['model', 'y_proba', 'y_pred_default', 'y_pred_low']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'coef_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if y_proba.shape[1] != 2:
+    raise AssertionError("y_proba 应有 2 列（负类概率和正类概率）")
+assert float(accuracy_score(y_test, y_pred_default)) >= 0.8, "默认阈值下准确率应 ≥ 80%"
+assert len(y_pred_low) == len(y_test), "y_pred_low 长度应与 y_test 一致"
+print(f"测试通过：默认阈值准确率={float(accuracy_score(y_test, y_pred_default)):.2%}")
+      `,
+      expectedVariables: ['model', 'y_proba', 'y_pred_default', 'y_pred_low'],
+      timeoutMs: 15000,
+    },
+  },
+  // ── 随机森林 ──
+  {
+    id: 'rf-ex-1',
+    algorithmId: 'random-forest',
+    title: '随机森林分类器基础实现',
+    difficulty: '入门',
+    description: '使用 sklearn 的 RandomForestClassifier 完成分类任务。设置树的数量和深度，训练并评估。',
+    instructions: [
+      '导入 RandomForestClassifier',
+      '设置 n_estimators（树的数量）和 max_depth',
+      '使用 fit 训练模型',
+      '使用 predict 预测',
+      '使用 accuracy_score 评估',
+    ],
+    starterCode: `# 随机森林分类练习
+import numpy as np
+from sklearn.ensemble import ???  # TODO: 导入正确的类
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# 生成分类数据
+np.random.seed(42)
+n = 150
+X0 = np.random.randn(n, 2) * 1.5 + [2, 2]
+X1 = np.random.randn(n, 2) * 1.5 + [6, 6]
+X = np.vstack([X0, X1])
+y = np.array([0]*n + [1]*n)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# TODO: 创建随机森林模型，设置 n_estimators=100, max_depth=5
+# model = ???
+
+# TODO: 训练模型
+# model.???
+
+# TODO: 预测
+# y_pred = ???
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"随机森林准确率: {accuracy:.2%}")
+print(f"树的数量: {model.n_estimators}")`,
+    expectedKeywords: ['RandomForestClassifier', 'n_estimators', 'max_depth', 'fit', 'predict', 'accuracy_score'],
+    checkRules: [
+      { type: 'keyword', keyword: 'RandomForestClassifier', description: '导入随机森林模型', points: 20 },
+      { type: 'keyword', keyword: 'n_estimators', description: '设置树的数量', points: 15 },
+      { type: 'keyword', keyword: 'max_depth', description: '设置树的最大深度', points: 15 },
+      { type: 'keyword', keyword: 'fit', description: '训练模型', points: 20 },
+      { type: 'keyword', keyword: 'predict', description: '预测', points: 15 },
+      { type: 'keyword', keyword: 'accuracy_score', description: '评估', points: 15 },
+    ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 150
+X0 = np.random.randn(n, 2) * 1.5 + [2, 2]
+X1 = np.random.randn(n, 2) * 1.5 + [6, 6]
+X = np.vstack([X0, X1])
+y = np.array([0]*n + [1]*n)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['model', 'y_pred']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'estimators_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+assert model.n_estimators >= 10, "n_estimators 应 ≥ 10"
+assert len(y_pred) == len(y_test), f"y_pred 长度({len(y_pred)})应与 y_test({len(y_test)})一致"
+acc = accuracy_score(y_test, y_pred)
+assert float(acc) >= 0.8, f"准确率偏低 ({float(acc):.2%})，请检查模型训练"
+print(f"测试通过：树={model.n_estimators}棵, 准确率={float(acc):.2%}")
+      `,
+      expectedVariables: ['model', 'y_pred'],
+      timeoutMs: 15000,
+    },
+  },
+  {
+    id: 'rf-ex-2',
+    algorithmId: 'random-forest',
+    title: '特征重要性分析',
+    difficulty: '中级',
+    description: '训练随机森林模型，提取并分析 feature_importances_，理解哪些特征对预测贡献最大。',
+    instructions: [
+      '导入 RandomForestClassifier',
+      '设置 n_estimators 和 max_depth',
+      '训练模型',
+      '输出 feature_importances_',
+      '分析特征重要性排序',
+    ],
+    starterCode: `# 随机森林特征重要性分析
+import numpy as np
+from sklearn.ensemble import ???  # TODO: 导入正确的类
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# 生成多维数据
+np.random.seed(42)
+n = 200
+# 5个特征：前3个有区分力，后2个是噪声
+X = np.random.randn(n, 5)
+y = (X[:, 0] * 2 + X[:, 1] * 1.5 + X[:, 2] * 0.5 + np.random.randn(n) * 0.5 > 0).astype(int)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# TODO: 创建随机森林模型
+# model = ???
+
+# TODO: 训练模型
+# model.???
+
+# TODO: 查看特征重要性
+# importances = model.???
+
+for i, imp in enumerate(importances):
+    print(f"特征{i+1}的重要性: {imp:.4f}")
+
+y_pred = model.predict(X_test)
+print(f"准确率: {accuracy_score(y_test, y_pred):.2%}")
+print(f"最重要的特征: 特征{np.argmax(importances)+1}")`,
+    expectedKeywords: ['RandomForestClassifier', 'feature_importances_', 'max_depth', 'fit', 'predict'],
+    checkRules: [
+      { type: 'keyword', keyword: 'RandomForestClassifier', description: '导入随机森林模型', points: 25 },
+      { type: 'keyword', keyword: 'fit', description: '训练模型', points: 20 },
+      { type: 'keyword', keyword: 'feature_importances_', description: '获取特征重要性', points: 30 },
+      { type: 'keyword', keyword: 'max_depth', description: '设置树深度', points: 10 },
+      { type: 'keyword', keyword: 'predict', description: '预测', points: 15 },
+    ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 200
+X = np.random.randn(n, 5)
+y = (X[:, 0] * 2 + X[:, 1] * 1.5 + X[:, 2] * 0.5 + np.random.randn(n) * 0.5 > 0).astype(int)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['model', 'importances']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'estimators_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if len(importances) != 5:
+    raise AssertionError(f"特征重要性长度应为 5，实际为 {len(importances)}")
+assert len(importances) == 5, "应输出 5 个特征的重要性"
+assert importances[0] > importances[3], "有意义的特征重要性应高于噪声特征"
+print(f"测试通过：特征重要性={[f'{float(v):.3f}' for v in importances]}")
+      `,
+      expectedVariables: ['model', 'importances'],
+      timeoutMs: 15000,
+    },
+  },
 ];
 
 export const quizQuestions: Record<string, QuizQuestion[]> = {

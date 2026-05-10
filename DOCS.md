@@ -35,7 +35,7 @@
 样式方案：   Tailwind CSS 3
 路由管理：   React Router v6
 代码编辑器： Monaco Editor (@monaco-editor/react)
-Python运行： Pyodide + Web Worker，支持线性回归/KNN/决策树/K-Means 浏览器端 Python 真运行
+Python运行： Pyodide + Web Worker，支持全部 6 门算法浏览器端 Python 真运行
 图表可视化： ECharts 5 + echarts-for-react
 图标库：     Lucide React
 数据存储：   localStorage (浏览器本地)
@@ -47,7 +47,7 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 | 类型 | 当前数量/状态 | 说明 |
 |------|---------------|------|
 | 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据与评估、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
-| 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道）；线性回归/KNN/决策树/K-Means 含 Pyodide 真运行，逻辑回归/随机森林含规则检查 |
+| 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道），全部含 Pyodide 真运行和固定测试 |
 | 测验题目 | 72 道 | 覆盖全部 9 门课程（基础课 24 道 + 算法课 48 道），支持后台自定义覆盖 |
 | 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
 | AI 场景 | 11 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |

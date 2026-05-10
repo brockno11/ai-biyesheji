@@ -32,7 +32,7 @@
 ### 当前项目状态（2026-05-10）
 
 - 内置课程：9 门（3 门基础概念课 + 6 门算法课），面向零基础渐进式学习，按入门→中级难度编排
-- 代码练习：12 道（覆盖全部 6 门算法每门2道；线性回归/KNN/决策树/K-Means 含 Pyodide 真运行）
+- 代码练习：12 道（覆盖全部 6 门算法每门2道，均含 Pyodide 真运行和固定测试）
 - 测验题目：72 道（覆盖全部 9 门课程，含基础课 24 道 + 算法课 48 道）
 - 可视化组件：6 个（LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz）
 - 教学图解：15 个（AI/ML/DL 嵌套图、任务类型对比、ML 流程图、数据拆分图等，覆盖基础课和算法课）
@@ -75,7 +75,7 @@
 
 - Monaco Editor 在线 Python 编辑器
 - 基于规则的代码检查 + Pyodide 浏览器端 Python 真运行
-- 每道练习通过 Web Worker 执行 Pyodide 真运行，覆盖线性回归/KNN/决策树/K-Means
+- 全部 12 道练习通过 Web Worker 执行 Pyodide 真运行，覆盖全部 6 门算法
 - 综合评分按核心 API、TODO 完成度、Python 可执行性、固定测试表现四个维度计算
 - 实时显示需要使用的 API
 - 保存练习记录、得分和反馈
