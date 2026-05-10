@@ -992,7 +992,7 @@ npx tsc --noEmit && npx vite build
 | 提交 | 内容 |
 |------|------|
 | `ba0a910` | 代码审计修复：Rules of Hooks 违规、stale closure、死代码清理、服务端日志安全 |
-| `f9bc508` | 文档同步：README 版本徽标 + 课程数量更新至 v2.8.1 |
+| `f9bc508` | 文档同步：README 版本徽标 + 课程数量更新至 v2.8.2 |
 | `f888150` | 课程内容充实（代码示例扩展）；学习路径按入门→中级重排；B站视频移至核心思想下方；AI 总结本节按钮 |
 | `599e431` | 引导式问答：6 个 foundation lesson openingQuestion + 即时反馈 + AI 陪学按钮 |
 | `ed79caa` | 新增逻辑回归 + 随机森林课程（v2.8.0）：LogisticRegressionViz + RandomForestViz + 16 道测验 + ensemble 分类 |
@@ -1069,7 +1069,7 @@ npm run test:watch # 监听模式
 | **v2.6.0** | 2 门基础概念课 + 3 个交互演示 + CoursePage 改造 + 17 道新测验题 |
 | **v2.7.0** | 基础课微课化：14 个 lesson + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
 | **v2.8.0** | 逻辑回归 + 随机森林课程：LogisticRegressionViz + RandomForestViz + 16 道测验 |
-| **v2.8.1** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 + 6个算法图解 + 段落排版优化 |
+| **v2.8.2** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 + 6个算法图解 + 段落排版优化 |
 
 ---
 
