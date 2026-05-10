@@ -42,12 +42,12 @@ Python运行： Pyodide + Web Worker，支持线性回归/KNN/决策树/K-Means 
 AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 Mock)
 ```
 
-### 2.1.1 当前功能规模（2026-05-09）
+### 2.1.1 当前功能规模（2026-05-10）
 
 | 类型 | 当前数量/状态 | 说明 |
 |------|---------------|------|
 | 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据与评估、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
-| 代码练习 | 8 道 | 覆盖线性回归、KNN、决策树、K-Means 四门算法（每门2道）；逻辑回归和随机森林练习待后续开放 |
+| 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道）；线性回归/KNN/决策树/K-Means 含 Pyodide 真运行，逻辑回归/随机森林含规则检查 |
 | 测验题目 | 72 道 | 覆盖全部 9 门课程（基础课 24 道 + 算法课 48 道），支持后台自定义覆盖 |
 | 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
 | AI 场景 | 11 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |
@@ -87,9 +87,16 @@ src/
 │   ├── VideoEmbed.tsx          # B 站视频播放器
 │   ├── ProgressBar.tsx         # 进度条组件
 │   ├── ScoreCard.tsx           # 代码检查得分卡片
+│   ├── MistakeCard.tsx          # 错误/正确理解对比卡片（共享组件）
+│   ├── SmartParagraph.tsx       # 智能段落拆分渲染组件
+│   ├── LessonDiagrams.tsx       # 15 个教学图解组件集合
+│   ├── FoundationCourseContent.tsx # 基础课微课页面
+│   ├── InteractiveTask.tsx      # 互动任务分发组件（4种互动类型）
 │   ├── LinearRegressionViz.tsx # 线性回归可视化 (散点图+拟合线+Loss曲线)
+│   ├── LogisticRegressionViz.tsx # 逻辑回归可视化 (Sigmoid+决策边界)
 │   ├── KNNViz.tsx              # KNN 可视化 (分类散点+K近邻+测试点拖动)
 │   ├── DecisionTreeViz.tsx     # 决策树可视化 (树结构+分类路径)
+│   ├── RandomForestViz.tsx     # 随机森林可视化 (多棵树投票+特征重要性)
 │   ├── KMeansViz.tsx           # K-Means 聚类可视化 (散点簇+中心移动+K值调节)
 │   ├── AdminCoursePanel.tsx    # 课程管理面板 (CRUD)
 │   └── AdminQuestionPanel.tsx  # 练习题/测验题管理面板 (CRUD + 本地覆盖)
@@ -805,12 +812,14 @@ curl -X POST http://localhost:8787/api/ai/chat \
 
 ## 十一、B 站视频来源
 
-| 算法 | BV 号 | 标题 |
-|------|-------|------|
-| 线性回归 | BV1ZZCkBREVE | 机器学习算法 · 构建线性回归 |
-| KNN | BV1TW4y1w7MW | K近邻算法 · 通俗易懂课程 |
-| 决策树 | BV1gP4y177cf | 机器学习入门系列 · 决策树 |
-| K-Means | BV1sM4y1U7Ph | K-Means 聚类算法教程 |
+| 算法 | BV 号 | 标题 | 核验状态 |
+|------|-------|------|----------|
+| 线性回归 | BV1ZZCkBREVE | 【机器学习算法】构建线性回归 | ✅ 已核验 |
+| KNN | BV1TW4y1w7MW | K近邻算法 · 通俗易懂课程 | ✅ 已核验 |
+| 逻辑回归 | — | 待补充 | ⚠️ 未找到可靠视频 |
+| 决策树 | BV1gP4y177cf | 温州大学《机器学习》课程全集 | ✅ 已核验 |
+| K-Means | BV1V44y1u7mJ | k-means 聚类算法 清晰解释 | ✅ 已替换 |
+| 随机森林 | — | 待补充 | ⚠️ 未找到可靠视频 |
 
 ---
 
@@ -906,20 +915,22 @@ generateCourseDraft(context)
 
 ## 十三、Agent 交接备忘
 
-### 当前内容扩展说明（2026-05-09）
+### 当前内容扩展说明（2026-05-10）
 
-本轮已补齐“算法数量偏少”和“题库/练习管理偏弱”的问题：
+项目已完成从 MVP 到成品的多轮迭代，当前状态：
 
-- 内置算法从 3 门扩展为 4 门，新增 **K-Means 聚类**，与线性回归、KNN、决策树形成“回归 / 分类 / 树模型 / 无监督聚类”的入门组合。
-- 新增 `KMeansViz.tsx`，使用 ECharts 展示聚类散点、聚类中心、K 值调节、迭代次数、簇内分散度、inertia 和最大簇样本数，并接入“AI 解释当前现象”。
-- 练习题扩展为 8 道，每个算法 2 道；K-Means 新增基础聚类实现和肘部法练习。
-- 测验题扩展为 32 道，每个算法 8 道；K-Means 覆盖无监督学习、K 值、分配/更新步骤、inertia、特征缩放、肘部法、适用数据形状和 sklearn API。
-- 管理后台新增 **题库管理** Tab，可新增、编辑、删除自定义练习题和测验题；内置题目支持“本地覆盖编辑”，删除覆盖后恢复默认题目。
-- `storageService.ts` 已扩展自定义练习题和测验题的 localStorage CRUD；`getExercisesByAlgorithm`、`getQuizByAlgorithm` 会自动合并内置题目与后台自定义题目。
+- 课程体系：9 门课程（3 基础 + 6 算法），按入门→中级难度编排，含 20 个小节的微课化基础课。
+- 算法课程：线性回归、KNN、逻辑回归、决策树、K-Means、随机森林，每门含通俗理解、引导思考、图解、常见误区。
+- 练习题：12 道，覆盖全部 6 门算法（每门 2 道），线性回归/KNN/决策树/K-Means 含 Pyodide 真运行。
+- 测验题：72 道，覆盖全部 9 门课程。
+- 可视化：6 个交互式 ECharts 可视化组件 + 15 个 Tailwind 教学图解组件。
+- AI 助教：11 种 AI 场景，DeepSeek 在线 + Mock 离线双模式。
+- 新增组件：SmartParagraph（智能分段渲染）、MistakeCard（共享对比卡）、GuidedQuestionBlock（引导问答兜底）。
+- 管理后台：课程 + 题库/练习 CRUD，本地覆盖编辑。
 
 答辩演示时可补充展示：
 
-1. 首页统计指标会动态显示当前算法、练习题和测验题数量。
+1. 首页统计指标会动态显示当前课程、练习题和测验题数量。
 2. 进入 K-Means 课程页，拖动 K 值、迭代次数和簇内分散度，观察聚类中心变化。
 3. 点击 K-Means 可视化下方“生成解释”，展示 AI 对当前聚类现象的讲解。
 4. 进入管理后台 → 题库管理，新增一道测验题或覆盖编辑内置题目，再回到对应测验页验证题目已生效。
@@ -1033,8 +1044,10 @@ npm run test:watch # 监听模式
 | 5 | `aiService.fallback.test.ts` | DeepSeek 不可用时自动降级到 Mock |
 | 6 | `quiz.test.ts` | 每算法 8 题、全对/全错评分 |
 | 7 | `storageService.test.ts` | 练习记录保存/读取、自定义课程持久化 |
+| 8 | `lessonProgressService.test.ts` | 基础课进度存储和读取 |
+| 9 | `sidebar.test.tsx` | 侧边栏课程渲染和导航 |
 
-> **共 14 个测试用例**，分布在 7 个测试文件中。运行 `npm test` 一键验证。
+> **共 25 个测试用例**，分布在 9 个测试文件中。运行 `npm test` 一键验证。
 
 测试框架：Vitest + @testing-library/react + jsdom。配置文件 `vitest.config.ts`。
 
@@ -1055,7 +1068,7 @@ npm run test:watch # 监听模式
 | **v2.6.0** | 2 门基础概念课 + 3 个交互演示 + CoursePage 改造 + 17 道新测验题 |
 | **v2.7.0** | 基础课微课化：14 个 lesson + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
 | **v2.8.0** | 逻辑回归 + 随机森林课程：LogisticRegressionViz + RandomForestViz + 16 道测验 |
-| **v2.8.1** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 |
+| **v2.8.1** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 + 6个算法图解 + 段落排版优化 |
 
 ---
 

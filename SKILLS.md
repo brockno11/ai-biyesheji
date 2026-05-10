@@ -48,14 +48,15 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 
 | Skill | 对应工作 |
 |------|----------|
-| senior-frontend / react | 新增 K-Means 路由接入、后台题库管理组件、首页/后台统计联动 |
-| frontend-design / frontend-ui-ux | 优化课程卡片、管理后台 Tab、题库表单和可视化区域的信息组织 |
-| data-viz-2025 | 新增 `KMeansViz.tsx`，用 ECharts 展示聚类散点、聚类中心、K 值、迭代次数和 inertia |
-| fullstack-dev / api-designer | 保持 DeepSeek Express 代理结构与前端 `/api/ai/chat` 调用方式一致 |
-| senior-qa | 使用 `npm run build` 验证 TypeScript、Vite 构建和新增模块引用 |
-| frontend-code-review | 检查新增组件的状态流、localStorage 合并逻辑和前台读取路径 |
+| senior-frontend | 课程数据重构、AlgorithmPage 模块重排、SmartParagraph/MistakeCard 共享组件 |
+| frontend-design / frontend-ui-ux | 通俗理解+常见误区 Section 设计、课程排版分段优化、答案选项随机分布 |
+| data-viz-2025 | 15 个教学图解组件（AI/ML/DL嵌套图、任务对比图、算法直觉图等） |
+| shadcn-ui / ui-designer | 统一卡片/徽标/步骤指示器 UI 风格 |
+| fullstack-dev / api-designer | DeepSeek Express 代理维护 |
+| senior-qa | npm test / npm run build / npx tsc 三合一验证 |
+| frontend-code-review | 全站"开发中"占位清理、类型安全检查 |
 
-当前项目已从 3 个算法扩展到 6 个算法（9 门课程含 3 门基础课），题库从 15 道扩展到 72 道，练习题从 4 道扩展到 8 道，Skills 从 10 个扩展到 19 个。
+当前项目已从 3 个算法扩展到 6 个算法（9 门课程含 3 门基础课），题库从 15 道扩展到 72 道，练习题从 4 道扩展到 12 道，Skills 从 10 个扩展到 19 个。
 
 ---
 
