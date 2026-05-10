@@ -65,6 +65,7 @@ export default function AdminQuestionPanel() {
   const [previewQuestion, setPreviewQuestion] = useState<QuizQuestion | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const importFileRef = useRef<HTMLInputElement>(null);
 
   const showToast = (type: 'success' | 'error', msg: string) => {
@@ -269,42 +270,31 @@ export default function AdminQuestionPanel() {
               测验题
             </button>
           </div>
-          {mode === 'quiz' && (
-            <>
-              <button
-                onClick={handleExportQuizzes}
-                disabled={customQuizzes.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-40"
-                title="导出自定义测验"
-              >
-                <Download className="h-3.5 w-3.5" />
-                导出
-              </button>
-              <button
-                onClick={handleImportQuizzes}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
-                title="导入测验 JSON"
-              >
-                <Upload className="h-3.5 w-3.5" />
-                导入
-              </button>
-              <input
-                ref={importFileRef}
-                type="file"
-                accept=".json"
-                className="hidden"
-                onChange={handleImportFile}
-              />
-              <button
-                onClick={() => setShowRestoreConfirm(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
-                title="清除所有自定义题目，恢复内置题库"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                恢复默认题库
-              </button>
-            </>
-          )}
+          <div className="relative">
+            <button onClick={() => setMoreOpen(!moreOpen)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50">
+              更多操作 ▾
+            </button>
+            {moreOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1 min-w-[160px]">
+                <button onClick={() => { handleExportQuizzes(); setMoreOpen(false); }}
+                  disabled={customQuizzes.length === 0}
+                  className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-40">
+                  📤 导出题库
+                </button>
+                <button onClick={() => { importFileRef.current?.click(); setMoreOpen(false); }}
+                  className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50">
+                  📥 导入题库
+                </button>
+                <input ref={importFileRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
+                <hr className="my-1" />
+                <button onClick={() => { setShowRestoreConfirm(true); setMoreOpen(false); }}
+                  className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50">
+                  ⚠️ 恢复默认题库
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
