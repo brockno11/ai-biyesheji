@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-const CATEGORIES = ['regression', 'classification', 'tree', 'clustering'] as const;
 const DIFFICULTIES = ['入门', '中级', '进阶'] as const;
 const RULE_TYPES = ['keyword', 'structure', 'best_practice'] as const;
 

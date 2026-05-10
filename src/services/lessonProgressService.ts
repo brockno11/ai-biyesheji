@@ -77,18 +77,6 @@ export const lessonProgressService = {
     write(data);
   },
 
-  getCourseProgress(courseId: string): {
-    total: number;
-    completed: number;
-  } {
-    const data = read();
-    const course = data[courseId];
-    return {
-      total: 0,
-      completed: course?.completedLessons?.length ?? 0,
-    };
-  },
-
   isLessonCompleted(courseId: string, lessonId: string): boolean {
     const data = read();
     return data[courseId]?.completedLessons?.includes(lessonId) ?? false;

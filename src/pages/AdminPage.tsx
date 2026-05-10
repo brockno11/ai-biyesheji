@@ -7,6 +7,7 @@ import {
 import { algorithms as staticAlgorithms } from '../data/algorithms';
 import { getAllExercises, getAllQuizQuestions } from '../data/exercises';
 import { storageService } from '../services/storageService';
+import { useAuth } from '../hooks/useAuth';
 import AdminCoursePanel from '../components/AdminCoursePanel';
 import AdminQuestionPanel from '../components/AdminQuestionPanel';
 
@@ -20,11 +21,11 @@ const adminTabs: { key: AdminTab; label: string; icon: React.ComponentType<{ cla
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const { user } = useAuth();
 
   const customCourses = storageService.getCustomCourses();
   const progress = storageService.getProgress();
   const allCourses = [...staticAlgorithms, ...customCourses];
-  const totalUsers = 1; // Single-user system
 
   // System stats
   const stats = {
@@ -213,7 +214,11 @@ export default function AdminPage() {
                       <Users className="w-4 h-4 text-gray-400" />
                       <span className="text-sm font-bold text-gray-700">用户模式</span>
                     </div>
-                    <p className="text-sm text-gray-500">单用户本地模式，无需登录注册，开箱即用</p>
+                    <p className="text-sm text-gray-500">
+                      {user ? `${user.nickname}（${user.role === 'admin' ? '管理员' : '学员'}）已登录` : '未登录'}
+                      <br />
+                      <span className="text-xs text-gray-400">演示账号：student / 123456（学员），admin / 123456（管理员）</span>
+                    </p>
                   </div>
                   <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-5">
                     <div className="flex items-center gap-2 mb-3">

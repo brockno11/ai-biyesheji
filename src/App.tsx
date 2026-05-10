@@ -1,6 +1,8 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './hooks/useAuth';
 
 // HomePage loaded eagerly for instant landing page
 import HomePage from './pages/HomePage';
@@ -27,60 +29,74 @@ function PageLoader() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/profile"
-          element={
-            <Suspense fallback={<PageLoader />}>
-              <ProfilePage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <Suspense fallback={<PageLoader />}>
-              <AdminPage />
-            </Suspense>
-          }
-        />
-        <Route element={<Layout />}>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route element={<Layout />}>
+            <Route
+              path="/algorithms/:id"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <CoursePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/practice/:algorithmId"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <PracticePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/quiz/:algorithmId"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <QuizPage />
+                </Suspense>
+              }
+            />
+            {/* Protected: requires login */}
+            <Route
+              path="/progress"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <ProtectedRoute>
+                    <ProgressPage />
+                  </ProtectedRoute>
+                </Suspense>
+              }
+            />
+          </Route>
+
+          {/* Protected: requires login */}
           <Route
-            path="/algorithms/:id"
+            path="/profile"
             element={
               <Suspense fallback={<PageLoader />}>
-                <CoursePage />
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
               </Suspense>
             }
           />
+
+          {/* Protected: requires admin */}
           <Route
-            path="/practice/:algorithmId"
+            path="/admin"
             element={
               <Suspense fallback={<PageLoader />}>
-                <PracticePage />
+                <ProtectedRoute requireAdmin>
+                  <AdminPage />
+                </ProtectedRoute>
               </Suspense>
             }
           />
-          <Route
-            path="/quiz/:algorithmId"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <QuizPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/progress"
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <ProgressPage />
-              </Suspense>
-            }
-          />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

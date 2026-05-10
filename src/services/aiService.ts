@@ -277,7 +277,7 @@ export const aiService = {
   },
 };
 
-export async function askAI(
+async function askAI(
   type: 'explain' | 'diagnose' | 'suggest' | 'quiz',
   algorithm: Algorithm,
   context?: string
@@ -298,7 +298,7 @@ export async function askAI(
   return result.data;
 }
 
-export async function askAIChat(message: string, algorithm: Algorithm): Promise<string> {
+async function askAIChat(message: string, algorithm: Algorithm): Promise<string> {
   const result = await aiService.askTutor({
     algorithm,
     userQuestion: message,

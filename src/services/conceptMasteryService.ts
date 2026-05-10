@@ -40,33 +40,6 @@ function writeAll(records: ConceptMasteryRecord[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 }
 
-function findOrCreateRecord(params: {
-  conceptId: string
-  conceptName: string
-  courseId: string
-  lessonId: string
-}): ConceptMasteryRecord {
-  const records = readAll();
-  const existing = records.find((r) => r.conceptId === params.conceptId);
-  if (existing) return existing;
-  const newRecord: ConceptMasteryRecord = {
-    conceptId: params.conceptId,
-    conceptName: params.conceptName,
-    courseId: params.courseId,
-    lessonId: params.lessonId,
-    attempts: 0,
-    correct: 0,
-    interactionCompleted: false,
-    interactionScore: 0,
-    checkpointScore: 0,
-    mastery: 0,
-    lastActive: Date.now(),
-  };
-  records.push(newRecord);
-  writeAll(records);
-  return newRecord;
-}
-
 function computeMastery(record: ConceptMasteryRecord): number {
   const checkpointAccuracy = record.attempts > 0 ? record.correct / record.attempts : 0;
   const interactionScore = record.interactionScore;

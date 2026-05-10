@@ -1,6 +1,6 @@
 # 课程内容与教学方法全览
 
-> 生成日期：2026-05-10 | 项目版本：v2.8.2 | 共 9 门课程
+> 生成日期：2026-05-11 | 项目版本：v3.0.0 | 共 9 门课程
 
 ---
 
@@ -255,7 +255,7 @@ Algorithm {
 | 引导思考 (guidedQuestions) | ✅ 全部 6 门 (每门 2 题) |
 | 公式 | ✅ 5 门 (随机森林无单独公式) |
 | 步骤 | ✅ 全部 6 门 |
-| B站视频 | ✅ 4 门 (逻辑回归/随机森林无) |
+| B站视频 | ✅ 全部 6 门算法（强制 autoplay=0） |
 | 交互式可视化 | ✅ 6 门 (均有 VizComponent) |
 | Python 代码示例 | ✅ 全部 6 门 |
 | 常见误区 (commonMisunderstandings) | ✅ 全部 6 门 (每门 3 条) |
@@ -269,10 +269,10 @@ Algorithm {
 |------|-----------|-----------|------|
 | 线性回归 | LinearRegressionViz (散点+拟合线+Loss) | BV1ZZCkBREVE ✅ | 第一个算法，承接基础课 |
 | KNN | KNNViz (分类散点+K近邻+测试点拖动) | BV1TW4y1w7MW ✅ | 最直观的分类算法 |
-| 逻辑回归 | LogisticRegressionViz (Sigmoid+决策边界) | — ⚠️ | 概率视角的二分类 |
-| 决策树 | DecisionTreeViz (树结构+分类路径) | BV1gP4y177cf ✅ | 规则式可解释模型 |
-| K-Means | KMeansViz (散点簇+中心移动+K值调节) | BV1V44y1u7mJ ✅ | 第一个无监督算法 |
-| 随机森林 | RandomForestViz (多树卡片+投票+特征重要性) | — ⚠️ | 集成学习代表 |
+| 逻辑回归 | LogisticRegressionViz (Sigmoid+决策边界) | BV1H1uqzSE76 ✅ | 概率视角的二分类 |
+| 决策树 | DecisionTreeViz (树结构+分类路径) | BV1Ne411y7wW ✅ | 规则式可解释模型 |
+| K-Means | KMeansViz (散点簇+中心移动+K值调节) | BV1V44y1u7mJ ✅ | 第一个无监督算法，含cid/p参数 |
+| 随机森林 | RandomForestViz (多树卡片+投票+特征重要性+教学引导) | BV1H5411e73F ✅ | 集成学习代表 |
 
 ---
 
@@ -414,4 +414,4 @@ aiService.ts (13 方法)
 
 ---
 
-> 文档生成日期：2026-05-10 | 项目版本：v2.8.2
+> 文档生成日期：2026-05-11 | 项目版本：v3.0.0

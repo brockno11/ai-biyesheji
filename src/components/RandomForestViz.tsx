@@ -34,11 +34,11 @@ function generateTreePredictions(nEstimators: number, maxDepth: number, seed: nu
 }
 
 const featureImportanceData = [
-  { name: '花瓣长度', value: 0.42 },
-  { name: '花瓣宽度', value: 0.31 },
-  { name: '花萼长度', value: 0.15 },
-  { name: '花萼宽度', value: 0.08 },
-  { name: '其它特征', value: 0.04 },
+  { name: '收入水平', value: 0.36 },
+  { name: '浏览频次', value: 0.27 },
+  { name: '年龄区间', value: 0.18 },
+  { name: '历史购买', value: 0.13 },
+  { name: '职业类别', value: 0.06 },
 ];
 
 export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }) {
@@ -61,6 +61,9 @@ export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }
   const finalConfidence = Math.round(
     (Math.max(voteCounts.class0, voteCounts.class1) / voteCounts.total) * 100
   );
+  const averageLeafNodes = Math.round(
+    trees.reduce((sum, tree) => sum + tree.leafNodes, 0) / Math.max(trees.length, 1)
+  );
 
   const importanceOption = {
     title: {
@@ -71,8 +74,11 @@ export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }
     tooltip: {
       trigger: 'axis' as const,
       axisPointer: { type: 'shadow' as const },
-      formatter: (params: { data: number; name: string }[]) =>
-        `${params[0]?.name}: ${(params[0]?.data * 100).toFixed(0)}%`,
+      formatter: (params: { data: number | { value: number }; name: string }[]) => {
+        const item = params[0];
+        const value = typeof item?.data === 'number' ? item.data : item?.data?.value ?? 0;
+        return `${item?.name ?? '特征'}: ${(value * 100).toFixed(0)}%`;
+      },
     },
     xAxis: {
       type: 'value' as const,
@@ -117,6 +123,35 @@ export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }
 
   return (
     <div className="space-y-6">
+      <div className="rounded-2xl border border-sky-100 bg-sky-50/80 p-5">
+        <h4 className="text-sm font-bold text-sky-900">这个可视化在演示什么？</h4>
+        <p className="mt-2 text-xs leading-relaxed text-sky-800">
+          随机森林不是只训练一棵决策树，而是训练很多棵“看过不同数据、用过不同特征”的树。
+          每张小卡片就是一棵树对同一个样本的判断：<strong>类别 0</strong> 和 <strong>类别 1</strong>
+          代表两个可能结果，例如“不购买课程 / 购买课程”。最后按多数票决定模型预测。
+        </p>
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-white/70 bg-white/80 p-3">
+            <div className="text-xs font-bold text-sky-900">为什么要投票？</div>
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+              单棵树容易被训练数据里的偶然细节带偏。多棵树独立判断后投票，可以抵消单棵树的偏差，让结果更稳。
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/70 bg-white/80 p-3">
+            <div className="text-xs font-bold text-sky-900">树的数量影响什么？</div>
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+              树越多，投票越稳定，但计算更慢。拖动 n_estimators 可以观察多数票是否更不容易被少数树改变。
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/70 bg-white/80 p-3">
+            <div className="text-xs font-bold text-sky-900">最大深度影响什么？</div>
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+              深度越大，单棵树能问更多层问题，叶节点更多，模型更复杂；太深时可能记住噪声，泛化反而变差。
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Controls */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
         <h4 className="text-sm font-semibold text-gray-800 mb-4">{'参数调节'}</h4>
@@ -168,9 +203,19 @@ export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }
 
       {/* Tree Cards */}
       <div>
-        <h4 className="text-sm font-semibold text-gray-800 mb-3">
-          {'\u{1F332}'} {nEstimators} {'棵决策树的投票结果'}
-        </h4>
+        <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h4 className="text-sm font-semibold text-gray-800">
+              {'\u{1F332}'} {nEstimators} {'棵决策树的投票结果'}
+            </h4>
+            <p className="text-xs text-gray-500">
+              每棵树先独立给出类别，再交给森林做多数投票。
+            </p>
+          </div>
+          <div className="text-xs text-gray-400">
+            平均叶节点：{averageLeafNodes} 个 / 树
+          </div>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {trees.map((tree) => (
             <div
@@ -191,16 +236,28 @@ export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }
                 {'类别'} {tree.prediction}
               </div>
               <div className="text-xs text-gray-400">
-                {'置信度'} {tree.confidence} / {tree.leafNodes} {'叶节点'}
+                {'置信度'} {tree.confidence}
+              </div>
+              <div className="mt-1 text-[11px] text-gray-400">
+                {tree.leafNodes} {'个叶节点'}
               </div>
             </div>
           ))}
+        </div>
+        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-relaxed text-slate-600">
+          <strong>怎么看小卡片：</strong>
+          “类别”是这棵树的预测；“置信度”是这棵树对自己判断的把握程度；“叶节点”可以理解为这棵树最终可落到的答案格子数量，通常越多表示树越复杂。
         </div>
       </div>
 
       {/* Voting Summary */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-        <h4 className="text-sm font-semibold text-gray-800 mb-4">{'\u{1F5F3}️ 投票统计'}</h4>
+        <div className="mb-4">
+          <h4 className="text-sm font-semibold text-gray-800">{'\u{1F5F3}️ 投票统计'}</h4>
+          <p className="mt-1 text-xs text-gray-500">
+            统计所有树投给类别 0 和类别 1 的票数，多数票就是随机森林的最终预测。
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Vote bar */}
           <div>
@@ -254,15 +311,24 @@ export default function RandomForestViz({ algorithm }: { algorithm?: Algorithm }
                 ? `${voteCounts.class0} ${'棵树投了类别 0'}`
                 : `${voteCounts.class1} ${'棵树投了类别 1'}`}
             </div>
+            <div className="mt-3 max-w-sm text-center text-[11px] leading-relaxed text-gray-400">
+              这里的置信度是多数票占比：支持最终类别的树越多，森林整体判断越一致。
+            </div>
           </div>
         </div>
       </div>
 
       {/* Feature Importance Chart */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <div className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3">
+          <div className="text-sm font-semibold text-emerald-800">从“投票结果”继续看“投票依据”</div>
+          <p className="mt-1 text-xs leading-relaxed text-emerald-700">
+            上面展示的是多棵树如何投票；下面的特征重要性则回答另一个问题：这些树在做判断时，整体更依赖哪些特征。它不是新的算法，而是随机森林训练后常见的解释视角。
+          </p>
+        </div>
         <ReactECharts notMerge={true} option={importanceOption} style={{ height: 280 }} />
         <div className="text-xs text-gray-400 text-center mt-2">
-          {'💡 上图展示的是鸢尾花数据集的示例特征重要性。实际应用中可通过 model.feature_importances_ 获取。'}
+          {'💡 示例场景：预测用户是否购买课程。实际应用中可通过 model.feature_importances_ 获取特征重要性。'}
         </div>
       </div>
 

@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { Algorithm, GuidedQuestion } from '../types';
-import { getAlgorithmById } from '../data/algorithms';
 import AITutorPanel from './AITutorPanel';
 import InteractiveTask from './InteractiveTask';
 import MistakeCard from './MistakeCard';
@@ -359,7 +358,9 @@ export default function FoundationCourseContent({
                 className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   algorithm.difficulty === '入门'
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-yellow-100 text-yellow-700'
+                    : algorithm.difficulty === '进阶'
+                    ? 'bg-rose-100 text-rose-700'
+                    : 'bg-amber-100 text-amber-700'
                 }`}
               >
                 {algorithm.difficulty}

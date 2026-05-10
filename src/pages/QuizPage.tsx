@@ -1,18 +1,22 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, XCircle, Trophy, RotateCcw, Lightbulb } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CheckCircle, XCircle, Trophy, RotateCcw, Lightbulb } from 'lucide-react';
 import { getAlgorithmById } from '../data/algorithms';
 import { useCourseById } from '../hooks/useCourses';
+import { useAuth } from '../hooks/useAuth';
 import { getQuizByAlgorithm } from '../data/exercises';
 import { storageService } from '../services/storageService';
 import { aiService } from '../services/aiService';
 import AIQuizReviewCard from '../components/AIQuizReviewCard';
+import LoginModal from '../components/LoginModal';
 import type { AIMode, AIQuizReviewResult } from '../services/aiTypes';
 
 export default function QuizPage() {
   const { algorithmId } = useParams<{ algorithmId: string }>();
   const algorithm = useCourseById(algorithmId || '') || getAlgorithmById(algorithmId || '');
   const questions = useMemo(() => getQuizByAlgorithm(algorithmId || ''), [algorithmId]);
+  const { user } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -53,13 +57,15 @@ export default function QuizPage() {
       if (allAnswered[i] === q.correctIndex) correctCount++;
     });
 
-    storageService.saveQuizRecord({
-      algorithmId: algorithm.id,
-      score: Math.round((correctCount / questions.length) * 100),
-      total: questions.length,
-      timestamp: Date.now(),
-      answers: allAnswered,
-    });
+    if (user) {
+      storageService.saveQuizRecord({
+        algorithmId: algorithm.id,
+        score: Math.round((correctCount / questions.length) * 100),
+        total: questions.length,
+        timestamp: Date.now(),
+        answers: allAnswered,
+      });
+    }
   };
 
   const handleReset = () => {
@@ -106,6 +112,21 @@ export default function QuizPage() {
         <ArrowLeft className="w-4 h-4" />
         返回{algorithm.name}课程
       </Link>
+
+      {!user && (
+        <div className="mb-4 bg-amber-50/80 backdrop-blur-sm rounded-xl border border-amber-200 p-4 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2 text-sm text-amber-800">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <span>当前为游客模式，测验成绩不会保存。登录后可追踪学习进度和查看 AI 智能分析。</span>
+          </div>
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-white px-3 py-1.5 rounded-lg border border-amber-200 hover:bg-amber-100 transition-all flex-shrink-0"
+          >
+            立即登录
+          </button>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm mb-6">
@@ -279,7 +300,7 @@ export default function QuizPage() {
               disabled={aiLoading}
               className="w-full rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
             >
-              {aiLoading ? 'AI 正在讲解错题...' : 'AI 讲解我的错题'}
+              {aiLoading ? 'AI 正在生成分析报告...' : 'AI 智能分析'}
             </button>
           )}
 
@@ -292,6 +313,7 @@ export default function QuizPage() {
           )}
         </div>
       )}
+      <LoginModal show={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </div>
   );
 }

@@ -42,46 +42,11 @@ export const ERROR_CODES = {
 // ────────────────────────────────────────────────────────────────────
 
 const DEFAULT_BASE_URL = 'https://api.deepseek.com';
-const DEFAULT_MODEL = 'deepseek-v4-flash';
+const DEFAULT_MODEL = 'deepseek-chat';
 const REQUEST_TIMEOUT_MS = 20000;
 
 function normalizeBaseUrl(baseUrl: string) {
   return baseUrl.replace(/\/+$/, '');
-}
-
-/**
- * Try to extract valid JSON from a raw string. If the raw string is
- * already valid JSON, return it as-is. Otherwise, try to extract JSON
- * from markdown code fences. If all else fails, wrap the response in a
- * JSON container: { "result": "..." }.
- */
-export function tryParseJson(raw: string): string {
-  const trimmed = raw.trim();
-
-  // Already valid JSON object or array
-  if ((trimmed.startsWith('{') || trimmed.startsWith('[')) && (trimmed.endsWith('}') || trimmed.endsWith(']'))) {
-    try {
-      JSON.parse(trimmed);
-      return trimmed;
-    } catch {
-      // Not valid JSON despite looking like it — fall through
-    }
-  }
-
-  // Attempt to extract JSON from markdown code blocks
-  const mdMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (mdMatch) {
-    const inner = mdMatch[1].trim();
-    try {
-      JSON.parse(inner);
-      return inner;
-    } catch {
-      // Not valid JSON — fall through
-    }
-  }
-
-  // Wrap raw text in a JSON container
-  return JSON.stringify({ result: raw });
 }
 
 function getDeepSeekConfig() {

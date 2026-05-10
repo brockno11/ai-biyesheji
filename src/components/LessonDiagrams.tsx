@@ -863,7 +863,19 @@ export function KMeansIntuition() {
 export function RandomForestIntuition() {
   return (
     <div className="py-4">
-      <div className="rounded-xl border border-orange-200 bg-orange-50/30 p-4">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {[
+            ['① 有放回抽样', '每棵树看到的数据略不同'],
+            ['② 随机选特征', '每棵树思考角度不同'],
+            ['③ 多数投票', '用集体结果降低偶然性'],
+          ].map(([title, desc]) => (
+            <div key={title} className="rounded-lg border border-emerald-100 bg-white/80 px-3 py-2">
+              <div className="text-[11px] font-bold text-emerald-700">{title}</div>
+              <div className="mt-0.5 text-[10px] text-slate-500">{desc}</div>
+            </div>
+          ))}
+        </div>
         <div className="space-y-2">
           {['🌳 树1', '🌲 树2', '🌴 树3'].map((label, i) => (
             <div key={i} className="flex items-center gap-2 bg-white rounded-lg border border-slate-200 p-2">
@@ -884,7 +896,9 @@ export function RandomForestIntuition() {
           <span className="text-[10px] text-slate-400 mx-1">→</span>
           <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-bold">最终预测: A</span>
         </div>
-        <p className="text-center text-[10px] text-slate-400 mt-2">树越多 → 投票越稳定 → 抗过拟合能力越强</p>
+        <p className="text-center text-[10px] text-slate-500 mt-2">
+          单棵树可能会偏，但很多棵“看过不同数据、用过不同特征”的树一起投票，结果通常更稳定。
+        </p>
       </div>
     </div>
   );

@@ -839,7 +839,7 @@ export const algorithms: Algorithm[] = [
         ],
         checkpointQuestions: [
           {
-            id: 'data-8-q1',
+            id: 'data-10-q1',
             question: '以下哪种做法会导致数据泄露？',
             options: [
               '先划分训练/测试集，再用训练集的均值对两套数据做标准化',
@@ -851,7 +851,7 @@ export const algorithms: Algorithm[] = [
             explanation: '用全量数据做标准化意味着测试集的信息已经通过均值和标准差进到了训练过程中——这就是数据泄露。',
           },
           {
-            id: 'data-8-q2',
+            id: 'data-10-q2',
             question: '预测明天的天气，以下哪个特征最可能造成数据泄露？',
             options: [
               '昨天的天气',
@@ -1562,7 +1562,7 @@ for d in [1, 2, 3, 5, None]:
     dt = DecisionTreeClassifier(max_depth=d, random_state=42)
     dt.fit(X_train, y_train)
     print(f"max_depth={d}: train={dt.score(X_train, y_train):.3f}, test={dt.score(X_test, y_test):.3f}")`,
-    videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1gP4y177cf',
+    videoUrl: 'https://player.bilibili.com/player.html?isOutside=true&aid=237102044&bvid=BV1Ne411y7wW&cid=1363170497&p=1',
     nextCourseId: 'k-means',
     guidedQuestions: [
       {
@@ -1746,7 +1746,7 @@ labels = model.fit_predict(X_scaled)
 print("聚类中心:", model.cluster_centers_)
 print("簇内平方和:", model.inertia_)
 print("每个簇的样本数:", np.bincount(labels))`,
-    videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1V44y1u7mJ',
+    videoUrl: 'https://player.bilibili.com/player.html?isOutside=true&aid=981252960&bvid=BV1V44y1u7mJ&cid=734967219&p=1',
     nextCourseId: 'random-forest',
     guidedQuestions: [
       {

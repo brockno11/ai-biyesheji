@@ -4,12 +4,24 @@ interface Props {
 }
 
 export default function VideoEmbed({ url, title }: Props) {
-  // Extract BV id from URL to build the embed URL
-  const bvidMatch = url.match(/bvid=([^&]+)/);
+  const normalizedUrl = url.startsWith('//') ? `https:${url}` : url;
+  const isBilibiliPlayerUrl = normalizedUrl.includes('player.bilibili.com/player.html');
+  const bvidMatch = normalizedUrl.match(/bvid=([^&]+)/);
   const bvid = bvidMatch ? bvidMatch[1] : '';
-  const embedUrl = bvid
+  let embedUrl = isBilibiliPlayerUrl
+    ? normalizedUrl
+    : bvid
     ? `https://player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&autoplay=0`
-    : url;
+    : normalizedUrl;
+
+  // Force autoplay=0 on all Bilibili player URLs so videos don't start on page load
+  if (embedUrl.includes('player.bilibili.com')) {
+    if (embedUrl.includes('autoplay=')) {
+      embedUrl = embedUrl.replace(/autoplay=\d+/g, 'autoplay=0');
+    } else {
+      embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'autoplay=0';
+    }
+  }
 
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-black">

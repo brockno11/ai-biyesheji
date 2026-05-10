@@ -1,3 +1,11 @@
+export interface User {
+  id: string;
+  username: string;
+  nickname: string;
+  role: 'student' | 'admin';
+  loginAt: number;
+}
+
 export type CourseType = 'foundation' | 'algorithm' | 'project';
 
 export interface CourseConcept {

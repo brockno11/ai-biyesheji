@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Bot, Code2, BarChart3, BookOpen, TrendingUp, Sparkles,
   Target, ChevronRight, GraduationCap, Play, Zap,
@@ -6,7 +7,9 @@ import {
 import Header from '../components/Header';
 import AnimatedBackground from '../components/AnimatedBackground';
 import AIWorkflowBanner from '../components/AIWorkflowBanner';
+import LoginModal from '../components/LoginModal';
 import { useCourses } from '../hooks/useCourses';
+import { useAuth } from '../hooks/useAuth';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
 import { storageService } from '../services/storageService';
@@ -60,6 +63,25 @@ function StatCounter({ value, unit, label, icon: Icon, animate }: {
 
 export default function HomePage() {
   const algorithms = useCourses();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+
+  const handleProtectedClick = (e: React.MouseEvent, path: string) => {
+    if (!user) {
+      e.preventDefault();
+      setPendingPath(path);
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    if (pendingPath) {
+      navigate(pendingPath);
+      setPendingPath(null);
+    }
+  };
   const progress = storageService.getProgress();
   const completedCount = progress.completedAlgorithms.length;
 
@@ -145,6 +167,7 @@ export default function HomePage() {
             >
               <Link
                 to={`/algorithms/${algorithms[0]?.id || 'linear-regression'}`}
+                onClick={(e) => handleProtectedClick(e, `/algorithms/${algorithms[0]?.id || 'linear-regression'}`)}
                 className="group relative inline-flex items-center gap-4 rounded-3xl bg-gradient-to-r from-primary-600 via-primary-500 to-accent-600 px-14 py-6 text-2xl md:text-3xl font-black text-white shadow-2xl shadow-primary-500/30 transition-all duration-500 hover:shadow-primary-500/50 hover:scale-[1.03] active:scale-[0.98]"
               >
                 {/* Button glow on hover */}
@@ -155,6 +178,7 @@ export default function HomePage() {
               </Link>
               <Link
                 to="/progress"
+                onClick={(e) => handleProtectedClick(e, '/progress')}
                 className="inline-flex items-center gap-2 rounded-xl border border-gray-200/60 bg-white/60 backdrop-blur-md px-5 py-2.5 text-sm font-semibold text-gray-500 transition-all duration-300 hover:border-primary-300 hover:bg-white/90 hover:text-primary-600 hover:shadow-md"
               >
                 <TrendingUp className="w-4 h-4" />
@@ -364,10 +388,12 @@ export default function HomePage() {
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <Reveal>
               <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-                {completedCount > 0 ? '继续你的学习之旅' : '开启机器学习之旅'}
+                {user ? `欢迎回来，${user.nickname}` : completedCount > 0 ? '继续你的学习之旅' : '开启机器学习之旅'}
               </h2>
               <p className="text-gray-500 text-lg mb-12 max-w-xl mx-auto leading-relaxed">
-                {completedCount > 0
+                {user
+                  ? '继续你的机器学习探索，AI 助教随时为你提供帮助。'
+                  : completedCount > 0
                   ? `你已完成 ${completedCount}/${algorithms.length} 个算法，继续保持！每一步都离目标更近。`
                   : '从零开始，系统学习机器学习核心算法。AI 助教全程陪伴，让学习不孤单。'}
               </p>
@@ -389,6 +415,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 to={`/algorithms/${algorithms[0]?.id || 'linear-regression'}`}
+                onClick={(e) => handleProtectedClick(e, `/algorithms/${algorithms[0]?.id || 'linear-regression'}`)}
                 className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-primary-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30 hover:scale-105 active:scale-95"
               >
                 <GraduationCap className="w-5 h-5" />
@@ -397,6 +424,7 @@ export default function HomePage() {
               </Link>
               <Link
                 to="/progress"
+                onClick={(e) => handleProtectedClick(e, '/progress')}
                 className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-gray-200 bg-white/80 backdrop-blur-sm text-gray-600 rounded-2xl font-semibold text-lg transition-all duration-300 hover:bg-white hover:border-primary-200 hover:text-primary-600 hover:shadow-md"
               >
                 <TrendingUp className="w-5 h-5" />
@@ -430,6 +458,11 @@ export default function HomePage() {
           </div>
         </footer>
       </div>
+      <LoginModal
+        show={showLoginModal}
+        onClose={() => { setShowLoginModal(false); setPendingPath(null); }}
+        onSuccess={handleLoginSuccess}
+      />
     </div>
   );
 }

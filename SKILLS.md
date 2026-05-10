@@ -26,15 +26,13 @@
 | 18 | markitdown | 文档转换 | PDF/DOCX/PPTX/XLSX → Markdown |
 | 19 | latex-thesis-zh | 论文 | 中文 LaTeX 学位论文辅助 |
 
-## v2.8.2 本轮使用的 Skills
+## v3.0.0 本轮使用的 Skills
 
 | Skill | 对应工作 |
 |------|----------|
-| senior-frontend | 课程2升级10小节、10个专属互动组件、AlgorithmPage模块重排、ConceptMasteryService、AdminCoursePanel双表单、AdminQuestionPanel表单重设计 |
-| frontend-design / frontend-ui-ux | 通俗理解+常见误区+评估调参Section、课程排版分段、表单UI优化 |
-| data-viz-2025 | 15教学图解 + 10互动实验(回归/分类/过拟合/超参数/CV/数据泄露) |
-| shadcn-ui / ui-designer | 统一卡片/徽标/互动组件/表单 UI 风格 |
-| frontend-code-review | 全站占位清理、类型安全检查、14/14 interactionType实现 |
+| senior-frontend | 身份认证系统(登录/注册/游客/角色权限)、ProtectedRoute路由守卫、LoginModal Portal、页面切换scrollTo |
+| frontend-code-review | 全面代码审计(10+死代码清理/ID冲突修复/文案修正/模型名更正/难度徽章三色) |
+| frontend-design / frontend-ui-ux | 登录弹窗纯净设计、难度徽章配色、Sidebar清理 |
 | senior-qa | npm test / npm run build / npx tsc 三合一验证 |
 
 ## 快速安装命令（新 Agent 按需安装）

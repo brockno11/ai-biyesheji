@@ -288,18 +288,7 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* ──────── Future (collapsed) ──────── */}
-        <div className="mb-5">
-          <h3 className="mb-2 px-2 text-[11px] font-bold uppercase tracking-wider text-slate-300">后续扩展</h3>
-          <div className="space-y-0.5 px-2">
-            {['SVM', '神经网络入门', 'PCA降维'].map((name) => (
-              <div key={name} className="flex items-center gap-2 rounded-lg px-2 py-1 text-xs text-slate-300">
-                <Circle className="h-2 w-2 flex-shrink-0" />
-                <span>{name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+
 
         {/* ──────── Bottom ──────── */}
         <div className="mt-6 space-y-1 border-t border-slate-100 pt-4">

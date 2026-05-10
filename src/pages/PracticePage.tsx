@@ -1,11 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
+  AlertTriangle,
   ArrowLeft, Play, CheckCircle2, BookOpen, Lightbulb, XCircle,
   Search, Terminal, TestTube, Bot, Loader2, ChevronDown, ChevronUp, Cpu,
 } from 'lucide-react';
 import { getAlgorithmById } from '../data/algorithms';
 import { useCourseById } from '../hooks/useCourses';
+import { useAuth } from '../hooks/useAuth';
 import { getExercisesByAlgorithm } from '../data/exercises';
 import { checkCode, getMissingKeywords } from '../services/codeCheckService';
 import { buildPracticeReview } from '../services/practiceScoringService';
@@ -15,6 +17,7 @@ import { aiService } from '../services/aiService';
 import CodeEditor from '../components/CodeEditor';
 import ScoreCard from '../components/ScoreCard';
 import AICodeReviewCard from '../components/AICodeReviewCard';
+import LoginModal from '../components/LoginModal';
 import PythonRunResultCard from '../components/PythonRunResultCard';
 import type { AIReviewResult, Exercise } from '../types';
 import type { AICodeReviewResult, AIMode, PythonRunResult, PythonRuntimeEvent } from '../services/aiTypes';
@@ -129,6 +132,8 @@ export default function PracticePage() {
   const { algorithmId } = useParams<{ algorithmId: string }>();
   const algorithm = useCourseById(algorithmId || '') || getAlgorithmById(algorithmId || '');
   const exercises = getExercisesByAlgorithm(algorithmId || '');
+  const { user } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [currentExIndex, setCurrentExIndex] = useState(0);
   const [code, setCode] = useState('');
@@ -264,15 +269,17 @@ export default function PracticePage() {
     const combinedReview = buildPracticeReview(exercise, code, checkResult, runtimeResult);
     setResult(combinedReview);
 
-    storageService.savePracticeRecord({
-      exerciseId: exercise.id,
-      algorithmId: algorithm.id,
-      code,
-      score: combinedReview.score,
-      passed: combinedReview.passed,
-      timestamp: Date.now(),
-      feedback: combinedReview.summary,
-    });
+    if (user) {
+      storageService.savePracticeRecord({
+        exerciseId: exercise.id,
+        algorithmId: algorithm.id,
+        code,
+        score: combinedReview.score,
+        passed: combinedReview.passed,
+        timestamp: Date.now(),
+        feedback: combinedReview.summary,
+      });
+    }
 
     // Get structured AI feedback after local rules and runtime checks.
     setAiLoading(true);
@@ -319,11 +326,26 @@ export default function PracticePage() {
     <div className="app-container">
       <Link
         to={`/algorithms/${algorithm.id}`}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 mb-4 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         返回{algorithm.name}课程
       </Link>
+
+      {!user && (
+        <div className="mb-4 bg-amber-50/80 backdrop-blur-sm rounded-xl border border-amber-200 p-4 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2 text-sm text-amber-800">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <span>当前为游客模式，练习记录不会保存。登录后可追踪学习进度和查看历史记录。</span>
+          </div>
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-white px-3 py-1.5 rounded-lg border border-amber-200 hover:bg-amber-100 transition-all flex-shrink-0"
+          >
+            立即登录
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Main Content */}
@@ -536,6 +558,7 @@ export default function PracticePage() {
           </div>
         </div>
       </div>
+      <LoginModal show={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </div>
   );
 }

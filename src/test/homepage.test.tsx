@@ -16,6 +16,18 @@ vi.mock('../hooks/useCourses', () => ({
   ],
 }));
 
+vi.mock('../hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: null,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    isAuthenticated: false,
+    isAdmin: false,
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 vi.mock('../services/storageService', () => ({
   storageService: {
     getProgress: () => ({

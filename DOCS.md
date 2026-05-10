@@ -1,5 +1,4 @@
-| **v2.8.0** | 逻辑回归 + 随机森林课程 + 两个新可视化组件 + 16 道测验 || **v2.8.2** | 课程2升级10小节 + 10个互动组件 + 评估调参模块 + 概念掌握度 + 管理员双表单 + AlgorithmPage模块重排 |
-| **v2.8.2** | 代码审计修复 + 学习路径重排 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 |# 基于 AI 赋能的机器学习算法教学平台 — 完整文档
+| **v2.8.0** | 逻辑回归 + 随机森林课程 | **v2.8.3** | 身份认证系统 + 游客模式 + 管理权限分级 + B站视频不自动播放 + 登录弹窗Portal | | **v3.0.0** | 🎓 项目正式版：全面代码审计清理 + 数据结构修复 + 文档系统同步 + 用户系统完善 | # 基于 AI 赋能的机器学习算法教学平台 — 完整文档
 
 ## 一、项目概述
 
@@ -43,16 +42,16 @@ Python运行： Pyodide + Web Worker，支持全部 6 门算法浏览器端 Pyth
 AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 Mock)
 ```
 
-### 2.1.1 当前功能规模（2026-05-10）
+### 2.1.1 当前功能规模（2026-05-11，v3.0.0）
 
 | 类型 | 当前数量/状态 | 说明 |
 |------|---------------|------|
 | 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据/特征/模型评估与泛化能力、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
 | 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道），全部含 Pyodide 真运行和固定测试 |
 | 测验题目 | 78 道 | 覆盖全部 9 门课程（基础课 30 道 + 算法课 48 道），支持后台自定义覆盖 |
-| 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
-| AI 场景 | 13 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |
-| 后台管理 | 课程 + 题库 | 课程 CRUD、AI 课程草稿、练习题 CRUD、测验题 CRUD |
+| 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz（均含 AI 解释）、RandomForestViz（教学增强版含投票逻辑/业务场景） |
+| AI 场景 | 13 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、练习题草稿、测验题草稿、出题、总结、生活例子、可视化解释、练习提示 |
+| 后台管理 | 课程 + 题库 | 课程 CRUD、AI 课程草稿、练习题 CRUD、测验题 CRUD、AI 生成练习+测验 |
 
 ### 2.2 项目目录结构
 
@@ -85,7 +84,7 @@ src/
 │   ├── AIStudyPlanCard.tsx     # AI 学习计划卡片
 │   ├── AIVisualizationInsight.tsx # AI 可视化洞察组件
 │   ├── CodeEditor.tsx          # Monaco Editor 封装
-│   ├── VideoEmbed.tsx          # B 站视频播放器
+│   ├── VideoEmbed.tsx          # B 站视频播放器（支持 player.bilibili.com URL 和纯 BV 号自动补齐播放参数）
 │   ├── ProgressBar.tsx         # 进度条组件
 │   ├── ScoreCard.tsx           # 代码检查得分卡片
 │   ├── MistakeCard.tsx          # 错误/正确理解对比卡片（共享组件）
@@ -438,7 +437,24 @@ scripts/
 
 **交互**：拖动 K 值 → 邻居重算；点击图表 → 测试点移动 → 邻居和预测实时更新
 
-#### 决策树 (DecisionTreeViz)
+#### 随机森林 (RandomForestViz)
+
+| 参数 | 范围 | 说明 |
+|------|------|------|
+| 树数量 | 5-100 | 控制森林中决策树的数量 |
+| 最大深度 | 1-8 | 控制每棵树的最大深度 |
+
+| 显示内容 | 说明 |
+|----------|------|
+| 教学引导面板 | 三栏解释投票原理、树数量/深度的影响 |
+| 树卡片网格 | 每棵树独立展示类别、置信度、叶节点数 |
+| 投票统计 | 柱状图展示类别0/类别1得票数，多数票占比 |
+| 特征重要性 | ECharts 横向柱状图，业务场景示例（用户购买预测） |
+| 平均叶节点 | 统计所有树平均叶节点数，辅助理解模型复杂度 |
+
+**交互**：拖动树数量和最大深度 → 树卡片实时重算 → 投票结果和特征重要性实时更新
+
+**v2.8.3 增强**：新增三栏教学引导面板（为什么要投票 / 树数量影响 / 深度影响）；树卡片增加置信度和叶节点说明；投票统计增加置信度解释；特征重要性图改为业务场景示例（收入/浏览/年龄/历史购买/职业），配套"从投票到投票依据"的衔接说明。
 
 | 参数 | 范围 | 说明 |
 |------|------|------|
@@ -452,6 +468,23 @@ scripts/
 | 分类预测 | 最终预测类别 |
 
 **交互**：调节深度 → 树结构重组；切换样本 → 追踪不同的分类路径
+
+#### K-Means (KMeansViz)
+
+| 参数 | 范围 | 说明 |
+|------|------|------|
+| K 值 | 2-6 | 控制聚类簇数 |
+| 迭代次数 | 1-20 | 控制 K-Means 迭代轮数 |
+| 簇内分散度 | 0.5-3 | 控制生成数据的离散程度 |
+
+| 显示内容 | 说明 |
+|----------|------|
+| 二维散点簇 | 不同颜色标记不同簇 |
+| 聚类中心 | 大号圆点标记每个簇的中心，展示中心移动 |
+| 中心移动轨迹 | 展示迭代过程中聚类中心如何逐步移动 |
+| Inertia 指标卡 | 实时显示簇内平方和 |
+
+**交互**：拖动 K 值 → 数据重新随机生成并聚类；拖动迭代次数 → 观察中心逐步移动过程；拖动分散度 → 数据从紧凑变为离散，观察聚类效果变化
 
 ### 3.9 AI 功能 UI 组件
 
@@ -853,10 +886,10 @@ curl -X POST http://localhost:8787/api/ai/chat \
 |------|-------|------|----------|
 | 线性回归 | BV1ZZCkBREVE | 【机器学习算法】构建线性回归 | ✅ 已核验 |
 | KNN | BV1TW4y1w7MW | K近邻算法 · 通俗易懂课程 | ✅ 已核验 |
-| 逻辑回归 | — | 待补充 | ⚠️ 未找到可靠视频 |
-| 决策树 | BV1gP4y177cf | 温州大学《机器学习》课程全集 | ✅ 已核验 |
-| K-Means | BV1V44y1u7mJ | k-means 聚类算法 清晰解释 | ✅ 已替换 |
-| 随机森林 | — | 待补充 | ⚠️ 未找到可靠视频 |
+| 逻辑回归 | BV1H1uqzSE76 | 逻辑回归算法讲解 | ✅ 已核验 |
+| 决策树 | BV1Ne411y7wW | 温州大学《机器学习》课程全集 | ✅ 已核验 |
+| K-Means | BV1V44y1u7mJ | k-means 聚类算法 清晰解释 | ✅ 已更新（含cid/p参数） |
+| 随机森林 | BV1H5411e73F | 随机森林算法讲解 | ✅ 已补充 |
 
 ---
 
@@ -952,26 +985,28 @@ generateCourseDraft(context)
 
 ## 十三、Agent 交接备忘
 
-### 当前内容扩展说明（2026-05-10）
+### 当前内容扩展说明（2026-05-11，v3.0.0）
 
 项目已完成从 MVP 到成品的多轮迭代，当前状态：
 
-- 课程体系：9 门课程（3 基础 + 6 算法），按入门→中级难度编排。课程 2 已升级为 10 小节（含超参数/交叉验证/数据泄露）。
+- 课程体系：9 门课程（3 基础 + 6 算法），按入门→中级难度编排。课程 2 为 10 小节（含超参数/交叉验证/数据泄露）。
 - 互动组件：14/14 InteractionType 全部实现，含 10 个专属互动实验组件。
 - 练习题：12 道，12/12 均含 Pyodide 真运行+固定测试。
-- 测验题：78 道，覆盖全部 9 门课程。
+- 测验题：78 道，覆盖全部 9 门课程。数据完整性已验证（ID 冲突已修复）。
 - 图解组件：15 个教学图解（9 个基础课图解 + 6 个算法直觉图解）。
-- AI 助教：13 种 AI 场景 + 概念掌握度追踪。
+- AI 助教：13 种 AI 场景 + conceptMasteryService 追踪。
 - 管理后台：课程 CRUD（foundation/algorithm 双表单 + AI 草稿）+ 题库 CRUD（AI 生成 + 启用/停用）。
-- 新增服务：conceptMasteryService（概念掌握度追踪）。
-- 模块重排：AlgorithmPage 引导思考前置、视频后置、评估调参 Section。
+- 用户系统：登录/注册/游客模式，学生与管理员角色分级，ProtectedRoute 路由守卫。
+- B站视频：全部 6 门算法课均有视频，强制手动播放（autoplay=0）。
+- v3.0.0 审计清理：移除 10+ 处死代码/死导入/死函数，修复 checkpoint ID 冲突，更正 DeepSeek 默认模型名，难度徽章支持三色分级，Sidebar 废弃占位已清理。
 
 答辩演示时可补充展示：
 
 1. 首页统计指标会动态显示当前课程、练习题和测验题数量。
-2. 进入 K-Means 课程页，拖动 K 值、迭代次数和簇内分散度，观察聚类中心变化。
-3. 点击 K-Means 可视化下方“生成解释”，展示 AI 对当前聚类现象的讲解。
-4. 进入管理后台 → 题库管理，新增一道测验题或覆盖编辑内置题目，再回到对应测验页验证题目已生效。
+2. 进入随机森林课程页，观察三栏教学引导面板和树卡片独立投票展示。
+3. 拖动树数量和最大深度 → 树卡片和投票结果实时变化 → 展示”群体智慧”抗过拟合。
+4. 进入 K-Means 课程页，拖动 K 值、迭代次数和簇内分散度，观察聚类中心变化。
+5. 进入管理后台 → 题库管理，新增一道测验题或覆盖编辑内置题目，再回到对应测验页验证题目已生效。
 
 ### 13.1 环境准备（新 Agent 首次接手）
 
@@ -1021,38 +1056,36 @@ npx tsc --noEmit && npx vite build
 - **19 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
 - **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 6 门算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
-- **K-Means** 视频已配置 B站 BV号（BV1sM4y1U7Ph），如有更合适的可替换。
+- **K-Means** 视频已配置 B站 BV号（BV1V44y1u7mJ），**随机森林** 视频已配置（BV1H5411e73F），**决策树** 视频已更新为（BV1Ne411y7wW）。
 - **`npm run dev` 同时启动前端+后端**（concurrently），无需分别启动。
 
-### 13.4 最近更新（2026-05-10）
+### 13.4 v3.0.0 更新内容（2026-05-11）
 
-| 提交 | 内容 |
-|------|------|
-| `ba0a910` | 代码审计修复：Rules of Hooks 违规、stale closure、死代码清理、服务端日志安全 |
-| `f9bc508` | 文档同步：README 版本徽标 + 课程数量更新至 v2.8.2 |
-| `f888150` | 课程内容充实（代码示例扩展）；学习路径按入门→中级重排；B站视频移至核心思想下方；AI 总结本节按钮 |
-| `599e431` | 引导式问答：6 个 foundation lesson openingQuestion + 即时反馈 + AI 陪学按钮 |
-| `ed79caa` | 新增逻辑回归 + 随机森林课程（v2.8.0）：LogisticRegressionViz + RandomForestViz + 16 道测验 + ensemble 分类 |
-| `9bc0cf5` | 布局修复：删除 FoundationCourseContent 重复 LessonTimeline，正文 820px 宽 |
-| `78917e5` | 文档同步 v2.7.0 |
-| `f02b858` | 基础课微课化：14 个 lesson 小节 + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
-| `e78e7b0` | 2 门基础概念课 + 3 个交互演示 + CoursePage 改造 + 17 道测验题 |
-| `b12387b` | K-Means 视频补充；ProgressPage 学习诊断 |
-| `9214825` | 修复图表白屏 Bug；ErrorBoundary + notMerge |
-| `cf9dc85` | 文档同步 v2.5.2 |
-| `333d99b` | 内页视觉统一 |
-| `97500e0` | AI 可信度：诊断依据 + 硬规则 + Zod 校验 |
-| `777eb74` | 首页视觉统一 |
-| `15d67ba` | 粒子动效首页 |
-| `890bfd4` | 首页动效重制 + 3 个新 Skills |
-| `d7057c8` | Pyodide Worker + Zod + React.lazy |
-| `7f38c47` | 14 个 Vitest 测试；`npm test` 脚本 |
-| `487bed5` | AI 工作流横幅；后端频率限制/Key 脱敏/统一错误码/JSON 修复 |
-| `2608c8f` | K-Means 课程与可视化；Pyodide 真运行；练习 8 道，测验 32 道；题库管理后台；代码注释过滤 |
-| `e19f841` | 文档 Agent 交接更新 |
-| `cf2e421` | 修复 DeepSeek thinking 参数、代码质量优化 |
-| `0239f87` | AI 模块升级、10 个 Skills、文档对齐 |
-| `4bcfcd3` | 文档更新和导航优化 |
+**新增功能：**
+- 轻量级身份认证系统（登录/注册/游客模式，localStorage 持久化）
+- 学生与管理员角色分级，ProtectedRoute 路由守卫
+- LoginModal Portal 渲染（彻底解决层叠遮挡问题）
+- B站视频强制手动播放（autoplay=0）
+- 页面切换自动回到顶部（Layout 级 scrollTo）
+
+**代码审计与清理：**
+- 移除 10+ 处死代码（askAI/askAIChat/findOrCreateRecord/tryParseJson/askAIChat/死导入等）
+- 修复 checkpoint 问题 ID 冲突（data-10 误用 data-8 的 ID）
+- 更正 DeepSeek 默认模型名（deepseek-v4-flash → deepseek-chat）
+- 移除 lessonProgressService 无用的 getCourseProgress()
+- 删除 CATEGORIES 死常量、AdminPage totalUsers 死变量
+- 清理 ProtectedRoute 未使用的 useNavigate
+
+**UX 改进：**
+- QuizPage "错题讲解"改为中性"AI 智能分析"
+- 难度徽章补全进阶/中级/入门三色（绿/黄/红）
+- Sidebar 移除"后续扩展"硬编码占位
+- 登录弹窗预填 student/123456，界面纯净无提示卡片
+- 演示账号提示仅保留在 AdminPage 系统信息卡片
+
+**文档更新：**
+- 删除 FOUNDATION_COURSE_DESIGN.md（过时且与 COURSE_METHODOLOGY.md 重复）
+- DOCS.md / README.md / COURSE_METHODOLOGY.md / SKILLS.md 全部同步至 v3.0.0
 
 ### 13.5 安全设计
 
@@ -1107,8 +1140,10 @@ npm run test:watch # 监听模式
 | **v2.7.0** | 基础课微课化：14 个 lesson + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
 | **v2.8.0** | 逻辑回归 + 随机森林课程：LogisticRegressionViz + RandomForestViz + 16 道测验 |
 | **v2.8.2** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 + 6个算法图解 + 段落排版优化 |
+| **v2.8.3** | 随机森林可视化教学增强(三栏引导/卡片解读/投票逻辑)+图解重设计+VideoEmbed多格式BV号兼容+B站视频BV更新 |
+| **v3.0.0** | 🎓 正式版：身份认证(登录/注册/游客/角色权限)+全面代码审计清理(死代码/ID冲突/文案修正)+文档系统同步+B站视频手动播放+Portal弹窗修复+默认模型名更正 |
 
 ---
 
-> 文档生成日期：2026-05-10
-> 项目版本：2.8.2
+> 文档生成日期：2026-05-11
+> 项目版本：3.0.0

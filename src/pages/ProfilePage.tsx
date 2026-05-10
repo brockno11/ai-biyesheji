@@ -9,6 +9,7 @@ import {
   CalendarDays,
   Code2,
   Flame,
+  LogOut,
   RotateCcw,
   Shield,
   Target,
@@ -18,6 +19,7 @@ import {
 import Header from '../components/Header';
 import ProgressBar from '../components/ProgressBar';
 import { useCourses } from '../hooks/useCourses';
+import { useAuth } from '../hooks/useAuth';
 import { storageService } from '../services/storageService';
 
 const difficultyStyles: Record<string, string> = {
@@ -39,6 +41,7 @@ function formatActivityTime(timestamp?: number) {
 export default function ProfilePage() {
   const [progress, setProgress] = useState(() => storageService.getProgress());
   const algorithms = useCourses();
+  const { user, logout } = useAuth();
 
   const refresh = () => setProgress(storageService.getProgress());
 
@@ -157,9 +160,18 @@ export default function ProfilePage() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-primary-700">个人中心</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-primary-700">
+                      {user?.role === 'admin' ? '管理员' : '个人中心'}
+                    </p>
+                    {user?.role === 'admin' && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">
+                        管理员
+                      </span>
+                    )}
+                  </div>
                   <h1 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">
-                    机器学习学习仪表盘
+                    {user?.nickname || '同学'} 的学习仪表盘
                   </h1>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
                     已完成 {dashboard.completedCount}/{algorithms.length} 门算法课程，最近活跃于{' '}
@@ -327,16 +339,27 @@ export default function ProfilePage() {
             <div className="app-card p-5">
               <h2 className="app-section-title mb-4">账户与管理</h2>
               <div className="grid gap-3">
-                <Link
-                  to="/admin"
-                  className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800"
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      课程管理入口
+                    </span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                )}
+                <button
+                  onClick={logout}
+                  className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700"
                 >
                   <span className="inline-flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    课程管理入口
+                    <LogOut className="h-4 w-4" />
+                    退出登录
                   </span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
                 <button
                   onClick={handleReset}
                   className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
