@@ -46,7 +46,7 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 
 | 类型 | 当前数量/状态 | 说明 |
 |------|---------------|------|
-| 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据与评估、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
+| 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据/特征/模型评估与泛化能力、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
 | 代码练习 | 12 道 | 覆盖全部 6 门算法（每门2道），全部含 Pyodide 真运行和固定测试 |
 | 测验题目 | 72 道 | 覆盖全部 9 门课程（基础课 24 道 + 算法课 48 道），支持后台自定义覆盖 |
 | 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
@@ -91,7 +91,8 @@ src/
 │   ├── SmartParagraph.tsx       # 智能段落拆分渲染组件
 │   ├── LessonDiagrams.tsx       # 15 个教学图解组件集合
 │   ├── FoundationCourseContent.tsx # 基础课微课页面
-│   ├── InteractiveTask.tsx      # 互动任务分发组件（4种互动类型）
+│   ├── foundation-interactions/ # 10个专属互动组件（DataTableGuide等）
+│   ├── InteractiveTask.tsx      # 互动任务分发组件（14种互动类型全部实现）
 │   ├── LinearRegressionViz.tsx # 线性回归可视化 (散点图+拟合线+Loss曲线)
 │   ├── LogisticRegressionViz.tsx # 逻辑回归可视化 (Sigmoid+决策边界)
 │   ├── KNNViz.tsx              # KNN 可视化 (分类散点+K近邻+测试点拖动)
