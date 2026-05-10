@@ -388,45 +388,63 @@ export default function AdminQuestionPanel() {
       {showExerciseForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setShowExerciseForm(false); }}>
         <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto m-4">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-bold text-gray-900">编辑练习题</h3>
-            <button onClick={() => setShowExerciseForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
-              <X className="h-4 w-4" />
-            </button>
+          <div className="mb-4 flex items-center justify-between border-b pb-3">
+            <h3 className="font-extrabold text-gray-900">✏️ {exerciseForm.title || '新增练习题'}</h3>
+            <button onClick={() => setShowExerciseForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"><X className="h-4 w-4" /></button>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <input value={exerciseForm.id} onChange={(e) => { setExerciseForm((prev) => ({ ...prev, id: e.target.value })); setExerciseErrors((prev) => { const next = { ...prev }; delete next.id; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${exerciseErrors.id ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="ID" />
-              {exerciseErrors.id && <p className="mt-1 text-xs text-red-500">{exerciseErrors.id}</p>}
+          {/* Row 1: 基础信息 */}
+          <p className="text-xs font-semibold text-gray-400 uppercase mb-2">基础信息</p>
+          <div className="grid gap-3 md:grid-cols-3 mb-4">
+            <div className="md:col-span-2">
+              <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">练习标题 *</label>
+              <input value={exerciseForm.title} onChange={(e) => { setExerciseForm((prev) => ({ ...prev, title: e.target.value })); setExerciseErrors((prev) => { const n={...prev}; delete n.title; return n; }); }} className={`w-full rounded-lg border px-3 py-2 text-sm ${exerciseErrors.title ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="例：逻辑回归分类器基础实现" />
             </div>
             <div>
-              <select value={exerciseForm.algorithmId} onChange={(e) => { setExerciseForm((prev) => ({ ...prev, algorithmId: e.target.value })); setExerciseErrors((prev) => { const next = { ...prev }; delete next.algorithmId; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${exerciseErrors.algorithmId ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
-                {courses.map((course) => <option key={course.id} value={course.id}>{course.name}</option>)}
+              <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">难度</label>
+              <select value={exerciseForm.difficulty} onChange={(e) => setExerciseForm((prev) => ({ ...prev, difficulty: e.target.value as Exercise['difficulty'] }))} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                <option value="入门">入门</option><option value="中级">中级</option><option value="进阶">进阶</option>
               </select>
-              {exerciseErrors.algorithmId && <p className="mt-1 text-xs text-red-500">{exerciseErrors.algorithmId}</p>}
             </div>
-            <div className="md:col-span-2">
-              <input value={exerciseForm.title} onChange={(e) => { setExerciseForm((prev) => ({ ...prev, title: e.target.value })); setExerciseErrors((prev) => { const next = { ...prev }; delete next.title; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${exerciseErrors.title ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="练习标题" />
-              {exerciseErrors.title && <p className="mt-1 text-xs text-red-500">{exerciseErrors.title}</p>}
-            </div>
-            <div className="md:col-span-2">
-              <textarea value={exerciseForm.description} onChange={(e) => { setExerciseForm((prev) => ({ ...prev, description: e.target.value })); setExerciseErrors((prev) => { const next = { ...prev }; delete next.description; return next; }); }} className={`min-h-20 rounded-xl border px-3 py-2 text-sm w-full ${exerciseErrors.description ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="练习描述" />
-              {exerciseErrors.description && <p className="mt-1 text-xs text-red-500">{exerciseErrors.description}</p>}
-            </div>
-            <textarea value={exerciseForm.instructions.join('\n')} onChange={(e) => setExerciseForm((prev) => ({ ...prev, instructions: linesToList(e.target.value) }))} className="min-h-24 rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder="步骤说明，每行一条" />
-            <div>
-              <textarea value={exerciseForm.expectedKeywords.join(', ')} onChange={(e) => setExerciseForm((prev) => ({ ...prev, expectedKeywords: e.target.value.split(',').map((item) => item.trim()).filter(Boolean) }))} className="min-h-24 rounded-xl border border-gray-200 px-3 py-2 text-sm w-full" placeholder="关键词，用逗号分隔" />
-            </div>
-            <div className="md:col-span-2">
-              <textarea value={exerciseForm.starterCode} onChange={(e) => { setExerciseForm((prev) => ({ ...prev, starterCode: e.target.value })); setExerciseErrors((prev) => { const next = { ...prev }; delete next.starterCode; return next; }); }} className={`min-h-52 rounded-xl border px-3 py-2 font-mono text-xs w-full ${exerciseErrors.starterCode ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="Starter Code" />
-              {exerciseErrors.starterCode && <p className="mt-1 text-xs text-red-500">{exerciseErrors.starterCode}</p>}
-            </div>
-            {exerciseErrors.checkRules && <p className="md:col-span-2 text-xs text-red-500">{exerciseErrors.checkRules}</p>}
           </div>
-          <button onClick={saveExercise} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">
-            <Save className="h-4 w-4" />
-            保存练习
-          </button>
+          {/* Row 2: 绑定课程 */}
+          <p className="text-xs font-semibold text-gray-400 uppercase mb-2">绑定课程</p>
+          <div className="grid gap-3 md:grid-cols-4 mb-4">
+            <div className="md:col-span-2">
+              <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">算法课程 *（练习仅绑定算法课）</label>
+              <select value={exerciseForm.algorithmId} onChange={(e) => setExerciseForm((prev) => ({ ...prev, algorithmId: e.target.value }))} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                <optgroup label="核心算法课">
+                  {courses.filter((c) => c.type !== 'foundation').map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                </optgroup>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">题目ID</label>
+              <input value={exerciseForm.id} onChange={(e) => setExerciseForm((prev) => ({ ...prev, id: e.target.value }))} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono text-xs" />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={exerciseForm.enabled !== false} onChange={(e) => setExerciseForm((prev) => ({ ...prev, enabled: e.target.checked }))} className="rounded" />
+                <span className="text-sm text-gray-600">已启用</span>
+              </label>
+            </div>
+          </div>
+          {/* Row 3: 练习内容 */}
+          <p className="text-xs font-semibold text-gray-400 uppercase mb-2">练习内容</p>
+          <div className="grid gap-3 mb-4">
+            <textarea value={exerciseForm.description} onChange={(e) => setExerciseForm((prev) => ({ ...prev, description: e.target.value }))} className="min-h-16 rounded-lg border border-gray-200 px-3 py-2 text-sm" placeholder="练习描述" />
+            <div className="grid md:grid-cols-2 gap-3">
+              <textarea value={exerciseForm.instructions.join('\n')} onChange={(e) => setExerciseForm((prev) => ({ ...prev, instructions: linesToList(e.target.value) }))} className="min-h-20 rounded-lg border border-gray-200 px-3 py-2 text-sm" placeholder="步骤说明（每行一条）" />
+              <textarea value={exerciseForm.expectedKeywords.join(', ')} onChange={(e) => setExerciseForm((prev) => ({ ...prev, expectedKeywords: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }))} className="min-h-20 rounded-lg border border-gray-200 px-3 py-2 text-sm" placeholder="关键词（逗号分隔）&#10;例：LogisticRegression, fit, predict" />
+            </div>
+            <textarea value={exerciseForm.starterCode} onChange={(e) => setExerciseForm((prev) => ({ ...prev, starterCode: e.target.value }))} className="min-h-52 rounded-lg border border-gray-200 px-3 py-2 font-mono text-xs" placeholder="# Starter Code" />
+          </div>
+          <div className="flex justify-between items-center border-t pt-4">
+            <span className="text-xs text-gray-400">关键词 {exerciseForm.expectedKeywords.filter(Boolean).length} 个 → 自动生成 {exerciseForm.expectedKeywords.filter(Boolean).length} 条检查规则</span>
+            <div className="flex gap-2">
+              <button onClick={() => setShowExerciseForm(false)} className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+              <button onClick={saveExercise} className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2 text-sm font-semibold text-white hover:bg-primary-700"><Save className="h-4 w-4" />保存练习</button>
+            </div>
+          </div>
         </div>
         </div>
       )}
@@ -434,48 +452,62 @@ export default function AdminQuestionPanel() {
       {showQuizForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setShowQuizForm(false); }}>
         <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto m-4">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-bold text-gray-900">编辑测验题</h3>
-            <button onClick={() => setShowQuizForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
-              <X className="h-4 w-4" />
-            </button>
+          <div className="mb-4 flex items-center justify-between border-b pb-3">
+            <h3 className="font-extrabold text-gray-900">📝 {quizForm.question || '新增测验题'}</h3>
+            <button onClick={() => setShowQuizForm(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"><X className="h-4 w-4" /></button>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <input value={quizForm.id} onChange={(e) => { setQuizForm((prev) => ({ ...prev, id: e.target.value })); setQuizErrors((prev) => { const next = { ...prev }; delete next.id; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${quizErrors.id ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="ID" />
-              {quizErrors.id && <p className="mt-1 text-xs text-red-500">{quizErrors.id}</p>}
-            </div>
-            <div>
-              <select value={quizForm.algorithmId} onChange={(e) => { setQuizForm((prev) => ({ ...prev, algorithmId: e.target.value })); setQuizErrors((prev) => { const next = { ...prev }; delete next.algorithmId; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${quizErrors.algorithmId ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
-                {courses.map((course) => <option key={course.id} value={course.id}>{course.name}</option>)}
-              </select>
-              {quizErrors.algorithmId && <p className="mt-1 text-xs text-red-500">{quizErrors.algorithmId}</p>}
-            </div>
+          {/* Row 1: 绑定课程 */}
+          <p className="text-xs font-semibold text-gray-400 uppercase mb-2">绑定课程</p>
+          <div className="grid gap-3 md:grid-cols-4 mb-4">
             <div className="md:col-span-2">
-              <textarea value={quizForm.question} onChange={(e) => { setQuizForm((prev) => ({ ...prev, question: e.target.value })); setQuizErrors((prev) => { const next = { ...prev }; delete next.question; return next; }); }} className={`min-h-20 rounded-xl border px-3 py-2 text-sm w-full ${quizErrors.question ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="题干" />
-              {quizErrors.question && <p className="mt-1 text-xs text-red-500">{quizErrors.question}</p>}
+              <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">课程 *</label>
+              <select value={quizForm.algorithmId} onChange={(e) => setQuizForm((prev) => ({ ...prev, algorithmId: e.target.value }))} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                <optgroup label="基础概念课">
+                  {courses.filter((c) => c.type === 'foundation').map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                </optgroup>
+                <optgroup label="核心算法课">
+                  {courses.filter((c) => c.type !== 'foundation').map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                </optgroup>
+              </select>
             </div>
-            {quizForm.options.map((option, index) => (
-              <div key={index}>
-                <input value={option} onChange={(e) => { setQuizForm((prev) => ({ ...prev, options: prev.options.map((item, i) => (i === index ? e.target.value : item)) })); setQuizErrors((prev) => { const next = { ...prev }; delete next.options; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${quizErrors.options ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder={`选项 ${index + 1}`} />
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">题目ID</label>
+              <input value={quizForm.id} onChange={(e) => setQuizForm((prev) => ({ ...prev, id: e.target.value }))} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono text-xs" />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={quizForm.enabled !== false} onChange={(e) => setQuizForm((prev) => ({ ...prev, enabled: e.target.checked }))} className="rounded" />
+                <span className="text-sm text-gray-600">已启用</span>
+              </label>
+            </div>
+          </div>
+          {/* Row 2: 题目内容 */}
+          <p className="text-xs font-semibold text-gray-400 uppercase mb-2">题目内容</p>
+          <div className="mb-3">
+            <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">题干 *</label>
+            <textarea value={quizForm.question} onChange={(e) => setQuizForm((prev) => ({ ...prev, question: e.target.value }))} className="min-h-16 rounded-lg border border-gray-200 px-3 py-2 text-sm w-full" placeholder="输入题目..." />
+          </div>
+          <div className="grid gap-2 mb-3">
+            {quizForm.options.map((option, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <input type="radio" name="correctAnswer" checked={quizForm.correctIndex === idx} onChange={() => setQuizForm((prev) => ({ ...prev, correctIndex: idx }))} className="flex-shrink-0" />
+                <span className="text-[11px] font-bold text-gray-400 w-5">{String.fromCharCode(65 + idx)}.</span>
+                <input value={option} onChange={(e) => setQuizForm((prev) => ({ ...prev, options: prev.options.map((o, i) => i === idx ? e.target.value : o) }))} className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm" placeholder={`选项 ${idx + 1}`} />
+                {idx === quizForm.correctIndex && <span className="text-[10px] text-green-600 font-semibold flex-shrink-0">✓ 正确答案</span>}
               </div>
             ))}
-            {quizErrors.options && <p className="md:col-span-2 text-xs text-red-500">{quizErrors.options}</p>}
-            <div>
-              <select value={quizForm.correctIndex} onChange={(e) => { setQuizForm((prev) => ({ ...prev, correctIndex: Number(e.target.value) })); setQuizErrors((prev) => { const next = { ...prev }; delete next.correctIndex; return next; }); }} className={`rounded-xl border px-3 py-2 text-sm w-full ${quizErrors.correctIndex ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
-                {quizForm.options.map((_, index) => <option key={index} value={index}>正确答案：选项 {index + 1}</option>)}
-              </select>
-              {quizErrors.correctIndex && <p className="mt-1 text-xs text-red-500">{quizErrors.correctIndex}</p>}
-            </div>
-            <div className="md:col-span-2">
-              <textarea value={quizForm.explanation} onChange={(e) => { setQuizForm((prev) => ({ ...prev, explanation: e.target.value })); setQuizErrors((prev) => { const next = { ...prev }; delete next.explanation; return next; }); }} className={`min-h-20 rounded-xl border px-3 py-2 text-sm w-full ${quizErrors.explanation ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="解析" />
-              {quizErrors.explanation && <p className="mt-1 text-xs text-red-500">{quizErrors.explanation}</p>}
+          </div>
+          <div className="mb-4">
+            <label className="block text-[11px] font-semibold text-gray-500 mb-0.5">解析 *</label>
+            <textarea value={quizForm.explanation} onChange={(e) => setQuizForm((prev) => ({ ...prev, explanation: e.target.value }))} className="min-h-16 rounded-lg border border-gray-200 px-3 py-2 text-sm w-full" placeholder="解释为什么这个答案是正确的..." />
+          </div>
+          <div className="flex justify-between items-center border-t pt-4">
+            <span className="text-xs text-gray-400">点击选项前的 ○ 标记正确答案</span>
+            <div className="flex gap-2">
+              <button onClick={() => setShowQuizForm(false)} className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+              <button onClick={saveQuiz} className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2 text-sm font-semibold text-white hover:bg-primary-700"><Save className="h-4 w-4" />保存测验题</button>
             </div>
           </div>
-          <button onClick={saveQuiz} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">
-            <Save className="h-4 w-4" />
-            保存测验题
-          </button>
         </div>
         </div>
       )}
