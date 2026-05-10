@@ -36,7 +36,7 @@
 - 测验题目：78 道（基础课 30 道 + 算法课 48 道）
 - 交互式可视化：6 个 + 10 个互动实验组件 + 20 个教学图解
 - AI 模块：11 种 AI 场景 + 概念掌握度追踪，DeepSeek 在线 + Mock 离线兜底
-- 管理后台：课程 + 题库/练习 CRUD，localStorage 持久化
+- 管理后台：课程 CRUD（foundation/algorithm双表单+AI草稿）+ 题库/练习 CRUD（AI生成+启用停用+筛选），localStorage 持久化
 
 ### 1. 首页
 
