@@ -75,7 +75,7 @@
 
 - Monaco Editor 在线 Python 编辑器
 - 基于规则的代码检查 + Pyodide 浏览器端 Python 真运行
-- 全部 12 道练习通过 Web Worker 执行 Pyodide 真运行，覆盖全部 6 门算法
+- 全部 12 道练习通过 Web Worker 执行 Pyodide 真运行（覆盖全部 6 门算法，每道均含固定测试）
 - 综合评分按核心 API、TODO 完成度、Python 可执行性、固定测试表现四个维度计算
 - 实时显示需要使用的 API
 - 保存练习记录、得分和反馈

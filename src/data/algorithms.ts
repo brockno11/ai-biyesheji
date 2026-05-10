@@ -210,12 +210,12 @@ export const algorithms: Algorithm[] = [
           prompt: '一个在线商城想给顾客推荐商品。方法A：根据顾客过去的购买记录自动把顾客分组，每组推相似商品。方法B：让客服人工给每个顾客打标签"喜欢运动/喜欢美妆"，然后按标签推荐。哪个更像无监督学习？',
           scenario: '你在一家电商公司实习，老板让你设计一个商品推荐系统。',
           options: [
-            'A. 根据购买记录自动分组（不需要人工标签）',
+            'A. 两个都是监督学习',
             'B. 让客服人工给每个顾客打标签再推荐',
-            'C. 两个都是无监督学习',
-            'D. 两个都是监督学习',
+            'C. 根据购买记录自动分组（不需要人工标签）',
+            'D. 两个都是无监督学习',
           ],
-          correctIndex: 0,
+          correctIndex: 2,
           correctFeedback: '正确！无监督学习就是不要让人类提前做分类标签，让算法自己去数据中发现自然的分组模式。',
           wrongFeedback: '方法B需要人工先给顾客打上"喜欢运动""喜欢美妆"这样的标签，这其实是监督学习的思路——有明确的"答案"来指导分类。',
           explanation: '关键判断标准：数据有没有预先标注的"答案"（标签）。有标签 → 监督学习；没标签让机器自己找结构 → 无监督学习。方法A就是典型的聚类应用。',
@@ -270,12 +270,12 @@ export const algorithms: Algorithm[] = [
           prompt: '你面前的三个任务，请判断分别属于回归、分类还是聚类：①预测明天奶茶店能卖多少杯 ②判断一个顾客会不会成为回头客 ③把顾客按消费习惯自动分成几组。',
           scenario: '你开了一家奶茶店，想用数据帮你解决三个问题。',
           options: [
-            'A. ①回归 ②分类 ③聚类',
+            'A. ①聚类 ②分类 ③回归',
             'B. ①分类 ②回归 ③聚类',
             'C. ①回归 ②聚类 ③分类',
-            'D. ①聚类 ②分类 ③回归',
+            'D. ①回归 ②分类 ③聚类',
           ],
-          correctIndex: 0,
+          correctIndex: 3,
           correctFeedback: '完全正确！预测具体数字（卖多少杯）是回归，判断是/否（会不会回头）是分类，自动分组（怎么分群）是聚类。',
           wrongFeedback: '记忆口诀：输出是数字 → 回归；输出是"是/否"或"A/B/C" → 分类；没有预设输出让数据自己分组 → 聚类。再试试看？',
           explanation: '回归 = 预测连续数值（237杯）；分类 = 判断离散类别（会/不会）；聚类 = 自动发现分组（不确定分几类）。看输出类型就能判断任务类型。',
@@ -507,12 +507,12 @@ export const algorithms: Algorithm[] = [
           prompt: '下面的学生信息表格，如果目标是用"复习时间"和"睡眠时间"来预测"是否通过考试"，那么"学生姓名"这一列可以当作特征输入模型吗？',
           scenario: '你拿到一张Excel表，列有：学生姓名、复习时间（小时）、睡眠时间（小时）、是否通过考试。你要训练一个模型做预测。',
           options: [
-            'A. 可以，姓名是学生的唯一标识，应该作为特征',
-            'B. 不可以，姓名对预测"是否通过考试"没有泛化意义，还可能导致过拟合',
+            'A. 不可以，姓名对预测"是否通过考试"没有泛化意义，还可能导致过拟合',
+            'B. 可以，姓名是学生的唯一标识，应该作为特征',
             'C. 可以，把姓名转换成数字编号就行',
             'D. 不确定，要看有多少个学生',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
           correctFeedback: '没错！姓名只是标识符，和是否通过考试没有因果关系。如果用姓名当特征，模型会死记"张三=通过、李四=不通过"，换个新学生就完全不会预测了。',
           wrongFeedback: '姓名、学号、ID这类标识符通常不适合做特征——它们只是"名字"，不包含能够泛化的规律。模型会记住特定的人而不是学会"复习时间长→通过"这种真正的规律。',
           explanation: '特征必须是对预测目标有因果或相关关系的信息。"复习时间"和"睡眠时间"是有效特征，"姓名"不是。把ID当特征是初学者常见错误，会导致严重过拟合。',
@@ -615,11 +615,11 @@ export const algorithms: Algorithm[] = [
           scenario: '小明备考的故事，蕴含着机器学习最核心的评估原则。',
           options: [
             'A. 能说明他是学霸，因为正确率100%',
-            'B. 不能，他只是背下了答案。这就像用同一批数据既训练又测试，测的是"记忆能力"而非"泛化能力"',
-            'C. 能说明，反正考试只看分数',
+            'B. 能说明，反正考试只看分数',
+            'C. 不能，他只是背下了答案。这就像用同一批数据既训练又测试，测的是"记忆能力"而非"泛化能力"',
             'D. 不能，但他应该换个更难的高考卷',
           ],
-          correctIndex: 1,
+          correctIndex: 2,
           correctFeedback: '完全正确！用同一套题又当练习又当考试，高分只是假象——测出来的是记忆力而非真本事。机器学习中训练集和测试集必须严格分开，就是这个道理。',
           wrongFeedback: '如果把模拟卷的答案都背下来了，做一模一样的题当然满分——但这不叫"学会了"，这叫"记住了"。机器学习也是一样：如果测试集的数据在训练时已经见过了，模型只是"背答案"，并没有真正学会规律。',
           explanation: '训练集 = 平时练习题（用来学习）；测试集 = 最终考试（用来检验真本事）。两者绝对不能重叠！否则你评估的不是模型的"泛化能力"而是"记忆能力"，部署到真实世界会立刻露馅。',
@@ -759,12 +759,12 @@ export const algorithms: Algorithm[] = [
           prompt: '小明把菜谱背得滚瓜烂熟，精确到"放2.375克盐，在锅温183.5°C时下蛋液"。在自家厨房做出来完美。但去朋友家（不同的锅、不同的火）就完全搞砸了。小红只记住一句话"放盐就对了"，在自己家就做不好。这两个人分别对应机器学习的什么问题？',
           scenario: '两个人学做西红柿炒鸡蛋的故事，完美比喻机器学习中最大的两个坑。',
           options: [
-            'A. 小明是欠拟合，小红是过拟合',
-            'B. 小明是过拟合，小红是欠拟合',
+            'A. 小明是过拟合，小红是欠拟合',
+            'B. 小明是欠拟合，小红是过拟合',
             'C. 两个都是过拟合',
             'D. 两个都是欠拟合',
           ],
-          correctIndex: 1,
+          correctIndex: 0,
           correctFeedback: '正确！小明把训练环境的所有细节都"死记"下来了（过拟合），换环境就不会应变。小红连基本规律都没学会（欠拟合），在哪都做不好。真正的好模型应该掌握核心原理，在新环境下也能表现好。',
           wrongFeedback: '小明的问题是把菜谱背得太精确，连噪声（具体到0.375克盐）都记下来了——这是过拟合（overfitting）：训练集上完美，新环境表现差。小红的问题是完全没学会——这是欠拟合（underfitting）：训练集上就表现差。',
           explanation: '过拟合 = 死记硬背（训练集高分，测试集低分）；欠拟合 = 根本没学会（训练集和测试集都低分）。好模型（泛化能力强）= 掌握了本质规律（训练集和测试集表现都好且接近）。判断口诀：训练高测试低 → 过拟合；训练测试都低 → 欠拟合。',
@@ -877,8 +877,8 @@ export const algorithms: Algorithm[] = [
         order: 1,
         goal: '能说出机器学习代码从导入库到评估结果的6个标准步骤，拿到一段sklearn代码能大致判断每一行在做什么。',
         story: '小王第一次打开机器学习教程，看到十几行代码就懵了："import是什么？这行在干吗？为什么分成X和y？fit是什么意思？"其实几乎所有ML代码都遵循固定的6步流程，就像做菜都有固定的"备菜→切菜→下锅→调味"流程。一旦你掌握了这个框架，看任何ML代码都能快速定位"这行在做什么"。本节的代码流程图为后续每一门算法课打下基础。',
-        explanation: '标准ML代码6步：①导入库(import numpy/pandas/sklearn) → ②准备数据(加载CSV、创建X和y) → ③划分训练/测试集(train_test_split) → ④创建模型(如LinearRegression()) → ⑤训练模型(model.fit) → ⑥预测并评估(model.predict + accuracy_score)。这个框架适用于从线性回归到随机森林的所有算法。每一步都有固定的函数和写法，记住这个框架就掌握了ML代码的"通用语法"。',
-        example: '以房价预测为例：①import numpy, pandas, sklearn ②df = pd.read_csv("houses.csv"); X = df[["面积","卧室数"]]; y = df["价格"] ③X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2) ④model = LinearRegression() ⑤model.fit(X_train, y_train) ⑥y_pred = model.predict(X_test); print(mean_squared_error(y_test, y_pred))。6步走完，一个完整的ML项目就完成了。',
+        explanation: '一段机器学习代码看起来长，但其实结构非常固定，就像做菜有固定流程一样。你可以把它理解成六个步骤，按顺序走下来就行。第一步是"导入库"。代码开头那些 import numpy、import pandas、from sklearn 就是在把工具箱搬出来，后面要用的函数都来自这些库。第二步是"准备数据"。通常用 pandas 读取 CSV 文件，然后把表格拆成 X（特征列，模型要看的条件）和 y（标签列，模型要学的答案）。第三步是"划分训练集和测试集"。用 train_test_split 把数据切成两份：一份给模型学习（训练集），另一份留着考它（测试集）。这就像老师把题库分成平时练习和期末考试两套卷子。第四步是"创建模型"。选一个算法，比如 LinearRegression()，相当于选了一把工具。第五步是 model.fit()，模型开始看训练数据，从中学习 X 到 y 的规律。第六步是 model.predict()，用学到的规律对测试集做预测，再用 accuracy_score 等指标看看预测得准不准。不管以后学线性回归还是随机森林，这六步框架完全通用，变的只是第三步选哪个模型。',
+        example: '拿房价预测来走一遍完整流程，你就会发现它真的就是六步。首先 import numpy、pandas 和 sklearn，把工具准备好。然后用 pd.read_csv 加载房屋数据，取面积和卧室数作为特征 X，取价格作为标签 y。接下来 train_test_split 把数据切好：80% 给模型当练习题，20% 留着当考试题。创建 LinearRegression 模型对象，就像从工具箱里取出"线性回归"这把工具。调用 model.fit(X_train, y_train)，模型开始在训练数据上找规律——面积和卧室数怎样决定房价。最后 model.predict(X_test) 对考试题做预测，用 mean_squared_error 看看预测价格和真实价格差了多少。六步走下来，你就完成了一次完整的机器学习建模。',
         interactionType: 'workflow-simulator',
         keyTakeaway: '所有ML代码都有6步标准流程：导入→准备→划分→创建→训练→评估。掌握这个框架后，看任何ML代码都能知道每一行在做什么。',
         commonMistakes: [
@@ -892,8 +892,8 @@ export const algorithms: Algorithm[] = [
         aiPrompts: ['用做菜的例子给我解释ML代码的6步流程', '每一步具体在做什么？能用一个完整的代码例子展示吗？', '除了sklearn，其他框架（如PyTorch）的代码流程也是一样的吗？'],
         openingQuestion: {
           id: 'py-1-q', prompt: '你觉得机器学习代码从开始到结束，大致需要几步？试着把以下步骤排个序。', scenario: '你要写代码让计算机学会预测房价。手上有房屋数据（面积、房间数、价格）。',
-          options: ['A. 导入库 → 加载数据 → 划分训练/测试集 → 创建模型 → fit训练 → predict评估', 'B. 创建模型 → 加载数据 → fit训练 → 导入库 → 评估', 'C. 导入库 → 直接创建模型评估 → 再加载数据', 'D. 加载数据 → 直接评估 → 再训练模型'],
-          correctIndex: 0, correctFeedback: '完全正确！几乎所有sklearn代码都遵循这个6步流程。', wrongFeedback: '代码流程有固定顺序：必须先导入库才能用函数，必须先加载数据才能划分，必须先创建模型才能fit，必须先fit才能predict。',
+          options: ['A. 创建模型 → 加载数据 → fit训练 → 导入库 → 评估', 'B. 导入库 → 加载数据 → 划分训练/测试集 → 创建模型 → fit训练 → predict评估', 'C. 导入库 → 直接创建模型评估 → 再加载数据', 'D. 加载数据 → 直接评估 → 再训练模型'],
+          correctIndex: 1, correctFeedback: '完全正确！几乎所有sklearn代码都遵循这个6步流程。', wrongFeedback: '代码流程有固定顺序：必须先导入库才能用函数，必须先加载数据才能划分，必须先创建模型才能fit，必须先fit才能predict。',
           explanation: '这6步是ML代码的标准框架，适用于线性回归到随机森林所有算法。记住这个框架就掌握了ML代码的"通用语法"。',
         },
       },
@@ -904,8 +904,8 @@ export const algorithms: Algorithm[] = [
         order: 2,
         goal: '能说出NumPy、pandas、scikit-learn各自负责什么任务，能判断一行代码用到了哪个库。',
         story: '小李看到ML代码开头有3-4行import，很困惑："为什么需要这么多库？一个不够吗？"其实每个库有各自的专长：NumPy是"计算器"（处理数组和数学运算），pandas是"Excel"（读写表格、筛选行列），scikit-learn是"工具箱"（模型训练、数据划分、评估指标）。三个库各有分工、相互配合。理解它们的分工后，看import就能猜到后面会做什么。',
-        explanation: 'NumPy(numpy)：提供ndarray多维数组和数学函数。ML中的数据最终都以NumPy数组形式输入模型。pandas(pd)：提供DataFrame和Series，擅长读写CSV/Excel、筛选行列、处理缺失值、分组统计。scikit-learn(sklearn)：提供统一的模型接口（LinearRegression、KNeighborsClassifier等）、数据划分工具（train_test_split）和评估指标（accuracy_score、mean_squared_error等）。三者协作模式：pandas加载和清洗数据 → NumPy做数值转换 → sklearn训练和评估模型。',
-        example: '一个完整的协作示例：import pandas as pd; from sklearn.model_selection import train_test_split; from sklearn.linear_model import LinearRegression。①pd.read_csv("data.csv") —— pandas负责加载 ②X = df[["面积","房间数"]].values —— 转为NumPy数组 ③X_train, X_test, y_train, y_test = train_test_split(X, y) —— sklearn负责划分 ④model.fit(X_train, y_train) —— sklearn负责训练。三个库无缝配合。',
+        explanation: '机器学习代码通常用到三个核心 Python 库，每个库有自己专长的任务，就像一个厨房里的三种工具。NumPy 是"计算引擎"。它提供多维数组 ndarray 和大量数学运算函数。机器学习模型底层处理的数据，最终都要转成 NumPy 数组才能喂给算法。pandas 是"数据管家"。它提供 DataFrame（二维表格）和 Series（一维序列），专门负责读写 CSV 和 Excel 文件、筛选行和列、处理缺失值、分组汇总。你对数据的任何清洗和整理，基本都用 pandas 完成。scikit-learn 是"模型工具箱"。它把各种算法包装成了统一的接口：不管是 LinearRegression 还是 KNeighborsClassifier，都用同样的 .fit() 训练、.predict() 预测。它还提供了 train_test_split 帮你切分数据，accuracy_score 和 mean_squared_error 帮你评估效果。三个库协作的典型流程是：pandas 负责加载 CSV 并整理成 X 和 y。然后把数据传给 sklearn 做划分和建模。sklearn 内部会自动把数据转成 NumPy 数组进行计算。',
+        example: '看一个真实的协作场景。首先 import 三个库：pandas 读数据，train_test_split 切数据，LinearRegression 建模型。然后 pd.read_csv("data.csv") 把 CSV 加载成 DataFrame 表格——这是 pandas 的活儿。接着用 df[["面积","房间数"]] 取出特征 X，df["价格"] 取出标签 y——也是 pandas。train_test_split(X, y) 把数据切成训练集和测试集——这是 sklearn 在干活。最后 model.fit(X_train, y_train) 开始训练——还是 sklearn。整个过程 pandas 负责"拿数据"，sklearn 负责"用数据"，两个库无缝配合。',
         interactionType: 'task-type-classifier',
         keyTakeaway: 'NumPy=数学计算和数组，pandas=表格读写和处理，sklearn=模型训练和评估。三个库分工明确、配合使用。',
         commonMistakes: [
@@ -940,8 +940,8 @@ export const algorithms: Algorithm[] = [
         aiPrompts: ['X和y的命名是强制的吗？我可以叫它们features和target吗？', '如果我想用所有列作为特征，怎么写X更方便？', '为什么机器学习约定俗成用X大写y小写？'],
         openingQuestion: {
           id: 'py-3-q', prompt: '下面哪个是正确的X和y代码写法？', scenario: '数据集df有5列："学号"、"学习时间"、"睡眠时间"、"出勤率"、"是否通过"。你要用后三列预测"是否通过"。',
-          options: ['X = df[["学习时间", "睡眠时间", "出勤率"]]; y = df["是否通过"]', 'X = df["学习时间"]; y = df["是否通过"]', 'X = df[["学习时间"]]; y = df[["是否通过"]]', 'X = df[["学号"]]; y = df["是否通过"]'],
-          correctIndex: 0, correctFeedback: '正确！X用双层方括号取三列特征（二维），y用单层方括号取标签列（一维）。学号不应作为特征。', wrongFeedback: 'X必须是二维（双层方括号取多列），y是一维（单层方括号取单列）。A正确。B的X只有一列，C的y是二维，D把学号当特征不对。',
+          options: ['X = df["学习时间"]; y = df["是否通过"]', 'X = df[["学习时间"]]; y = df[["是否通过"]]', 'X = df[["学号"]]; y = df["是否通过"]', 'X = df[["学习时间", "睡眠时间", "出勤率"]]; y = df["是否通过"]'],
+          correctIndex: 3, correctFeedback: '正确！X用双层方括号取三列特征（二维），y用单层方括号取标签列（一维）。学号不应作为特征。', wrongFeedback: 'X必须是二维（双层方括号取多列），y是一维（单层方括号取单列）。D正确。A的X只有一列，B的y是二维，C把学号当特征不对。',
           explanation: 'X = 双层方括号取多列特征(二维) → 用于"输入模型的条件"。y = 单层方括号取标签列(一维) → 用于"模型要学的答案"。',
           relatedAlgorithms: ['linear-regression', 'knn', 'decision-tree'],
         },
@@ -975,7 +975,7 @@ export const algorithms: Algorithm[] = [
         goal: '能区分fit(训练)、predict(预测)、score(评估)的作用，知道它们分别该用在什么数据上。',
         story: '小陈看到model.fit()、model.predict()、model.score()这三个函数，一直搞不清谁是谁。其实用"学习→考试→打分"类比就很清楚：fit = 学生做练习题学习方法（用训练数据），predict = 学生用学到的方法做新题（对测试数据做预测），score = 老师批改打分（对比预测值和真实值）。关键规则：fit只能用训练集！predict和score可以用测试集或新数据。很多初学者犯的错：在fit之前就predict、用测试数据去做fit。',
         explanation: 'fit(X_train, y_train)：模型从训练数据中学习。输入特征X_train和对应的正确答案y_train，模型内部调整参数以最小化预测误差。只能在训练集上调用。predict(X_test)：用学到的规律对新数据做预测。输入测试特征X_test，返回预测标签y_pred。不改变模型。score(X_test, y_test)：自动计算预测准确率（分类用accuracy，回归用R²）。等同于predict后再手动算指标，但更简洁。总结：fit在train上学习→predict在test上预测→score在test上评估。训练用train，测试用test，绝不能混。',
-        example: '以下是正确的使用顺序：①model = LinearRegression() — 创建模型 ②model.fit(X_train, y_train) — 在训练集学习 ③y_pred = model.predict(X_test) — 对测试集预测 ④score = model.score(X_test, y_test) — 评估。常见错误：model.fit(X_test, y_test) # 错！不能用测试集训练。常见错误：model.predict(X_train) # 虽然能跑但无意义——在训练集上预测只能测"背诵"能力。',
+        example: '按正确顺序走一遍完整的 fit → predict → score 流程。首先 model = LinearRegression() 创建一个线性回归模型对象。然后 model.fit(X_train, y_train) 让模型在训练数据上学习规律——这一步就像学生做带答案的练习题。接下来 y_pred = model.predict(X_test) 用学到的规律对测试集做预测——就像学生用学到的方法做新题。最后用 model.score(X_test, y_test) 或 accuracy_score(y_test, y_pred) 对比预测结果和真实答案，算出分数。有两个新手常犯的错误要特别注意。一个是在 fit 之前就调用 predict——模型还没学任何规律，自然预测不了。另一个是对测试集调用 fit——这等于让学生提前看了期末考试的答案，评估出来的高分是假的。记住铁律：fit 永远只对训练集做，predict 和 score 永远只对测试集做。',
         interactionType: 'programming-vs-ml',
         keyTakeaway: 'fit = 学习(训练集) → predict = 预测(新数据) → score = 评估(对比正确答案)。训练用train，测试用test，不能混。',
         commonMistakes: [
@@ -995,8 +995,8 @@ export const algorithms: Algorithm[] = [
         order: 6,
         goal: '理解sklearn的统一接口设计，知道LinearRegression、KNeighborsClassifier、DecisionTreeClassifier虽然有不同超参数但都共享.fit()/.predict()/.score()模式。',
         story: '小周学完线性回归后去看KNN的代码，惊讶地发现除了模型名字不同，其他代码几乎一模一样。这可不是巧合——这是sklearn精心设计的"统一API"。无论是线性回归、KNN、决策树还是逻辑回归，都遵循相同的模式：创建模型对象→.fit()训练→.predict()预测→评估。这意味着你学会一个模型的代码用法，就自动学会了所有模型的基本用法。不同模型的差异只在于：①创建时传入的超参数不同(如KNN的n_neighbors、决策树的max_depth)②内部实现算法不同。',
-        explanation: 'sklearn所有监督学习模型共享统一的接口：①初始化：model = ModelName(param1=value1, ...) —— 设置超参数 ②训练：model.fit(X_train, y_train) —— 学习数据规律 ③预测：model.predict(X_test) —— 输出预测结果 ④概率：model.predict_proba(X_test) —— 输出概率（分类模型）⑤评估：model.score(X_test, y_test) —— 返回默认评估指标。这个设计的好处：你只需要学一次"fit/predict/score"流程，换算法时只改一行（模型名和参数），其他代码完全不变。这大大降低了学习成本。',
-        example: '对比四个模型的代码相似性：①线性回归：model = LinearRegression(); model.fit(X_train, y_train); y_pred = model.predict(X_test) ②KNN：model = KNeighborsClassifier(n_neighbors=5); model.fit(X_train, y_train); y_pred = model.predict(X_test) ③决策树：model = DecisionTreeClassifier(max_depth=3); model.fit(X_train, y_train); y_pred = model.predict(X_test) ④逻辑回归：model = LogisticRegression(); model.fit(X_train, y_train); y_pred = model.predict(X_test)。发现了吗？除了第一行不同，后面完全一样！这就是sklearn统一API的威力。',
+        explanation: '如果你已经学过线性回归的代码，再去看 KNN 或决策树的代码，会发现除了模型名字不同，其他几乎一模一样。这不是巧合，而是 sklearn 刻意设计的"统一 API"。所有监督学习模型都共享五个标准操作。第一步，初始化模型并设置超参数，比如 model = KNeighborsClassifier(n_neighbors=5)，括号里的参数决定了模型的行为。第二步，调用 model.fit(X_train, y_train) 训练模型，让模型从数据中学习规律。第三步，调用 model.predict(X_test) 对新的数据做预测，得到预测标签。第四步，如果是分类任务，还可以用 model.predict_proba(X_test) 获取每个类别的预测概率，而不止是"是/否"。第五步，用 model.score(X_test, y_test) 快速评估默认指标：分类任务返回准确率，回归任务返回 R²。这个设计最大的好处是：你只需要认真学一次 fit → predict → score 的流程。以后换任何算法，只改第一行（模型名和超参数），后面三行代码完全不动。学会一个模型就等于学会了所有模型的基本用法。',
+        example: '把四个模型并排对比，统一 API 的优势一目了然。线性回归：model = LinearRegression()，然后 fit、predict。KNN：model = KNeighborsClassifier(n_neighbors=5)，然后 fit、predict。决策树：model = DecisionTreeClassifier(max_depth=3)，然后 fit、predict。逻辑回归：model = LogisticRegression()，然后 fit、predict。看到规律了吗？四个模型的第二行和第三行完全一样！唯一的变化只是第一行：模型名称不同，超参数不同。这就是 sklearn 统一 API 的威力——你用同样的 fit 和 predict 语法，就能驱动完全不同的算法。学一个模型的基本套路，六门算法课的程序你都能看懂。',
         interactionType: 'algorithm-recommender',
         keyTakeaway: 'sklearn中所有模型的用法都一样：创建模型→fit训练→predict预测→评估。学一个模型的代码等于学会所有模型的基本用法。超参数是唯一的差异。',
         commonMistakes: [
@@ -1010,8 +1010,8 @@ export const algorithms: Algorithm[] = [
         aiPrompts: ['除了LinearRegression和KNN，还有哪些sklearn模型有相同的fit/predict模式？', 'sklearn的统一API有什么好处？为什么不每个模型设计不同的接口？', '如何选择不同模型的超参数？有没有通用的方法？'],
         openingQuestion: {
           id: 'py-6-q', prompt: '学完线性回归的代码后再学KNN，你觉得大约需要学多少新代码？', scenario: '你已经会用LinearRegression().fit().predict()。现在要学KNN分类器。',
-          options: ['几乎不用学新代码——只换模型名和参数，fit/predict完全一样', '需要从头学一套全新的代码', '需要学很多新函数', 'KNN没有fit方法'],
-          correctIndex: 0, correctFeedback: '正确！sklearn所有模型共享.fit()/.predict()/.score()接口。换模型只需改一行创建代码，其余不变。', wrongFeedback: 'sklearn设计原则就是"统一API"。KNeighborsClassifier的fit/predict/score用法和LinearRegression完全一样。',
+          options: ['需要从头学一套全新的代码', '需要学很多新函数', '几乎不用学新代码——只换模型名和参数，fit/predict完全一样', 'KNN没有fit方法'],
+          correctIndex: 2, correctFeedback: '正确！sklearn所有模型共享.fit()/.predict()/.score()接口。换模型只需改一行创建代码，其余不变。', wrongFeedback: 'sklearn设计原则就是"统一API"。KNeighborsClassifier的fit/predict/score用法和LinearRegression完全一样。',
           explanation: 'sklearn统一API是它最强大的设计之一：所有模型共享相同的"创建→fit→predict→评估"模式。学一个就学会了所有。',
           relatedAlgorithms: ['knn', 'logistic-regression', 'decision-tree', 'random-forest'],
         },
@@ -1074,6 +1074,15 @@ b := b - α * ∂MSE/∂b
       '身高体重关系：根据身高预测体重',
       '学习时间与成绩：根据学习时长预测考试成绩',
       '股票趋势分析：基本的趋势线拟合',
+    ],
+    analogies: [
+      { title: '找最佳拟合线就像画趋势线', content: '线性回归做的事情和你在 Excel 里画趋势线一模一样——找一条穿过数据点的直线，让所有点到这条线的"总距离"最小。只不过它不是用眼睛看，而是用数学方法自动找到最优解。' },
+      { title: '用身高预测体重', content: '如果你收集了 100 个人的身高和体重，会发现大致是"越高越重"的线性关系。线性回归会算出一个公式：体重 ≈ 0.8 × 身高 - 60。有了这个公式，新来一个人你不用称，量身高就能估算体重。' },
+    ],
+    commonMisunderstandings: [
+      { wrong: '线性回归只能处理一个特征', correct: '线性回归可以处理多个特征（多元线性回归）。"线性"指的是参数而非特征数量。你可以同时用面积、房间数、地段三个特征预测房价。' },
+      { wrong: 'R² 越接近 1 模型就越好', correct: 'R² 高可能过拟合。如果训练集 R²=0.99 但测试集 R²=0.60，说明模型严重过拟合，泛化能力很差。' },
+      { wrong: '线性回归只能画直线无法处理非线性数据', correct: '可以通过特征变换（如加上 x² 项）来拟合曲线关系，这就是多项式回归的变体。' },
     ],
     codeExample: `import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -1169,9 +1178,18 @@ import matplotlib.pyplot as plt  # 仅示意，平台暂不执行
     advantages: ['输出可解释的概率值', '训练速度快，适合大规模数据', '可以通过系数分析特征影响方向', '支持正则化（L1/L2）防止过拟合'],
     disadvantages: ['只能处理线性可分的二分类问题', '对异常值和多重共线性敏感', '特征数量远大于样本数时容易过拟合', '不能直接处理多分类'],
     useCases: ['垃圾邮件识别', '疾病诊断', '信用评估', '用户流失预测', '广告点击率预测'],
+    analogies: [
+      { title: '逻辑回归像一个风险评分器', content: '银行贷款审批不会直接说"批"或"拒"，而是先算一个风险分数，再转成违约概率，最后根据阈值决定。逻辑回归就是这样：先算线性得分 z，再用 Sigmoid 转成 0-1 概率，最后跟阈值比较。' },
+      { title: '考试成绩和通过线的故事', content: '老师给试卷打分（0-100 分），学校规定 60 分及格。逻辑回归的 Sigmoid 就是那个"打分表"——它把各种因素综合成得分 z，再映射为"通过概率"。阈值就像及格线——可以调整。' },
+    ],
+    commonMisunderstandings: [
+      { wrong: '逻辑回归叫"回归"所以是用来预测数值的', correct: '虽然名字带"回归"，但它是经典二分类算法。内部用线性回归计算得分 z，但输出的是类别概率。' },
+      { wrong: '阈值必须固定为 0.5', correct: '阈值可根据业务调整。疾病筛查降低阈值（0.3）——宁可多误报不可漏掉患者；垃圾邮件过滤提高阈值（0.7）——宁可不拦截不可误删重要邮件。' },
+      { wrong: 'predict 和 predict_proba 是一样的', correct: 'predict() 返回类别标签（0/1），predict_proba() 返回概率值。需灵活调整阈值或分析模型"确定性"时必须用 predict_proba。' },
+    ],
     codeExample: `from sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score, classification_report\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\nmodel = LogisticRegression()\nmodel.fit(X_train, y_train)\n\ny_pred = model.predict(X_test)\ny_proba = model.predict_proba(X_test)[:, 1]\n\nprint(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")`,
     videoUrl: '',
-    hasPractice: false,
+    hasPractice: true,
     hasQuiz: true,
     visualizationType: 'logistic-regression',
     estimatedMinutes: 40,
@@ -1262,6 +1280,15 @@ d(p,q) = √(Σ(pᵢ - qᵢ)²)
       '客户分类：根据消费行为对客户进行分群',
       '图像分类：基本的图像识别任务',
       '异常检测：远离所有邻居的样本可能是异常点',
+    ],
+    analogies: [
+      { title: '判断新邻居是什么样的人——看周围邻居', content: '你搬到一个陌生小区，想知道这里主要是年轻人还是退休老人。最快的方法就是看看周围 5 户邻居：如果 4 户都是老人，这里大概就是养老社区。KNN 做的事完全一样——新样本的类别由最近邻居投票决定。' },
+      { title: '物以类聚，人以群分', content: '在图书馆里，数学书旁边大概率还是数学书。KNN 基于一个朴素的假设：特征相似的样本，标签也相似。这也是为什么它不需要复杂的"训练"过程——它只是记住所有数据，等新样本来了再找邻居。' },
+    ],
+    commonMisunderstandings: [
+      { wrong: 'K 值越大模型越好', correct: 'K 太大会让决策边界过于平滑（欠拟合），K 太小对噪声敏感（过拟合）。通常用交叉验证选择最优 K，一般取奇数避免平票。' },
+      { wrong: 'KNN 不需要数据预处理', correct: 'KNN 对特征尺度极其敏感。身高用厘米、体重用克时，距离计算几乎全被体重主导。必须先做 StandardScaler 标准化。' },
+      { wrong: 'KNN 训练很快所以适合大规模数据', correct: 'KNN 没有"训练"过程（懒惰学习），但每次预测都要计算与所有训练数据的距离。数据量大时预测非常慢。' },
     ],
     codeExample: `import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
@@ -1402,6 +1429,15 @@ Gini(D) = 1 - Σ p(c)²
       '故障诊断：根据设备参数判断故障原因',
       '游戏 AI：决策树的规则系统（如行为树）',
     ],
+    analogies: [
+      { title: '决策树就像"20 问"游戏', content: '你想让计算机猜一个动物，计算机问："它是哺乳动物吗？"→是→"它吃草吗？"→是→"它有角吗？"...每一问是决策树的一个节点，最终答案就是叶子节点。' },
+      { title: '贷款审批流程图', content: '银行审批员按流程表工作：①月收入 > 5000？→是→②有房贷吗？→否→③信用分 > 600？→是→批准！这张流程表就是一棵决策树。树的深度就是最多问几个问题。' },
+    ],
+    commonMisunderstandings: [
+      { wrong: '决策树越深越准确', correct: '不限制深度的树会把训练数据"记"到 100%——包括噪声和异常点。但测试准确率可能只有 70%，这就是过拟合。限制 max_depth=3-5 通常泛化更好。' },
+      { wrong: '决策树自动找到最优结构', correct: '决策树使用贪婪算法——每节点选当前最优分裂，但不保证全局最优。这也是为什么随机森林通过多棵树弥补了此不足。' },
+      { wrong: '决策树不能做回归', correct: 'sklearn 中 DecisionTreeRegressor 就是决策树的回归版本。原理类似只是用 MSE 而非基尼系数判断分裂质量。' },
+    ],
     codeExample: `import numpy as np
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.model_selection import train_test_split
@@ -1491,14 +1527,33 @@ for d in [1, 2, 3, 5, None]:
     icon: '\u{1F332}',
     intro: '随机森林是集成学习的代表算法，它训练多棵决策树，通过投票或平均来决定最终结果。单棵树可能过拟合，但一群树一起做判断，结果往往更稳定准确。',
     description: '随机森林通过Bagging和随机特征选择，训练多棵互不相同的决策树，有效降低方差、减少过拟合。它既能做分类也能做回归，还能输出特征重要性。',
-    formula: '',
+    formula: `## Bagging（Bootstrap Aggregating）
+从原始数据集 D（n个样本）有放回抽样 m 次，生成 m 个不同的训练子集。
+每个子集训练一棵决策树，共 m 棵。
+
+## 随机特征选择
+每棵树分裂时，从全部 p 个特征中随机选取 k 个候选特征（k < p），
+再从这 k 个特征中选最优分裂。通常 k ≈ sqrt(p)（分类）或 p/3（回归）。
+
+## 最终预测
+分类：ŷ = argmax Σ I(树ᵢ(x) = c)  （多数投票）
+回归：ŷ = (1/m) × Σ 树ᵢ(x)           （取平均值）`,
     steps: ['从原始数据有放回抽样（Bootstrap）', '每个样本训练一棵决策树', '每棵树分裂时随机选择部分特征', '所有树各自给出预测', '分类：多数投票；回归：取平均值'],
     advantages: ['抗过拟合能力强', '能处理高维数据', '能评估特征重要性', '对缺失值不敏感', '能处理非线性关系'],
     disadvantages: ['模型解释性不如单棵决策树', '训练和预测速度比单棵树慢', '树数量多时模型体积大', '超参数较多需要调优'],
     useCases: ['信用评分', '疾病预测', '图像分类', '客户细分', '金融风控'],
+    analogies: [
+      { title: '三个臭皮匠，顶个诸葛亮', content: '100 个人各做一道选择题，每人正确率只有 60%。但让他们投票，少数服从多数，最终正确率可能超 90%。随机森林就是这个原理：单棵决策树可能过拟合（偏见大），但 100 棵树一起投票，偏见互相抵消。' },
+      { title: '专家会诊——多个医生一起诊断', content: '一个医生诊断病情可能因个人经验误判。但三位专家各自独立诊断，最后投票决定治疗方案——误诊概率大幅降低。随机森林每棵树就像一位"专家"，用不同特征子集和数据子集训练，各自独立判断，最后投票。' },
+    ],
+    commonMisunderstandings: [
+      { wrong: '树越多越好，n_estimators 越大越强', correct: '树越多结果越稳定但收益递减。从 10 到 100 提升明显，从 500 到 1000 几乎没区别，训练时间和内存却线性增长。通常 100-200 棵足够。' },
+      { wrong: '随机森林是不可解释的黑盒模型', correct: '虽然不能像单棵树那样追踪完整路径，但可输出特征重要性（feature_importances_），告诉你哪些特征对预测贡献最大。比深度学习透明得多。' },
+      { wrong: '随机森林不需要调参', correct: 'max_depth 和 n_estimators 仍需根据数据调整。max_depth 太小欠拟合，太大让单棵树过拟合。通常用交叉验证选择最优参数组合。' },
+    ],
     codeExample: `from sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\nmodel = RandomForestClassifier(n_estimators=100, max_depth=5)\nmodel.fit(X_train, y_train)\n\ny_pred = model.predict(X_test)\nprint(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")\nprint(f"特征重要性: {model.feature_importances_}")`,
     videoUrl: '',
-    hasPractice: false,
+    hasPractice: true,
     hasQuiz: true,
     visualizationType: 'random-forest',
     estimatedMinutes: 45,
@@ -1575,6 +1630,15 @@ min Σ ||x - c_k||²
       '学习行为分析：按学习时长、测验得分、练习次数划分学生状态',
       '异常观察：远离所有聚类中心的点可能值得重点检查',
     ],
+    analogies: [
+      { title: '把散落的人按距离自动分小组', content: '操场上站了 100 个人，你要分成 3 组做活动。自然方法：①随机选 3 人当临时组长 ②每人站到最近组长那边 ③组长移到组员中心位置 ④重复直到不再有人换组。K-Means 就是这样工作的。' },
+      { title: '超市商品怎么分区？', content: '超市把牛奶、酸奶、奶酪放在一起（乳制品区）；把薯片、饼干、糖果放在一起（零食区）。K-Means 根据商品特征（含糖量、是否需冷藏、保质期）自动分组。K 就是分几个区，聚类中心就是每个区的"代表商品"。' },
+    ],
+    commonMisunderstandings: [
+      { wrong: 'K-Means 因为能把数据分组所以是分类算法', correct: 'K-Means 是无监督学习——不依赖标签。分类有标签（如"这是垃圾邮件"），聚类是自己发现分组结构。K-Means 不知道每组"叫什么"。' },
+      { wrong: 'K 值越大聚类效果越好', correct: 'inertia 随 K 增大一定减小（极端 K=样本数时 inertia=0），但这没意义。需用肘部法则找 inertia 下降变缓的拐点，同时考虑业务可解释性。' },
+      { wrong: 'K-Means 不需要特征缩放', correct: '和 KNN 一样，K-Means 依赖距离计算。不同尺度的特征会让某些维度主导聚类。StandardScaler 标准化是必做的预处理。' },
+    ],
     codeExample: `import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
@@ -1598,7 +1662,7 @@ labels = model.fit_predict(X_scaled)
 print("聚类中心:", model.cluster_centers_)
 print("簇内平方和:", model.inertia_)
 print("每个簇的样本数:", np.bincount(labels))`,
-    videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1sM4y1U7Ph',
+    videoUrl: 'https://player.bilibili.com/player.html?bvid=BV1V44y1u7mJ',
     nextCourseId: 'random-forest',
     guidedQuestions: [
       {

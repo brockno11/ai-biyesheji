@@ -197,6 +197,41 @@ y = 2.0 * area + 8.0 * rooms - 1.5 * age + 0.5 * floor + 30 + np.random.randn(n)
         points: 20,
       },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+np.random.seed(42)
+n = 200
+area = np.random.rand(n) * 150 + 50
+rooms = np.random.randint(1, 6, n)
+age = np.random.rand(n) * 30
+floor = np.random.randint(1, 30, n)
+X = np.column_stack([area, rooms, age, floor])
+y = 2.0 * area + 8.0 * rooms - 1.5 * age + 0.5 * floor + 30 + np.random.randn(n) * 10
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['model', 'y_pred', 'r2']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+if not hasattr(model, 'coef_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+if len(model.coef_) != 4:
+    raise AssertionError(f"应有 4 个特征系数，实际为 {len(model.coef_)}")
+if len(y_pred) != len(y_test):
+    raise AssertionError("y_pred 长度应与 y_test 一致")
+assert float(r2) >= 0.7, f"R² 偏低 ({float(r2):.3f})，请检查多元回归是否完整"
+print(f"测试通过：R²={float(r2):.3f}, 系数={[f'{float(c):.1f}' for c in model.coef_]}")
+      `,
+      expectedVariables: ['model', 'y_pred', 'r2'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'knn-ex-1',
@@ -508,6 +543,34 @@ print(f"标准化后准确率: {scaled_acc:.2%}")`,
       { type: 'keyword', keyword: 'KNeighborsClassifier', description: '训练 KNN 模型', points: 20 },
       { type: 'keyword', keyword: 'accuracy_score', description: '比较准确率', points: 20 },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 100
+age0 = np.random.normal(45, 8, n); spend0 = np.random.normal(200, 40, n)
+age1 = np.random.normal(28, 6, n); spend1 = np.random.normal(500, 80, n)
+X = np.column_stack([np.concatenate([age0, age1]), np.concatenate([spend0, spend1])])
+y = np.array([0]*n + [1]*n)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['acc_raw', 'acc_scaled']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量: " + ", ".join(missing))
+assert float(acc_scaled) >= float(acc_raw) * 0.8, "标准化后的准确率不应显著低于未标准化"
+print(f"测试通过：未标准化={float(acc_raw):.2%}, 标准化后={float(acc_scaled):.2%}")
+      `,
+      expectedVariables: ['acc_raw', 'acc_scaled'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'dt-ex-2',
@@ -554,6 +617,38 @@ for depth in [2, 3, 5, None]:
       { type: 'keyword', keyword: 'predict', description: '预测结果', points: 15 },
       { type: 'keyword', keyword: 'accuracy_score', description: '评估准确率', points: 20 },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(42)
+n = 150
+x1 = np.random.rand(n) * 8; x2 = np.random.randn(n) * 2
+X = np.column_stack([x1, x2])
+y = ((x1 ** 2 + x2 > 0.8) | (x1 - x2 > 1.2)).astype(int)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+      `,
+      testCode: `
+required = ['model']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量 model")
+if not hasattr(model, 'tree_'):
+    raise AssertionError("model 还没有完成 fit 训练")
+train_acc = model.score(X_train, y_train)
+test_acc = model.score(X_test, y_test)
+gap = float(train_acc) - float(test_acc)
+print(f"测试通过：训练={float(train_acc):.2%} 测试={float(test_acc):.2%}")
+if gap > 0.15:
+    print(f"注意：训练/测试差距 {gap:.1%}，存在过拟合迹象")
+      `,
+      expectedVariables: ['model'],
+      timeoutMs: 15000,
+    },
   },
   {
     id: 'km-ex-1',
@@ -651,6 +746,31 @@ for k, value in enumerate(inertias, start=1):
       { type: 'keyword', keyword: 'inertia_', description: '读取簇内平方和', points: 25 },
       { type: 'keyword', keyword: 'inertias', description: '保存不同 K 的结果', points: 15 },
     ],
+    runtimeSpec: {
+      packages: ['numpy', 'scikit-learn'],
+      setupCode: `
+import numpy as np
+from sklearn.cluster import KMeans
+
+np.random.seed(42)
+a = np.random.normal([2, 2], 0.5, size=(60, 2))
+b = np.random.normal([6, 3], 0.6, size=(60, 2))
+c_arr = np.random.normal([4, 7], 0.7, size=(60, 2))
+X = np.vstack([a, b, c_arr])
+      `,
+      testCode: `
+required = ['inertias']
+missing = [v for v in required if v not in globals()]
+if missing:
+    raise AssertionError("缺少变量 inertias")
+if len(inertias) < 3:
+    raise AssertionError(f"inertias 至少应包含3个K值的结果，实际{len(inertias)}个")
+assert inertias[0] > inertias[-1], "inertia 应随K增大而单调递减"
+print(f"测试通过：K=1..{len(inertias)}, inertia={'→'.join([f'{float(v):.0f}' for v in inertias])}")
+      `,
+      expectedVariables: ['inertias'],
+      timeoutMs: 15000,
+    },
   },
   // ── 逻辑回归 ──
   {
