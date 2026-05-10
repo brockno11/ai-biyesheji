@@ -12,17 +12,22 @@ import type { Algorithm } from '../types';
 
 const DEFAULT_ICONS = ['📈', '🎯', '🌳', '🧠', '🤖', '📊', '🔍', '💡', '⚡', '🔬', '📐', '🎓'];
 const CATEGORIES: { value: Algorithm['category']; label: string }[] = [
+  { value: 'basic', label: '基础课程' },
   { value: 'regression', label: '回归算法' },
   { value: 'classification', label: '分类算法' },
   { value: 'tree', label: '树形算法' },
   { value: 'clustering', label: '聚类算法' },
+  { value: 'ensemble', label: '集成学习' },
 ];
+const VISUALIZATION_TYPES = ['', 'linear-regression', 'knn', 'logistic-regression', 'decision-tree', 'k-means', 'random-forest'];
+const INTERACTION_TYPES = ['programming-vs-ml', 'ai-ml-dl-map', 'task-type-classifier', 'workflow-simulator', 'data-table-guide', 'feature-label-selector', 'xy-splitter', 'train-test-split', 'regression-metric-lab', 'classification-metric-lab', 'overfitting-playground', 'hyperparameter-lab', 'cross-validation-simulator', 'leakage-detective'];
 const DIFFICULTIES: Algorithm['difficulty'][] = ['入门', '中级', '进阶'];
 
 const emptyForm: Algorithm = {
-  id: '', name: '', category: 'regression', difficulty: '入门', icon: '📈',
+  id: '', type: 'algorithm', name: '', category: 'regression', difficulty: '入门', icon: '📈',
   intro: '', description: '', formula: '', steps: [''], advantages: [''],
   disadvantages: [''], useCases: [''], codeExample: '', videoUrl: '',
+  hasPractice: false, hasQuiz: true, visualizationType: '', sortOrder: 10,
 };
 
 export default function AdminCoursePanel() {
@@ -81,6 +86,23 @@ export default function AdminCoursePanel() {
   };
 
   const handleSave = () => {
+    // Basic validation
+    const errs: Record<string, string> = {};
+    if (!form.name.trim()) errs.name = '课程名称不能为空';
+    if (!form.intro.trim()) errs.intro = '简介不能为空';
+    if (!form.description.trim()) errs.description = '描述不能为空';
+    if (form.type === 'foundation' && (!form.lessons || form.lessons.length === 0))
+      errs.lessons = '基础课至少需要1个小节';
+    if (form.type !== 'foundation' && (!form.steps || form.steps.filter((s) => s.trim()).length === 0))
+      errs.steps = '算法课至少需要1个步骤';
+    if (form.visualizationType && !VISUALIZATION_TYPES.includes(form.visualizationType))
+      errs.visualizationType = '不支持的可视化类型';
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      showToast('error', '请检查表单中的错误');
+      return;
+    }
+
     const result = validateAlgorithm(form);
     if (!result.success) {
       setFieldErrors(flattenZodErrors(result));
@@ -88,7 +110,9 @@ export default function AdminCoursePanel() {
       return;
     }
     setFieldErrors({});
-    storageService.saveCustomCourse(form);
+    // Auto-set hasPractice based on type
+    const toSave = { ...form, hasPractice: form.type === 'foundation' ? false : (form.hasPractice ?? false) };
+    storageService.saveCustomCourse(toSave as Algorithm);
     setCustomCourses(storageService.getCustomCourses());
     setShowForm(false);
     showToast('success', editingId ? '课程已更新' : '课程已添加');
@@ -102,25 +126,30 @@ export default function AdminCoursePanel() {
     setDraftLoading(true);
     try {
       const result = await aiService.generateCourseDraft({
-        courseDraftInput: draftInput,
+        courseDraftInput: { ...draftInput, type: form.type || 'algorithm' } as typeof draftInput & { type?: string },
         pagePosition: '管理后台课程生成',
       });
       const draft = result.data;
+      const isFoundation = form.type === 'foundation';
       setForm({
         id: 'custom-' + Date.now(),
+        type: form.type || 'algorithm',
         name: draft.name || draftInput.name,
-        category: draftInput.category,
+        category: isFoundation ? 'basic' : draftInput.category,
         difficulty: draftInput.difficulty,
-        icon: emptyForm.icon,
+        icon: isFoundation ? '📚' : emptyForm.icon,
         intro: draft.intro || '',
         description: draft.description || '',
-        formula: draft.formula || '',
-        steps: draft.steps?.length ? draft.steps : [''],
-        advantages: draft.pros?.length ? draft.pros : [''],
-        disadvantages: draft.cons?.length ? draft.cons : [''],
-        useCases: draft.useCases?.length ? draft.useCases : [''],
-        codeExample: draft.codeExample || '',
+        formula: isFoundation ? '' : (draft.formula || ''),
+        steps: isFoundation ? [] : (draft.steps?.length ? draft.steps : ['']),
+        advantages: isFoundation ? [] : (draft.pros?.length ? draft.pros : ['']),
+        disadvantages: isFoundation ? [] : (draft.cons?.length ? draft.cons : ['']),
+        useCases: isFoundation ? [] : (draft.useCases?.length ? draft.useCases : ['']),
+        codeExample: isFoundation ? '' : (draft.codeExample || ''),
         videoUrl: '',
+        hasPractice: !isFoundation,
+        hasQuiz: true,
+        sortOrder: 10,
       });
       setEditingId(null);
       setFieldErrors({});
@@ -446,6 +475,14 @@ export default function AdminCoursePanel() {
 
             <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">课程类型 *</label>
+                  <select value={form.type || 'algorithm'} onChange={(e) => { const t = e.target.value as Algorithm['type']; updateField('type', t); if (t === 'foundation') { updateField('category', 'basic'); updateField('hasPractice', false); } }}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                    <option value="algorithm">核心算法课</option>
+                    <option value="foundation">基础概念课</option>
+                  </select>
+                </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-semibold text-gray-600 mb-1.5">课程名称 *</label>
                   <input type="text" value={form.name} onChange={(e) => { updateField('name', e.target.value); setFieldErrors((prev) => { const next = { ...prev }; delete next.name; return next; }); }}

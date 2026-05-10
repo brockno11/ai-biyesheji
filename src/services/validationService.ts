@@ -32,21 +32,24 @@ export const quizQuestionSchema = z.object({
   explanation: z.string().min(1, '解析不能为空'),
 });
 
+const CATEGORIES_ALL = ['regression', 'classification', 'tree', 'clustering', 'basic', 'ensemble'] as const;
+
 export const algorithmSchema = z.object({
   id: z.string().min(1, '算法 ID 不能为空'),
   name: z.string().min(1, '算法名称不能为空'),
-  category: z.enum(CATEGORIES),
+  type: z.enum(['foundation', 'algorithm', 'project']).optional(),
+  category: z.enum(CATEGORIES_ALL),
   difficulty: z.enum(DIFFICULTIES),
   icon: z.string().min(1, '图标不能为空'),
   intro: z.string().min(1, '简介不能为空'),
   description: z.string(),
-  steps: z.array(z.string()).min(1, '至少需要 1 个步骤'),
-  advantages: z.array(z.string()),
-  disadvantages: z.array(z.string()),
-  useCases: z.array(z.string()),
-  formula: z.string(),
-  codeExample: z.string(),
-  videoUrl: z.string().default(''),
+  steps: z.array(z.string()).optional().default([]),
+  advantages: z.array(z.string()).optional().default([]),
+  disadvantages: z.array(z.string()).optional().default([]),
+  useCases: z.array(z.string()).optional().default([]),
+  formula: z.string().optional().default(''),
+  codeExample: z.string().optional().default(''),
+  videoUrl: z.string().optional().default(''),
 });
 
 export const quizSetSchema = z.array(quizQuestionSchema).min(1, '至少需要 1 道题');
