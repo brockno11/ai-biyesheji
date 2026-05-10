@@ -2,6 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import {
   BookOpen,
   Lightbulb,
+  Layers,
   Target,
   AlertTriangle,
   CheckCircle2,
@@ -18,12 +19,29 @@ import type { Algorithm, GuidedQuestion } from '../types';
 import { getAlgorithmById } from '../data/algorithms';
 import AITutorPanel from './AITutorPanel';
 import InteractiveTask from './InteractiveTask';
+import MistakeCard from './MistakeCard';
+import SmartParagraph from './SmartParagraph';
 import { lessonProgressService } from '../services/lessonProgressService';
 import { aiService } from '../services/aiService';
+import { DIAGRAM_MAP, DIAGRAM_LABELS } from './LessonDiagrams';
 
 interface FoundationCourseContentProps {
   algorithm: Algorithm;
 }
+
+const LESSON_DIAGRAM: Record<string, string> = {
+  'ml-intro-2': 'ai-ml-dl-nesting',
+  'ml-intro-4': 'task-type-comparison',
+  'ml-intro-5': 'ml-workflow',
+  'ml-intro-6': 'algorithm-map',
+  'data-3': 'data-to-xy',
+  'data-4': 'train-test-split',
+  'data-7': 'overfitting',
+  'py-1': 'fit-predict-evaluate',
+  'py-2': 'sklearn-api-pattern',
+  'py-5': 'fit-predict-evaluate',
+  'py-6': 'sklearn-api-pattern',
+};
 
 function Section({
   icon: Icon,
@@ -49,31 +67,6 @@ function Section({
         </h3>
       </div>
       <div className="px-5 py-4">{children}</div>
-    </div>
-  );
-}
-
-function MistakeCard({
-  wrong,
-  correct,
-}: {
-  wrong: string;
-  correct: string;
-}) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 bg-white/50 rounded-xl border border-gray-100 overflow-hidden">
-      <div className="bg-red-50/40 p-4">
-        <h4 className="flex items-center gap-1.5 text-xs font-bold text-red-600 mb-2">
-          <span className="text-red-400 font-bold">✗</span> 错误理解
-        </h4>
-        <p className="text-sm text-red-800 leading-relaxed">{wrong}</p>
-      </div>
-      <div className="bg-green-50/40 p-4">
-        <h4 className="flex items-center gap-1.5 text-xs font-bold text-green-600 mb-2">
-          <CheckCircle2 className="w-3.5 h-3.5" /> 正确理解
-        </h4>
-        <p className="text-sm text-green-800 leading-relaxed">{correct}</p>
-      </div>
     </div>
   );
 }
@@ -350,14 +343,6 @@ export default function FoundationCourseContent({
     <div className="app-container max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* ─── Top Bar ─── */}
       <div className="flex items-center gap-4 flex-wrap">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          返回首页
-        </Link>
-
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xl shadow-sm">
             {algorithm.icon}
@@ -443,59 +428,66 @@ export default function FoundationCourseContent({
                 title="场景故事"
                 className="bg-blue-50/50 border-blue-100"
               >
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {currentLesson.story}
-                </p>
+                <SmartParagraph text={currentLesson.story} className="text-sm text-gray-700 leading-relaxed" />
               </Section>
 
               {/* Explanation */}
               <Section icon={Lightbulb} title="通俗解释">
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                  {currentLesson.explanation}
-                </p>
+                <SmartParagraph text={currentLesson.explanation} className="text-sm text-gray-700 leading-relaxed" />
                 {currentLesson.example && (
                   <div className="mt-3 bg-amber-50/80 rounded-xl p-4 border border-amber-100">
                     <h4 className="text-xs font-bold text-amber-700 mb-1">
                       💡 示例
                     </h4>
-                    <p className="text-sm text-amber-800 leading-relaxed">
-                      {currentLesson.example}
-                    </p>
+                    <SmartParagraph text={currentLesson.example || ''} className="text-sm text-amber-800 leading-relaxed" />
                   </div>
                 )}
               </Section>
 
-              {/* Interactive Task */}
-              <Section icon={Play} title="动手试试">
-                <p className="text-gray-500 text-sm mb-4">
-                  完成以下互动练习，加深理解
-                </p>
-                <InteractiveTask
-                  type={currentLesson.interactionType}
-                  onComplete={(passed) => {
-                    lessonProgressService.markInteractionComplete(
-                      algorithm.id,
-                      currentLesson.id,
-                    );
-                    if (passed) {
-                      lessonProgressService.markLessonComplete(
+              {/* Diagram — visual teaching aid */}
+              {LESSON_DIAGRAM[currentLesson.id] && (() => {
+                const DiagramComponent = DIAGRAM_MAP[LESSON_DIAGRAM[currentLesson.id]];
+                if (!DiagramComponent) return null;
+                return (
+                  <Section icon={Layers} title={`图解：${DIAGRAM_LABELS[LESSON_DIAGRAM[currentLesson.id]] || ''}`}>
+                    <DiagramComponent />
+                  </Section>
+                );
+              })()}
+
+              {/* Interactive Task — only show when content is available */}
+              {(currentLesson.guidedQuestions?.length || currentLesson.openingQuestion || /^(programming-vs-ml|ai-ml-dl-map|task-type-classifier|workflow-simulator)$/.test(currentLesson.interactionType)) && (
+                <Section icon={Play} title="动手试试">
+                  <p className="text-gray-500 text-sm mb-4">
+                    完成以下互动练习，加深理解
+                  </p>
+                  <InteractiveTask
+                    type={currentLesson.interactionType}
+                    onComplete={(passed) => {
+                      lessonProgressService.markInteractionComplete(
                         algorithm.id,
                         currentLesson.id,
                       );
+                      if (passed) {
+                        lessonProgressService.markLessonComplete(
+                          algorithm.id,
+                          currentLesson.id,
+                        );
+                      }
+                    }}
+                    onAskAI={() => {
+                      /* AI tutor is in sidebar */
+                    }}
+                    fallbackQuestions={
+                      currentLesson.guidedQuestions?.length
+                        ? currentLesson.guidedQuestions
+                        : currentLesson.openingQuestion
+                          ? [currentLesson.openingQuestion]
+                          : undefined
                     }
-                  }}
-                  onAskAI={() => {
-                    /* AI tutor is in sidebar */
-                  }}
-                  fallbackQuestions={
-                    currentLesson.guidedQuestions?.length
-                      ? currentLesson.guidedQuestions
-                      : currentLesson.openingQuestion
-                        ? [currentLesson.openingQuestion]
-                        : undefined
-                  }
-                />
-              </Section>
+                  />
+                </Section>
+              )}
 
               {/* Common Mistakes */}
               {currentLesson.commonMistakes &&

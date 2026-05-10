@@ -1,10 +1,21 @@
 import { useParams, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Code2, Sparkles, Lightbulb, ThumbsUp, AlertCircle,
+  ArrowLeft, Code2, Sparkles, Lightbulb, Layers, ThumbsUp, AlertCircle, AlertTriangle,
   Play, Target, BookOpen, ChevronRight, X, CheckCircle2, HelpCircle, Trophy,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { GuidedQuestion } from '../types';
+import MistakeCard from '../components/MistakeCard';
+import { DIAGRAM_MAP, DIAGRAM_LABELS } from '../components/LessonDiagrams';
+
+const ALGORITHM_DIAGRAM: Record<string, string> = {
+  'linear-regression': 'linear-regression-intuition',
+  'knn': 'knn-intuition',
+  'logistic-regression': 'logistic-regression-intuition',
+  'decision-tree': 'decision-tree-intuition',
+  'k-means': 'kmeans-intuition',
+  'random-forest': 'random-forest-intuition',
+};
 import { useCourseById } from '../hooks/useCourses';
 import { getAlgorithmById } from '../data/algorithms';
 import { getExercisesByAlgorithm } from '../data/exercises';
@@ -172,6 +183,46 @@ export default function AlgorithmPage() {
             </div>
           </Section>
 
+          {/* Section: 通俗理解 */}
+          {algorithm.analogies && algorithm.analogies.length > 0 && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white text-sm">
+                    <Lightbulb className="w-4 h-4" />
+                  </span>
+                  通俗理解
+                </h2>
+                <div className="space-y-4">
+                  {algorithm.analogies.map((a, i) => (
+                    <div key={i} className="bg-rose-50/60 rounded-xl p-4 border border-rose-100">
+                      <h3 className="text-sm font-bold text-rose-700 mb-1">{a.title}</h3>
+                      <p className="text-sm text-rose-800 leading-relaxed">{a.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {/* Algorithm Intuition Diagram */}
+          {ALGORITHM_DIAGRAM[algorithm.id] && DIAGRAM_MAP[ALGORITHM_DIAGRAM[algorithm.id]] && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-2">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-sm">
+                    <Layers className="w-4 h-4" />
+                  </span>
+                  图解：{DIAGRAM_LABELS[ALGORITHM_DIAGRAM[algorithm.id]] || ''}
+                </h2>
+                {(() => {
+                  const D = DIAGRAM_MAP[ALGORITHM_DIAGRAM[algorithm.id]];
+                  return <D />;
+                })()}
+              </div>
+            </Section>
+          )}
+
           {/* B 站教学视频 */}
           {algorithm.videoUrl && (
             <Section className="mt-6">
@@ -273,6 +324,67 @@ export default function AlgorithmPage() {
             </Section>
           )}
 
+          {/* Section: 这个算法怎么评估与调参 */}
+          {algorithm.evaluationGuide && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 border-l-4 border-l-teal-500 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-sm">
+                    <Target className="w-4 h-4" />
+                  </span>
+                  这个算法怎么评估与调参？
+                </h2>
+                <div className="space-y-4">
+                  {/* Metrics */}
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-700 mb-2">评估指标</h3>
+                    <div className="grid gap-2">
+                      {algorithm.evaluationGuide.metrics.map((m, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                          <span className="text-teal-500 mt-0.5 flex-shrink-0">•</span>
+                          <span>{m}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Tuning Tips */}
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-700 mb-2">调参建议</h3>
+                    <div className="grid gap-2">
+                      {algorithm.evaluationGuide.tuningTips.map((t, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                          <span className="text-amber-500 mt-0.5 flex-shrink-0">•</span>
+                          <span>{t}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Overfitting Risk */}
+                  {algorithm.evaluationGuide.overfittingRisk && (
+                    <div className="bg-red-50/60 rounded-xl p-3 border border-red-100">
+                      <h4 className="text-xs font-bold text-red-700 mb-1">过拟合风险</h4>
+                      <p className="text-sm text-red-700">{algorithm.evaluationGuide.overfittingRisk}</p>
+                    </div>
+                  )}
+                  {/* Practical Advice */}
+                  {algorithm.evaluationGuide.practicalAdvice && algorithm.evaluationGuide.practicalAdvice.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">实用建议</h3>
+                      <div className="grid gap-2">
+                        {algorithm.evaluationGuide.practicalAdvice.map((a, i) => (
+                          <div key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                            <span className="text-emerald-500 mt-0.5 flex-shrink-0">•</span>
+                            <span>{a}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Section>
+          )}
+
           {/* Section 5: Python 代码示例 */}
           {algorithm.codeExample && (
             <Section className="mt-6">
@@ -287,6 +399,25 @@ export default function AlgorithmPage() {
                   <pre className="text-sm leading-relaxed font-mono whitespace-pre-wrap">
                     {algorithm.codeExample}
                   </pre>
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {/* Section: 常见误区 */}
+          {algorithm.commonMisunderstandings && algorithm.commonMisunderstandings.length > 0 && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 border-l-4 border-l-amber-500 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center text-white text-sm">
+                    <AlertTriangle className="w-4 h-4" />
+                  </span>
+                  常见误区
+                </h2>
+                <div className="space-y-3">
+                  {algorithm.commonMisunderstandings.map((item, i) => (
+                    <MistakeCard key={i} wrong={item.wrong} correct={item.correct} />
+                  ))}
                 </div>
               </div>
             </Section>
