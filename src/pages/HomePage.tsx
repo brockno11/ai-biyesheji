@@ -28,6 +28,18 @@ function Reveal({ children, delay = 0, className = '' }: { children: React.React
   );
 }
 
+/* ── Animated progress stat (own component for Rules of Hooks) ── */
+function AnimatedProgressCard({ label, value, sub }: { label: string; value: number; sub: string }) {
+  const count = useCountUp(value, 1200, true);
+  return (
+    <div className="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-gray-100/60 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:-translate-y-1">
+      <div className="text-3xl font-extrabold text-gray-900 mb-1 tabular-nums">{count}</div>
+      <div className="text-sm text-gray-500 font-medium">{label}</div>
+      <div className="text-xs text-gray-400 mt-0.5">{sub}</div>
+    </div>
+  );
+}
+
 /* ── Stat counter ── */
 function StatCounter({ value, unit, label, icon: Icon, animate }: {
   value: number | string; unit: string; label: string; icon: typeof BookOpen; animate?: boolean;
@@ -368,16 +380,9 @@ export default function HomePage() {
                   { label: '练习次数', value: progress.practiceRecords.length, sub: '次代码提交' },
                   { label: '测验次数', value: progress.quizRecords.length, sub: '次知识测验' },
                   { label: '最高得分', value: progress.practiceRecords.length > 0 ? Math.max(...progress.practiceRecords.map(r => r.score)) : 0, sub: '分' },
-                ].map((s) => {
-                  const count = useCountUp(s.value, 1200, true);
-                  return (
-                    <div key={s.label} className="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-gray-100/60 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:-translate-y-1">
-                      <div className="text-3xl font-extrabold text-gray-900 mb-1 tabular-nums">{count}</div>
-                      <div className="text-sm text-gray-500 font-medium">{s.label}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{s.sub}</div>
-                    </div>
-                  );
-                })}
+                ].map((s) => (
+                  <AnimatedProgressCard key={s.label} label={s.label} value={s.value} sub={s.sub} />
+                ))}
               </div>
             </Reveal>
 

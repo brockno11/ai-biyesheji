@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft, Code2, Sparkles, Lightbulb, ThumbsUp, AlertCircle,
-  GraduationCap, Play, Target, BookOpen, ChevronRight, X,
+  Play, Target, BookOpen, ChevronRight, X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useCourseById } from '../hooks/useCourses';

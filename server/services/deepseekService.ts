@@ -45,13 +45,6 @@ const DEFAULT_BASE_URL = 'https://api.deepseek.com';
 const DEFAULT_MODEL = 'deepseek-v4-flash';
 const REQUEST_TIMEOUT_MS = 20000;
 
-// ── Helpers ─────────────────────────────────────────────────────────
-function maskApiKey(key: string): string {
-  if (!key || key.length < 8) return 'sk-***';
-  const last4 = key.slice(-4);
-  return `sk-***${last4}`;
-}
-
 function normalizeBaseUrl(baseUrl: string) {
   return baseUrl.replace(/\/+$/, '');
 }
@@ -96,7 +89,7 @@ function getDeepSeekConfig() {
   const baseUrl = normalizeBaseUrl(process.env.DEEPSEEK_BASE_URL || DEFAULT_BASE_URL);
   const model = process.env.DEEPSEEK_MODEL || DEFAULT_MODEL;
 
-  console.log('[deepseek] Config:', { baseUrl, model, apiKey: maskApiKey(apiKey) });
+  // Config loaded from environment
 
   return { apiKey, baseUrl, model };
 }
