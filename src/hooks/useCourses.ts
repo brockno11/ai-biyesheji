@@ -20,7 +20,9 @@ export function useCourses(): Algorithm[] {
 
   return useMemo(() => {
     const custom = storageService.getCustomCourses();
-    return [...staticAlgorithms, ...custom];
+    const all = [...staticAlgorithms, ...custom];
+    all.sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
+    return all;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [version]);
 }

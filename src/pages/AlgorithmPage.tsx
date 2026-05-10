@@ -1,9 +1,10 @@
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft, Code2, Sparkles, Lightbulb, ThumbsUp, AlertCircle,
-  Play, Target, BookOpen, ChevronRight, X,
+  Play, Target, BookOpen, ChevronRight, X, CheckCircle2, HelpCircle, Trophy,
 } from 'lucide-react';
 import { useState } from 'react';
+import type { GuidedQuestion } from '../types';
 import { useCourseById } from '../hooks/useCourses';
 import { getAlgorithmById } from '../data/algorithms';
 import { getExercisesByAlgorithm } from '../data/exercises';
@@ -256,6 +257,22 @@ export default function AlgorithmPage() {
             </Section>
           )}
 
+          {/* Guided Questions — mini-interactions below visualization */}
+          {algorithm.guidedQuestions && algorithm.guidedQuestions.length > 0 && (
+            <Section className="mt-6">
+              <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 md:p-8 hover:shadow-md transition-all duration-300">
+                <h2 className="flex items-center gap-2 text-lg font-extrabold text-gray-900 tracking-tight mb-2">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm">
+                    <HelpCircle className="w-4 h-4" />
+                  </span>
+                  引导思考
+                </h2>
+                <p className="text-gray-500 text-sm mb-4">回答以下问题，检验你对这个算法的理解</p>
+                <GuidedQuestionsInline questions={algorithm.guidedQuestions} algorithmId={algorithm.id} />
+              </div>
+            </Section>
+          )}
+
           {/* Section 5: Python 代码示例 */}
           {algorithm.codeExample && (
             <Section className="mt-6">
@@ -348,6 +365,107 @@ export default function AlgorithmPage() {
           animation: slide-up 0.3s ease-out;
         }
       `}</style>
+    </div>
+  );
+}
+
+// Inline guided questions mini-interaction
+function GuidedQuestionsInline({ questions, algorithmId }: { questions: GuidedQuestion[]; algorithmId: string }) {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+
+  if (!questions || questions.length === 0) return null;
+
+  const q = questions[currentIdx];
+  const isCorrect = selectedIndex === q.correctIndex;
+  const correctCount = Object.entries(answers).filter(([i, a]) => a === questions[parseInt(i)].correctIndex).length;
+
+  const algoNameMap: Record<string, string> = {
+    'linear-regression': '线性回归', 'knn': 'KNN', 'logistic-regression': '逻辑回归',
+    'decision-tree': '决策树', 'k-means': 'K-Means', 'random-forest': '随机森林',
+  };
+
+  const handleSelect = (idx: number) => {
+    if (revealed) return;
+    setSelectedIndex(idx);
+    setRevealed(true);
+    setAnswers((prev) => ({ ...prev, [currentIdx]: idx }));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-500">第 {currentIdx + 1} / {questions.length} 题</span>
+        {Object.keys(answers).length > 0 && <span className="text-xs text-primary-600 font-semibold">已答 {Object.keys(answers).length} 题</span>}
+      </div>
+      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-full bg-gradient-to-r from-primary-500 to-accent-500 transition-all duration-500" style={{ width: `${((currentIdx + (revealed ? 1 : 0)) / questions.length) * 100}%` }} />
+      </div>
+      {q.scenario && (
+        <div className="bg-blue-50/80 rounded-xl p-4 border border-blue-100">
+          <h4 className="text-xs font-bold text-blue-700 mb-1">场景</h4>
+          <p className="text-sm text-blue-800 leading-relaxed">{q.scenario}</p>
+        </div>
+      )}
+      <p className="text-sm font-semibold text-gray-800 leading-relaxed">{q.prompt}</p>
+      <div className="space-y-2">
+        {q.options.map((opt, idx) => {
+          const sel = selectedIndex === idx;
+          const showCorrect = revealed && idx === q.correctIndex;
+          const showWrong = revealed && sel && !isCorrect;
+          let style = 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50';
+          if (revealed) {
+            if (showCorrect) style = 'border-green-400 bg-green-50 text-green-800 font-semibold';
+            else if (showWrong) style = 'border-red-400 bg-red-50 text-red-800';
+            else style = 'border-slate-100 bg-slate-50 text-slate-400';
+          } else if (sel) style = 'border-blue-400 bg-blue-50 text-blue-800 font-semibold';
+          return (
+            <button key={idx} onClick={() => handleSelect(idx)} disabled={revealed} className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all flex items-center gap-3 ${style} ${revealed ? 'cursor-default' : 'cursor-pointer'}`}>
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">{String.fromCharCode(65 + idx)}</span>
+              <span className="flex-1">{opt.replace(/^[A-D]\.\s*/, '')}</span>
+              {revealed && showCorrect && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />}
+              {revealed && showWrong && <X className="w-5 h-5 text-red-500 flex-shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+      {revealed && (
+        <div className={`rounded-xl p-4 border ${isCorrect ? 'bg-green-50/70 border-green-200' : 'bg-red-50/70 border-red-200'}`}>
+          <div className="flex items-start gap-2 mb-2">
+            {isCorrect ? <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /> : <X className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />}
+            <div>
+              <h4 className={`text-sm font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>{isCorrect ? '回答正确！' : '回答有误'}</h4>
+              <p className={`text-sm mt-1 leading-relaxed ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>{isCorrect ? q.correctFeedback : q.wrongFeedback}</p>
+            </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-slate-200/50">
+            <h4 className="text-xs font-bold text-slate-600 mb-1">知识点</h4>
+            <p className="text-sm text-slate-700 leading-relaxed">{q.explanation}</p>
+          </div>
+          {q.relatedAlgorithms && q.relatedAlgorithms.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-200/50">
+              <h4 className="text-xs font-bold text-primary-600 mb-1">这个知识点会在以下算法中用到</h4>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {q.relatedAlgorithms.map((algId) => (
+                  <span key={algId} className="inline-block px-2.5 py-0.5 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold border border-primary-100">{algoNameMap[algId] || algId}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {revealed && (
+        <button onClick={() => { if (currentIdx < questions.length - 1) { setCurrentIdx((p) => p + 1); setSelectedIndex(null); setRevealed(false); } }} className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all">
+          {currentIdx < questions.length - 1 ? '下一题' : '完成'}
+        </button>
+      )}
+      {revealed && currentIdx === questions.length - 1 && Object.keys(answers).length === questions.length && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
+          <div className="flex items-center gap-2"><Trophy className="w-5 h-5 text-amber-500" /><span className="text-sm font-extrabold text-amber-800">得分: {correctCount}/{questions.length}</span></div>
+        </div>
+      )}
     </div>
   );
 }

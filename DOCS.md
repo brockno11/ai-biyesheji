@@ -46,11 +46,11 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 
 | 类型 | 当前数量/状态 | 说明 |
 |------|---------------|------|
-| 内置算法 | 4 个 | 线性回归、KNN、决策树、K-Means 聚类 |
-| 代码练习 | 8 道 | 每个算法 2 道，练习数据支持后台自定义覆盖 |
-| 测验题目 | 32 道 | 每个算法 8 道，测验数据支持后台自定义覆盖 |
-| 可视化组件 | 4 个 | 线性回归、KNN、决策树、K-Means 均有交互式 ECharts/可视化组件 |
-| AI 场景 | 6 类以上 | AI 助教、代码诊断、错题讲解、学习路径、课程草稿、可视化解释 |
+| 课程总数 | 9 门 | 3 门基础概念课（机器学习入门、数据与评估、Python 代码入门）+ 6 门算法课（线性回归、KNN、逻辑回归、决策树、K-Means、随机森林），按入门→中级编排 |
+| 代码练习 | 8 道 | 覆盖线性回归、KNN、决策树、K-Means 四门算法（每门2道）；逻辑回归和随机森林练习待后续开放 |
+| 测验题目 | 72 道 | 覆盖全部 9 门课程（基础课 24 道 + 算法课 48 道），支持后台自定义覆盖 |
+| 可视化组件 | 6 个 | LinearRegressionViz、KNNViz、DecisionTreeViz、KMeansViz、LogisticRegressionViz、RandomForestViz |
+| AI 场景 | 11 种 | AI 助教、代码诊断(Zod校验)、错题讲解(Zod校验)、学习路径(Zod校验)、课程草稿(Zod校验)、出题、总结、生活例子、可视化解释、练习提示 |
 | 后台管理 | 课程 + 题库 | 课程 CRUD、AI 课程草稿、练习题 CRUD、测验题 CRUD |
 
 ### 2.2 项目目录结构
@@ -59,7 +59,7 @@ AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 M
 src/
 ├── types/index.ts              # 全局 TypeScript 类型
 ├── data/
-│   ├── algorithms.ts           # 4 门内置算法静态数据
+│   ├── algorithms.ts           # 9 门课程静态数据（3基础 + 6算法）
 │   └── exercises.ts            # 内置练习题 + 测验题，支持后台自定义覆盖
 ├── hooks/
 │   └── useCourses.ts           # 合并静态 + 自定义课程的 Hook
@@ -159,7 +159,7 @@ scripts/
 | 顶部导航 | Logo + 首页 + 学习中心 + 个人中心 |
 | Hero 区域 | 平台 Slogan + 副标题 + 4 个统计指标卡片 (算法数/练习题/测验题/AI助教) |
 | 特色卡片 | 3 张卡片展示 AI 助教 / 算法可视化 / 代码练习，每张含功能点标签 |
-| 课程展示 | 4 门算法卡片 (线性回归 / KNN / 决策树 / K-Means，图标 + 难度标签 + 简介 + 微型进度条) |
+| 课程展示 | 9 门课程卡片 (3基础+6算法，按入门→中级排序，图标 + 难度标签 + 简介 + 微型进度条) |
 | 学习路径 | Step 01→04 四步流程图 (课程学习 → 可视化探索 → 代码练习 → 测验巩固) |
 | CTA 区域 | 学习进度统计 + 继续学习 / 详细进度入口 |
 | Footer | 项目信息 |
@@ -181,7 +181,7 @@ scripts/
 
 | 模块 | 内容 |
 |------|------|
-| 算法信息卡 | 图标 + 难度 + 分类 + 详细描述 |
+| 算法信息卡 | 图标 + 难度 + 分类 + 详细描述（基础课不显示公式/代码区域） |
 | 算法步骤 | 编号列表，hover 变色动画 |
 | 优点/缺点 | 双列对比卡片 |
 | 核心公式 | 深色代码块展示 Markdown 公式 |
@@ -969,7 +969,7 @@ npx tsc --noEmit && npx vite build
 - **`.env` 已 gitignore**，新 Agent 需自行创建。
 - **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
 - **Mock 覆盖范围**：所有 11 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
-- **10 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
+- **19 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
 - **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 4 个算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
 - **K-Means** 视频已配置 B站 BV号（BV1sM4y1U7Ph），如有更合适的可替换。

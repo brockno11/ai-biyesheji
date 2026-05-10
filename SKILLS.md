@@ -35,6 +35,12 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 | 11 | shadcn-ui | UI 组件库 | Tailwind-first React 组件、可访问 UI、主题 |
 | 12 | ui-designer | 设计系统 | 从参考 UI 提取设计系统、统一视觉风格 |
 | 13 | react-bits | 动画组件 | 110+ 可复制动画组件、滚动效果、背景特效 |
+| 14 | anthropics-skills-docx | 文档 | Word 文档创建、编辑和分析 |
+| 15 | anthropics-skills-pdf | 文档 | PDF 读取、生成和处理 |
+| 16 | anthropics-skills-pptx | 演示 | PPT 演示文稿创建和编辑 |
+| 17 | academic-writing | 学术 | 学术写作、研究设计、论文表达 |
+| 18 | markitdown | 文档转换 | PDF/DOCX/PPTX/XLSX → Markdown |
+| 19 | latex-thesis-zh | 论文 | 中文 LaTeX 学位论文辅助 |
 
 ---
 
@@ -49,7 +55,7 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 | senior-qa | 使用 `npm run build` 验证 TypeScript、Vite 构建和新增模块引用 |
 | frontend-code-review | 检查新增组件的状态流、localStorage 合并逻辑和前台读取路径 |
 
-当前项目已经从 3 个算法扩展到 4 个算法，题库从 15 道扩展到 32 道，练习题从 4 道扩展到 8 道，并新增后台题库/练习管理能力。
+当前项目已从 3 个算法扩展到 6 个算法（9 门课程含 3 门基础课），题库从 15 道扩展到 72 道，练习题从 4 道扩展到 8 道，Skills 从 10 个扩展到 19 个。
 
 ---
 
@@ -155,6 +161,84 @@ npx -y @lobehub/market-cli skills install <skill-identifier> --agent claude-code
 
 ---
 
+### 11. shadcn-ui
+
+- **功能**：Tailwind-first React 组件库，包含 Card、Button、Badge、Accordion、Tabs、Progress、Dialog 等统一 UI 组件
+- **适用场景**：UI 组件标准化、可访问 UI 开发、主题统一
+- **项目路径**：`.claude/skills/michaelkeevildown-claude-agents-skills-shadcn-ui/SKILL.md`
+
+---
+
+### 12. ui-designer
+
+- **功能**：从参考 UI 提取设计系统，统一视觉风格、排版、色彩、间距
+- **适用场景**：界面美化、设计系统建立、视觉一致性重构
+- **项目路径**：`.claude/skills/daymade-claude-code-skills-ui-designer/SKILL.md`
+
+---
+
+### 13. react-bits
+
+- **功能**：110+ 可复制动画组件、滚动效果、背景特效
+- **适用场景**：轻量动效、滚动触发动画、微交互
+- **项目路径**：`.claude/skills/haniakrim21-everything-claude-code-react-bits/SKILL.md`
+
+---
+
+### 14. anthropics-skills-docx
+
+- **功能**：Word 文档创建、编辑和分析（论文正文）
+- **适用场景**：毕业设计论文撰写、Word 格式导出
+- **下载链接**：https://lobehub.com/skills/anthropics-skills-docx
+- **项目路径**：`.claude/skills/anthropics-skills-docx/SKILL.md`
+
+---
+
+### 15. anthropics-skills-pdf
+
+- **功能**：PDF 读取、生成和处理
+- **适用场景**：开题报告阅读、PDF 导出、文献处理
+- **下载链接**：https://lobehub.com/skills/anthropics-skills-pdf
+- **项目路径**：`.claude/skills/anthropics-skills-pdf/SKILL.md`
+
+---
+
+### 16. anthropics-skills-pptx
+
+- **功能**：PPT 演示文稿创建和编辑
+- **适用场景**：答辩 PPT 制作
+- **下载链接**：https://lobehub.com/skills/anthropics-skills-pptx
+- **项目路径**：`.claude/skills/anthropics-skills-pptx/SKILL.md`
+
+---
+
+### 17. academic-writing
+
+- **功能**：学术写作、研究设计、学术交流、论文表达润色
+- **适用场景**：绪论、相关技术、需求分析、系统设计章节撰写
+- **下载链接**：https://lobehub.com/skills/jamditis-claude-skills-journalism-academic-writing
+- **项目路径**：`.claude/skills/jamditis-claude-skills-journalism-academic-writing/SKILL.md`
+
+---
+
+### 18. markitdown
+
+- **功能**：将 PDF、DOCX、PPTX、XLSX、图片等转 Markdown，方便喂给 LLM
+- **适用场景**：参考文献整理、资料转换为可分析格式
+- **下载链接**：https://lobehub.com/skills/k-dense-ai-claude-scientific-skills-markitdown
+- **项目路径**：`.claude/skills/k-dense-ai-claude-scientific-skills-markitdown/SKILL.md`
+
+---
+
+### 19. latex-thesis-zh
+
+- **功能**：中文 LaTeX 学位论文辅助
+- **适用场景**：LaTeX 排版的中文学位论文
+- **下载链接**：https://lobehub.com/skills/bahayonghang-academic-writing-skills-latex-thesis-zh
+- **项目路径**：`.claude/skills/bahayonghang-academic-writing-skills-latex-thesis-zh/SKILL.md`
+
+---
+
 ## 快速安装命令（批量）
 
 ```bash
@@ -163,11 +247,19 @@ cd E:/projects/ai-biyesheji
 
 # 方式一：使用项目内置 skills（无需操作，自动加载）
 
-# 方式二：通过 LobeHub CLI 安装（需安装的 4 个）
+# 方式二：通过 LobeHub CLI 安装开发 Skills
 npx -y @lobehub/market-cli skills install davila7-claude-code-templates-senior-frontend --agent claude-code
 npx -y @lobehub/market-cli skills install aleister1102-skills-add-educational-comments --agent claude-code
 npx -y @lobehub/market-cli skills install davila7-claude-code-templates-senior-qa --agent claude-code
 npx -y @lobehub/market-cli skills install openclaw-skills-api-designer --agent claude-code
+
+# 论文相关 Skills
+npx -y @lobehub/market-cli skills install anthropics-skills-docx --agent claude-code
+npx -y @lobehub/market-cli skills install anthropics-skills-pdf --agent claude-code
+npx -y @lobehub/market-cli skills install k-dense-ai-claude-scientific-skills-markitdown --agent claude-code
+npx -y @lobehub/market-cli skills install jamditis-claude-skills-journalism-academic-writing --agent claude-code
+npx -y @lobehub/market-cli skills install bahayonghang-academic-writing-skills-latex-thesis-zh --agent claude-code
+npx -y @lobehub/market-cli skills install anthropics-skills-pptx --agent claude-code
 ```
 
 ---
@@ -186,6 +278,8 @@ npx -y @lobehub/market-cli skills install openclaw-skills-api-designer --agent c
 | React Router v6 | react, senior-frontend |
 | 教学功能 | add-educational-comments |
 | 测试 | senior-qa |
+| 学术写作 | academic-writing, anthropics-skills-docx, latex-thesis-zh |
+| 文档处理 | anthropics-skills-pdf, markitdown, anthropics-skills-pptx |
 
 ---
 

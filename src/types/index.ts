@@ -109,6 +109,8 @@ export interface Algorithm {
   estimatedMinutes?: number;
   prerequisites?: string[];
   nextCourseId?: string;
+  sortOrder?: number;
+  guidedQuestions?: GuidedQuestion[];
 }
 
 import type { PythonRuntimeSpec } from '../services/aiTypes';

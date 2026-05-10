@@ -9,10 +9,23 @@ import {
 } from 'lucide-react';
 import type { InteractionType } from '../types';
 
+interface FallbackQuestion {
+  id: string;
+  prompt?: string;
+  scenario?: string;
+  options: string[];
+  correctIndex: number;
+  correctFeedback: string;
+  wrongFeedback: string;
+  explanation: string;
+  relatedAlgorithms?: string[];
+}
+
 interface Props {
   type: InteractionType;
   onComplete?: (passed: boolean) => void;
   onAskAI?: () => void;
+  fallbackQuestions?: FallbackQuestion[];
 }
 
 // ─── Programming vs ML (编程 vs 机器学习) ──────────────────────────────────
@@ -447,6 +460,224 @@ function TaskTypeClassifier({
   );
 }
 
+// ─── AI / ML / DL Classifier ────────────────────────────────────────────────
+const AI_ML_DL_SCENARIOS = [
+  {
+    scenario: '游戏中的NPC通过A*算法自动计算最短路径绕开障碍物到达玩家位置',
+    answer: 'ai' as const,
+    explanation: 'A*寻路算法是经典的人工智能技术，但它不涉及从数据中学习——规则由人类设计。这说明AI包含但不限于机器学习。',
+    relatedAlgorithms: [],
+  },
+  {
+    scenario: '根据历史房价数据，训练模型预测新房子的价格',
+    answer: 'ml' as const,
+    explanation: '让模型从历史数据中学习"面积、地段→房价"的映射规律，属于监督学习中的回归。这是机器学习的典型范式。',
+    relatedAlgorithms: ['linear-regression'],
+  },
+  {
+    scenario: '根据邮件内容，自动识别并过滤垃圾邮件',
+    answer: 'ml' as const,
+    explanation: '从大量标注好的邮件数据中学习分类规则，属于监督学习中的分类问题。后续的逻辑回归课程会教你实现。',
+    relatedAlgorithms: ['logistic-regression', 'knn'],
+  },
+  {
+    scenario: '人脸识别门禁系统，使用深度神经网络自动识别员工身份',
+    answer: 'dl' as const,
+    explanation: '现代人脸识别使用卷积神经网络（CNN）等深度学习方法，通过多层网络自动提取面部特征。',
+    relatedAlgorithms: ['random-forest'],
+  },
+  {
+    scenario: '大语言模型（如ChatGPT、DeepSeek）通过海量文本训练，能与人类自然对话',
+    answer: 'dl' as const,
+    explanation: '大语言模型基于Transformer深度学习架构，包含数十亿参数，需要海量数据和算力训练。这是深度学习的前沿应用。',
+    relatedAlgorithms: [],
+  },
+  {
+    scenario: '语音助手（如Siri）将用户的语音实时转写成文字',
+    answer: 'dl' as const,
+    explanation: '语音识别通常使用循环神经网络（RNN）或Transformer等深度学习模型，从音频波形中提取语言特征。',
+    relatedAlgorithms: [],
+  },
+  {
+    scenario: '早期的医疗诊断专家系统，由医生手动编写数百条"如果…就…"规则来判断疾病',
+    answer: 'ai' as const,
+    explanation: '专家系统是符号AI的经典代表——不依赖数据学习，而是人类专家穷举规则。这证明AI不全是机器学习！',
+    relatedAlgorithms: ['decision-tree'],
+  },
+  {
+    scenario: '电商平台根据你的浏览和购买历史，推荐你可能感兴趣的商品',
+    answer: 'ml' as const,
+    explanation: '推荐系统从用户行为数据中学习偏好模式，属于机器学习应用。协同过滤和矩阵分解是常见方法。',
+    relatedAlgorithms: ['k-means'],
+  },
+] as const;
+
+function AIMLDlMap({
+  onComplete,
+  onAskAI,
+}: {
+  onComplete?: (passed: boolean) => void;
+  onAskAI?: () => void;
+}) {
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const allAnswered = AI_ML_DL_SCENARIOS.every(
+    (_, i) => answers[i] !== undefined,
+  );
+
+  const correctCount = AI_ML_DL_SCENARIOS.filter(
+    (s, i) => answers[i] === s.answer,
+  ).length;
+  const total = AI_ML_DL_SCENARIOS.length;
+  const passed = correctCount >= Math.ceil(total * 0.7);
+
+  const typeColors: Record<string, string> = {
+    ai: 'bg-rose-500 text-white',
+    ml: 'bg-amber-500 text-white',
+    dl: 'bg-violet-500 text-white',
+  };
+
+  const typeLabels: Record<string, string> = {
+    ai: 'AI 人工智能',
+    ml: '机器学习',
+    dl: '深度学习',
+  };
+
+  const handleSubmit = () => {
+    setSubmitted(true);
+    onComplete?.(passed);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-r from-rose-50 to-violet-50 rounded-xl p-4 border border-rose-100">
+        <p className="text-sm text-slate-800 font-semibold">
+          判断以下案例更接近 AI（人工智能）、ML（机器学习）还是 DL（深度学习）？
+        </p>
+        <p className="text-xs text-slate-600 mt-1">
+          AI 是最终目标（让机器表现智能）| ML 是实现AI的主流方法（从数据中学规律）| DL 是ML中使用深层神经网络的分支
+        </p>
+        <p className="text-xs text-slate-500 mt-0.5">
+          💡 关系：AI ⊃ ML ⊃ DL（俄罗斯套娃）
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {AI_ML_DL_SCENARIOS.map((item, i) => {
+          const userAnswer = answers[i];
+          const isCorrect = submitted && userAnswer === item.answer;
+          const isWrong = submitted && userAnswer !== item.answer;
+          return (
+            <div
+              key={i}
+              className={`rounded-xl border p-4 transition-all ${
+                submitted
+                  ? isCorrect
+                    ? 'border-green-200 bg-green-50/40'
+                    : isWrong
+                      ? 'border-red-200 bg-red-50/40'
+                      : 'border-slate-200 bg-white'
+                  : 'border-slate-200 bg-white hover:border-rose-200'
+              }`}
+            >
+              <p className="text-sm font-semibold text-slate-800 mb-2">
+                {i + 1}. {item.scenario}
+              </p>
+              {!submitted ? (
+                <div className="flex gap-2 flex-wrap">
+                  {(['ai', 'ml', 'dl'] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() =>
+                        setAnswers((prev) => ({ ...prev, [i]: t }))
+                      }
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        userAnswer === t
+                          ? typeColors[t] + ' shadow-sm'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {typeLabels[t]}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {isCorrect && (
+                    <div className="flex items-center gap-1.5 text-green-700">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="text-xs font-semibold">正确！</span>
+                    </div>
+                  )}
+                  {isWrong && (
+                    <div className="flex items-center gap-1.5 text-red-700">
+                      <XCircle className="w-4 h-4" />
+                      <span className="text-xs font-semibold">
+                        正确答案是：{typeLabels[item.answer]}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-600">💡 {item.explanation}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {!submitted && (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSubmit}
+            disabled={!allAnswered}
+            className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            提交答案
+          </button>
+          <span className="text-xs text-slate-400">
+            {allAnswered ? '已回答全部' : `已答 ${Object.keys(answers).length}/${total}`}
+          </span>
+        </div>
+      )}
+
+      {submitted && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200 space-y-2">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-amber-500" />
+            <span className="text-sm font-extrabold text-amber-800">
+              得分: {correctCount}/{total}
+            </span>
+          </div>
+          <p className="text-xs text-slate-600">
+            AI是宏大目标（让机器有智能），机器学习是实现AI的主流方法（用数据训练模型），深度学习是机器学习中借助深层神经网络的分支。三者是包含关系。
+          </p>
+          <div className="flex gap-2">
+            {onAskAI && (
+              <button
+                onClick={onAskAI}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-amber-700 text-xs font-semibold hover:bg-amber-50 transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                问 AI
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setAnswers({});
+                setSubmitted(false);
+              }}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors"
+            >
+              重新作答
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function WorkflowSimulator({
   onComplete,
   onAskAI,
@@ -621,48 +852,212 @@ function WorkflowSimulator({
   );
 }
 
-// ─── Placeholder ───────────────────────────────────────────────────────────
-
-function PlaceholderTask({
-  typeName,
+// ─── Guided Question Block (universal fallback for unimplemented interaction types) ─
+function GuidedQuestionBlock({
+  questions,
   onAskAI,
+  onComplete,
 }: {
-  typeName: string;
+  questions: { id: string; prompt?: string; scenario?: string; options: string[]; correctIndex: number; correctFeedback: string; wrongFeedback: string; explanation: string; relatedAlgorithms?: string[] }[];
   onAskAI?: () => void;
+  onComplete?: (passed: boolean) => void;
 }) {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+
+  if (!questions || questions.length === 0) return null;
+
+  const q = questions[currentIdx];
+  const isCorrect = selectedIndex === q.correctIndex;
+  const allAnswered = Object.keys(answers).length === questions.length;
+  const correctCount = Object.entries(answers).filter(([i, a]) => a === questions[parseInt(i)].correctIndex).length;
+
+  const handleSelect = (idx: number) => {
+    if (revealed) return;
+    setSelectedIndex(idx);
+    setRevealed(true);
+    setAnswers((prev) => ({ ...prev, [currentIdx]: idx }));
+  };
+
+  const handleNext = () => {
+    if (currentIdx < questions.length - 1) {
+      setCurrentIdx((prev) => prev + 1);
+      setSelectedIndex(null);
+      setRevealed(false);
+    } else {
+      onComplete?.(correctCount >= Math.ceil(questions.length * 0.7));
+    }
+  };
+
+  const algorithmNameMap: Record<string, string> = {
+    'linear-regression': '线性回归',
+    'knn': 'K近邻(KNN)',
+    'logistic-regression': '逻辑回归',
+    'decision-tree': '决策树',
+    'k-means': 'K-Means聚类',
+    'random-forest': '随机森林',
+  };
+
   return (
-    <div className="bg-amber-50/60 rounded-xl p-6 border border-amber-200 text-center space-y-3">
-      <div className="w-12 h-12 mx-auto rounded-xl bg-amber-100 flex items-center justify-center">
-        <Sparkles className="w-6 h-6 text-amber-600" />
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-500">
+          第 {currentIdx + 1} / {questions.length} 题
+        </span>
+        {Object.keys(answers).length > 0 && (
+          <span className="text-xs text-primary-600 font-semibold">
+            已答 {Object.keys(answers).length} 题
+          </span>
+        )}
       </div>
-      <div>
-        <p className="text-sm font-extrabold text-amber-800">此交互模块正在开发中</p>
-        <p className="text-xs text-amber-600 mt-1">
-          交互类型: <code className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-700">{typeName}</code>
-        </p>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-primary-500 to-accent-500 transition-all duration-500"
+          style={{ width: `${((currentIdx + (revealed ? 1 : 0)) / questions.length) * 100}%` }}
+        />
       </div>
-      {onAskAI && (
-        <button
-          onClick={onAskAI}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
-        >
-          <Sparkles className="w-4 h-4" />
-          问 AI 了解更多
-        </button>
+
+      {/* Scenario */}
+      {q.scenario && (
+        <div className="bg-blue-50/80 rounded-xl p-4 border border-blue-100">
+          <h4 className="text-xs font-bold text-blue-700 mb-1">场景</h4>
+          <p className="text-sm text-blue-800 leading-relaxed">{q.scenario}</p>
+        </div>
+      )}
+
+      {/* Question */}
+      <p className="text-sm font-semibold text-gray-800 leading-relaxed">
+        {q.prompt || '请选择正确答案'}
+      </p>
+
+      {/* Options */}
+      <div className="space-y-2">
+        {q.options.map((opt, idx) => {
+          const isSelected = selectedIndex === idx;
+          const showCorrect = revealed && idx === q.correctIndex;
+          const showWrong = revealed && isSelected && !isCorrect;
+
+          let buttonStyle = 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50';
+          if (revealed) {
+            if (showCorrect) buttonStyle = 'border-green-400 bg-green-50 text-green-800 font-semibold';
+            else if (showWrong) buttonStyle = 'border-red-400 bg-red-50 text-red-800';
+            else buttonStyle = 'border-slate-100 bg-slate-50 text-slate-400';
+          } else if (isSelected) {
+            buttonStyle = 'border-blue-400 bg-blue-50 text-blue-800 font-semibold';
+          }
+
+          return (
+            <button
+              key={idx}
+              onClick={() => handleSelect(idx)}
+              disabled={revealed}
+              className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all flex items-center gap-3 ${buttonStyle} ${revealed ? 'cursor-default' : 'cursor-pointer'}`}
+            >
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                {String.fromCharCode(65 + idx)}
+              </span>
+              <span className="flex-1">{opt.replace(/^[A-D]\.\s*/, '')}</span>
+              {revealed && showCorrect && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />}
+              {revealed && showWrong && <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Feedback */}
+      {revealed && (
+        <div className={`rounded-xl p-4 border ${isCorrect ? 'bg-green-50/70 border-green-200' : 'bg-red-50/70 border-red-200'}`}>
+          <div className="flex items-start gap-2 mb-2">
+            {isCorrect ? (
+              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+            ) : (
+              <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            )}
+            <div>
+              <h4 className={`text-sm font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                {isCorrect ? '回答正确！' : '回答有误'}
+              </h4>
+              <p className={`text-sm mt-1 leading-relaxed ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                {isCorrect ? q.correctFeedback : q.wrongFeedback}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-slate-200/50">
+            <h4 className="text-xs font-bold text-slate-600 mb-1">知识点</h4>
+            <p className="text-sm text-slate-700 leading-relaxed">{q.explanation}</p>
+          </div>
+
+          {q.relatedAlgorithms && q.relatedAlgorithms.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-200/50">
+              <h4 className="text-xs font-bold text-primary-600 mb-1">这个知识点会在以下算法中用到</h4>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {q.relatedAlgorithms.map((algId) => (
+                  <span key={algId} className="inline-block px-2.5 py-0.5 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold border border-primary-100">
+                    {algorithmNameMap[algId] || algId}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Action buttons */}
+      {revealed && (
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={handleNext}
+            className="flex-1 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg transition-all"
+          >
+            {currentIdx < questions.length - 1 ? '下一题' : allAnswered ? '完成' : '继续'}
+          </button>
+          {onAskAI && (
+            <button
+              onClick={onAskAI}
+              className="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl border border-amber-300 bg-white text-amber-700 text-sm font-semibold hover:bg-amber-50 transition-colors"
+            >
+              <Sparkles className="w-4 h-4" />
+              问 AI
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Summary on last question after all answered */}
+      {revealed && currentIdx === questions.length - 1 && allAnswered && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200 space-y-2">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-amber-500" />
+            <span className="text-sm font-extrabold text-amber-800">
+              得分: {correctCount}/{questions.length}
+            </span>
+          </div>
+        </div>
       )}
     </div>
   );
+}
+
+// ─── Fallback (no placeholder, just hidden) ─────────────────────────────────
+function NoInteraction() {
+  return null;
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────
 
 const IMPLEMENTED_TYPES = new Set<InteractionType>([
   'programming-vs-ml',
+  'ai-ml-dl-map',
   'task-type-classifier',
   'workflow-simulator',
 ]);
 
-export default function InteractiveTask({ type, onComplete, onAskAI }: Props) {
+export default function InteractiveTask({ type, onComplete, onAskAI, fallbackQuestions }: Props) {
   const handleComplete = useCallback(
     (passed: boolean) => {
       onComplete?.(passed);
@@ -673,6 +1068,12 @@ export default function InteractiveTask({ type, onComplete, onAskAI }: Props) {
   if (type === 'programming-vs-ml') {
     return (
       <ProgrammingVsML onComplete={handleComplete} onAskAI={onAskAI} />
+    );
+  }
+
+  if (type === 'ai-ml-dl-map') {
+    return (
+      <AIMLDlMap onComplete={handleComplete} onAskAI={onAskAI} />
     );
   }
 
@@ -688,5 +1089,15 @@ export default function InteractiveTask({ type, onComplete, onAskAI }: Props) {
     );
   }
 
-  return <PlaceholderTask typeName={type} onAskAI={onAskAI} />;
+  // Fallback: use GuidedQuestionBlock if questions available, otherwise hide
+  if (fallbackQuestions && fallbackQuestions.length > 0) {
+    return (
+      <GuidedQuestionBlock
+        questions={fallbackQuestions}
+        onAskAI={onAskAI}
+        onComplete={handleComplete}
+      />
+    );
+  }
+  return <NoInteraction />;
 }

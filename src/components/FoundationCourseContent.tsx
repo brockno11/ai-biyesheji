@@ -484,6 +484,16 @@ export default function FoundationCourseContent({
                       );
                     }
                   }}
+                  onAskAI={() => {
+                    /* AI tutor is in sidebar */
+                  }}
+                  fallbackQuestions={
+                    currentLesson.guidedQuestions?.length
+                      ? currentLesson.guidedQuestions
+                      : currentLesson.openingQuestion
+                        ? [currentLesson.openingQuestion]
+                        : undefined
+                  }
                 />
               </Section>
 
