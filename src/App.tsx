@@ -84,12 +84,12 @@ export default function App() {
             }
           />
 
-          {/* Protected: requires admin */}
+          {/* Protected: requires login (backend login gates admin features) */}
           <Route
             path="/admin"
             element={
               <Suspense fallback={<PageLoader />}>
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <AdminPage />
                 </ProtectedRoute>
               </Suspense>

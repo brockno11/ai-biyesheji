@@ -339,18 +339,16 @@ export default function ProfilePage() {
             <div className="app-card p-5">
               <h2 className="app-section-title mb-4">账户与管理</h2>
               <div className="grid gap-3">
-                {user?.role === 'admin' && (
-                  <Link
-                    to="/admin"
-                    className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      课程管理入口
-                    </span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                )}
+                <Link
+                  to="/admin"
+                  className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    管理后台入口
+                  </span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
                 <button
                   onClick={logout}
                   className="focus-ring inline-flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700"

@@ -1,4 +1,4 @@
-| **v3.1.0** | 轻量级管理员后端管理系统 (Express API + Token 鉴权 + JSON 持久化 + 操作日志) | | **v3.0.0** | 🎓 项目正式版 (身份认证 + 代码审计 + 文档同步) | # 基于 AI 赋能的机器学习算法教学平台 — 完整文档
+| **v3.1.1** | 管理后台入口全员可见 + 后端登录预填凭证 + 管理员全局登录守卫 | | **v3.1.0** | 轻量级管理员后端管理系统 (Express API + Token 鉴权 + JSON 持久化 + 操作日志) | # 基于 AI 赋能的机器学习算法教学平台 — 完整文档
 
 ## 一、项目概述
 
@@ -906,7 +906,22 @@ AI_ENABLE_MOCK_FALLBACK=true
 
 ---
 
-## 十、本地运行指南
+## 十、系统入口说明
+
+| 入口 | 地址 | 入口文件 | 说明 |
+|------|------|----------|------|
+| 主网站（前端） | `http://localhost:3000` | `src/main.tsx` → `index.html` | 用户学习平台，含课程/可视化/练习/测验/AI 助教 |
+| 管理后台（前端） | 个人中心 → "管理后台入口" | `src/pages/AdminPage.tsx` | 任何已登录用户均可点击进入，需后端登录后管理课程/题库 |
+| AI 代理后端 | `http://localhost:8787/api/ai` | `server/index.ts` | DeepSeek AI 代理，Mock 离线兜底 |
+| 管理 API 后端 | `http://localhost:8787/api/admin` | `server/routes/admin.ts` | 管理员 REST API，Token 鉴权，JSON 持久化 |
+| 管理 API 健康检查 | `http://localhost:8787/api/admin/health` | `server/index.ts` | 无需鉴权，检查后端服务状态 |
+| 管理数据文件 | `server/data/admin-db.json` | `server/services/adminStorageService.ts` | 服务端 JSON 持久化，原子写入 |
+
+> 管理员后端账号：admin / 123456（在 `.env` 中配置 `ADMIN_USERNAME` / `ADMIN_PASSWORD`）
+
+---
+
+## 十一、本地运行指南
 
 ### 10.1 环境要求
 
@@ -963,7 +978,7 @@ curl -X POST http://localhost:8787/api/ai/chat \
 
 ---
 
-## 十一、B 站视频来源
+## 十二、B 站视频来源
 
 | 算法 | BV 号 | 标题 | 核验状态 |
 |------|-------|------|----------|
@@ -976,7 +991,7 @@ curl -X POST http://localhost:8787/api/ai/chat \
 
 ---
 
-## 十二、DeepSeek AI 模块升级说明
+## 十三、DeepSeek AI 模块升级说明
 
 ### 12.1 模块目标
 
@@ -1066,7 +1081,7 @@ generateCourseDraft(context)
 
 ---
 
-## 十三、Agent 交接备忘
+## 十四、Agent 交接备忘
 
 ### 当前内容扩展说明（2026-05-11，v3.1.0）
 
@@ -1207,7 +1222,7 @@ npm run test:watch # 监听模式
 
 ---
 
-## 十四、版本演进
+## 十五、版本演进
 
 | 版本 | 里程碑 |
 |------|--------|
@@ -1230,4 +1245,4 @@ npm run test:watch # 监听模式
 ---
 
 > 文档生成日期：2026-05-11
-> 项目版本：3.1.0
+> 项目版本：3.1.1
