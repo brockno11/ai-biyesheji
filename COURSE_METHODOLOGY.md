@@ -377,7 +377,7 @@ aiService.ts (13 方法)
 1. 管理员选择课程（仅算法课）+ 难度 + 输入生成要求
 2. AI 返回草稿：title、description、instructions、starterCode、expectedKeywords、hints、teachingNotes
 3. 草稿填入编辑表单，管理员可修改
-4. 保存后写入 localStorage，source='ai'，enabled=true
+4. 保存后优先写入 Express 管理后端，后端不可用时 fallback 到 localStorage 演示模式，source='ai'，enabled=true
 5. Mock 模式下根据所选课程生成合理草稿
 
 **AI 生成测验题流程**：
@@ -385,7 +385,7 @@ aiService.ts (13 方法)
 2. 基础课可选填 lessonId/conceptId
 3. AI 返回草稿：question、options（4个）、correctIndex、explanation、difficulty
 4. 草稿填入编辑表单，管理员可修改
-5. 保存后写入 localStorage，source='ai'，enabled=true
+5. 保存后优先写入 Express 管理后端，后端不可用时 fallback 到 localStorage 演示模式，source='ai'，enabled=true
 6. Mock 模式下根据所选课程返回对应知识点的合理题目
 
 ---

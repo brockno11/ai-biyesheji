@@ -70,6 +70,16 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+app.get('/api/admin/health', (_req, res) => {
+  res.json({
+    ok: true,
+    service: 'ml-teaching-platform-admin',
+    version: '3.1.0',
+    storage: 'server-json',
+    uptime: process.uptime(),
+  });
+});
+
 app.use('/api/ai', aiRouter);
 app.use('/api/admin/auth', authRouter);
 app.use('/api/admin', adminRouter);

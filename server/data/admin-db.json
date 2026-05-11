@@ -26,7 +26,43 @@
       "targetId": "test-1",
       "operator": "admin",
       "detail": "删除课程: test-1"
+    },
+    {
+      "id": "log-1778480757300-tptfp",
+      "timestamp": 1778480757300,
+      "action": "create",
+      "targetType": "course",
+      "targetId": "final-test",
+      "operator": "admin",
+      "detail": "新增课程: ���ղ��Կγ�"
+    },
+    {
+      "id": "log-1778480757380-3jb8r",
+      "timestamp": 1778480757380,
+      "action": "delete",
+      "targetType": "course",
+      "targetId": "final-test",
+      "operator": "admin",
+      "detail": "删除课程: final-test"
+    },
+    {
+      "id": "log-1778480875144-r5bpd",
+      "timestamp": 1778480875144,
+      "action": "create",
+      "targetType": "course",
+      "targetId": "final-test",
+      "operator": "admin",
+      "detail": "新增课程: Final Test Course"
+    },
+    {
+      "id": "log-1778480875229-tknwp",
+      "timestamp": 1778480875229,
+      "action": "delete",
+      "targetType": "course",
+      "targetId": "final-test",
+      "operator": "admin",
+      "detail": "删除课程: final-test"
     }
   ],
-  "updatedAt": 1778456600475
+  "updatedAt": 1778480875229
 }

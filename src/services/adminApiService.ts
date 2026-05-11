@@ -63,7 +63,7 @@ async function request<T>(
 
 export const adminApiService = {
   isBackendOnline(): Promise<boolean> {
-    return fetch('/api/health')
+    return fetch('/api/admin/health')
       .then((r) => r.ok)
       .catch(() => false);
   },

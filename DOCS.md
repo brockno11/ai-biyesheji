@@ -1,4 +1,4 @@
-| **v2.8.0** | 逻辑回归 + 随机森林课程 | **v2.8.3** | 身份认证系统 + 游客模式 + 管理权限分级 + B站视频不自动播放 + 登录弹窗Portal | | **v3.0.0** | 🎓 项目正式版：全面代码审计清理 + 数据结构修复 + 文档系统同步 + 用户系统完善 | # 基于 AI 赋能的机器学习算法教学平台 — 完整文档
+| **v3.1.0** | 轻量级管理员后端管理系统 (Express API + Token 鉴权 + JSON 持久化 + 操作日志) | | **v3.0.0** | 🎓 项目正式版 (身份认证 + 代码审计 + 文档同步) | # 基于 AI 赋能的机器学习算法教学平台 — 完整文档
 
 ## 一、项目概述
 
@@ -42,7 +42,7 @@ Python运行： Pyodide + Web Worker，支持全部 6 门算法浏览器端 Pyth
 AI 接口：    DeepSeek OpenAI-compatible API (后端代理，可选，默认 Mock)
 ```
 
-### 2.1.1 当前功能规模（2026-05-11，v3.0.0）
+### 2.1.1 当前功能规模（2026-05-11，v3.1.0）
 
 | 类型 | 当前数量/状态 | 说明 |
 |------|---------------|------|
@@ -402,7 +402,63 @@ scripts/
 8. 编辑或覆盖编辑题目 → 修改 → 保存
 9. 新增的题目自动出现在前台练习/测验页面
 
-### 3.8 算法可视化组件
+### 3.8 管理员后端管理系统（v3.1.0）
+
+**功能定位**：将原有的纯前端 localStorage 管理增强为 Express 后端 API + 服务端 JSON 持久化，支持 Token 鉴权和操作日志审计。
+
+**组成部分**：
+
+| 模块 | 内容 |
+|------|------|
+| Express 管理 API | `/api/admin` 路由组，统一响应格式 `{ok, data/message}` |
+| Token 鉴权 | HMAC-SHA256 签名，`/api/admin/auth/login` 登录获取 token，所有管理接口要求 `Authorization: Bearer <token>` |
+| 服务端 JSON 持久化 | `server/data/admin-db.json` 存储自定义课程/练习/测验/覆盖/停用/日志，原子写入防文件损坏 |
+| 操作日志 | 每次新增/编辑/删除/停用/启用/导入/导出自动记录 auditLog，AdminPage 可查看最近 50 条 |
+| 导入导出 | `GET /api/admin/export` 导出全量管理数据，`POST /api/admin/import` 导入（自动备份旧数据至 `server/data/backups/`） |
+| 离线 fallback | 后端不可用时 AdminPage 显示离线提示，前端自动使用 localStorage 继续工作 |
+
+**管理 API 一览**：
+
+| 方法 | 端点 | 说明 |
+|------|------|------|
+| POST | `/api/admin/auth/login` | 管理员登录 |
+| GET | `/api/admin/auth/me` | 当前用户信息 |
+| POST | `/api/admin/auth/logout` | 退出登录 |
+| GET | `/api/admin/health` | 后端健康检查 |
+| GET | `/api/admin/stats` | 服务端数据统计 |
+| GET/POST | `/api/admin/courses` | 课程列表/新增 |
+| PUT/DELETE | `/api/admin/courses/:id` | 编辑/删除课程 |
+| PATCH | `/api/admin/courses/:id/disable\|enable` | 停用/启用课程 |
+| GET/POST | `/api/admin/exercises` | 练习列表/新增 |
+| PUT/DELETE | `/api/admin/exercises/:id` | 编辑/删除练习 |
+| PATCH | `/api/admin/exercises/:id/disable\|enable` | 停用/启用练习 |
+| GET/POST | `/api/admin/quizzes` | 测验列表/新增 |
+| PUT/DELETE | `/api/admin/quizzes/:id` | 编辑/删除测验 |
+| PATCH | `/api/admin/quizzes/:id/disable\|enable` | 停用/启用测验 |
+| GET | `/api/admin/audit-logs` | 操作日志（最近 N 条） |
+| GET | `/api/admin/export` | 导出管理数据 |
+| POST | `/api/admin/import` | 导入管理数据 |
+
+**前端数据合并策略**：
+```
+用户读取课程/练习/测验
+  ├─ 前端发起 GET /api/admin/courses 等请求
+  │   ├─ 成功 → 内置静态数据 + 服务端自定义 + 服务端覆盖
+  │   └─ 失败/离线 → 内置静态数据 + localStorage 兜底
+  └─ 管理端写入操作
+      ├─ 后端在线 → POST/PUT/DELETE → 服务端 JSON 持久化 + 审计日志
+      └─ 后端离线 → localStorage CRUD（同 v3.0.0 模式）+ UI 提示离线
+```
+
+**环境变量** (`.env`)：
+
+```
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=123456
+ADMIN_TOKEN_SECRET=change-me
+```
+
+### 3.9 算法可视化组件
 
 #### 线性回归 (LinearRegressionViz)
 
@@ -486,7 +542,7 @@ scripts/
 
 **交互**：拖动 K 值 → 数据重新随机生成并聚类；拖动迭代次数 → 观察中心逐步移动过程；拖动分散度 → 数据从紧凑变为离散，观察聚类效果变化
 
-### 3.9 AI 功能 UI 组件
+### 3.10 AI 功能 UI 组件
 
 以下组件封装了 AI 助教的 UI 交互，贯穿各页面：
 
@@ -627,10 +683,37 @@ AI_ENABLE_MOCK_FALLBACK=true
 ### 5.2 数据生命周期
 
 ```
+# v3.0.0 及之前：纯前端 localStorage 模式
 添加/修改 → storageService.saveCustomCourse() → localStorage
 读取     → storageService.getCustomCourses()  → useCourses Hook → 组件
 删除     → storageService.deleteCustomCourse() → localStorage
 重置     → storageService.reset()              → 清除所有 key
+
+# v3.1.0：服务端 JSON 持久化模式（前端 localStorage 作为 fallback）
+添加/修改 → adminApiService.createAdminCourse() → POST /api/admin/courses → adminStorageService → server/data/admin-db.json
+读取     → adminApiService.getAdminCourses() → GET /api/admin/courses → 合并内置静态数据
+删除     → adminApiService.deleteAdminCourse() → DELETE /api/admin/courses/:id → 服务端删除 + 审计日志
+后端离线 → adminApiService 返回 BACKEND_OFFLINE → fallback 到 storageService (localStorage 模式)
+```
+
+### 5.3 服务端 JSON 数据结构 (v3.1.0)
+
+`server/data/admin-db.json`：
+
+```json
+{
+  "customCourses": [],
+  "courseOverrides": [],
+  "disabledCourseIds": [],
+  "customExercises": [],
+  "exerciseOverrides": [],
+  "disabledExerciseIds": [],
+  "customQuizzes": [],
+  "quizOverrides": [],
+  "disabledQuizIds": [],
+  "auditLogs": [],
+  "updatedAt": null
+}
 ```
 
 ---
@@ -985,7 +1068,7 @@ generateCourseDraft(context)
 
 ## 十三、Agent 交接备忘
 
-### 当前内容扩展说明（2026-05-11，v3.0.0）
+### 当前内容扩展说明（2026-05-11，v3.1.0）
 
 项目已完成从 MVP 到成品的多轮迭代，当前状态：
 
@@ -1142,8 +1225,7 @@ npm run test:watch # 监听模式
 | **v2.8.2** | 代码审计修复 + 学习路径入门→中级重排 + 代码示例充实 + AI 总结 + 引导式问答 + Python 代码入门课 + 算法引导思考题 + 逻辑回归/随机森林练习 + 6个算法图解 + 段落排版优化 |
 | **v2.8.3** | 随机森林可视化教学增强(三栏引导/卡片解读/投票逻辑)+图解重设计+VideoEmbed多格式BV号兼容+B站视频BV更新 |
 | **v3.0.0** | 🎓 正式版：身份认证(登录/注册/游客/角色权限)+全面代码审计清理(死代码/ID冲突/文案修正)+文档系统同步+B站视频手动播放+Portal弹窗修复+默认模型名更正 |
-| **v3.1.0** | 轻量级管理员后端管理系统：Express 管理 API + Token 鉴权 + 服务端 JSON 持久化 + 操作日志审计 |
-| **v3.1.0** | 轻量级管理员后端管理系统：Express 管理 API + Token 鉴权 + 服务端 JSON 持久化 + 操作日志审计 + 导入导出 + 前后端数据合并策略 |
+| **v3.1.0** | 轻量级管理员后端管理系统：Express 管理 API + Token 鉴权 + 服务端 JSON 持久化(原子写入) + 操作日志审计 + 导入导出 + 离线 fallback |
 
 ---
 
