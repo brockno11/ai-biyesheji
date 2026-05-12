@@ -18,10 +18,13 @@ import { Link, useSearchParams } from 'react-router-dom';
 import type { Algorithm, GuidedQuestion } from '../types';
 import AITutorPanel from './AITutorPanel';
 import InteractiveTask from './InteractiveTask';
+import AIModeBadge from './AIModeBadge';
+import AITextRenderer from './AITextRenderer';
 import MistakeCard from './MistakeCard';
 import SmartParagraph from './SmartParagraph';
 import { lessonProgressService } from '../services/lessonProgressService';
 import { aiService } from '../services/aiService';
+import type { AIMode } from '../services/aiTypes';
 import { DIAGRAM_MAP, DIAGRAM_LABELS } from './LessonDiagrams';
 
 interface FoundationCourseContentProps {
@@ -256,6 +259,11 @@ export default function FoundationCourseContent({
   const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
   const [aiSummaryText, setAiSummaryText] = useState<string | null>(null);
   const [aiSummaryError, setAiSummaryError] = useState<string | null>(null);
+  const [interactiveAILoading, setInteractiveAILoading] = useState(false);
+  const [interactiveAIText, setInteractiveAIText] = useState<string | null>(null);
+  const [interactiveAIError, setInteractiveAIError] = useState<string | null>(null);
+  const [interactiveAIMode, setInteractiveAIMode] = useState<AIMode>('mock');
+  const [interactiveAIFallbackReason, setInteractiveAIFallbackReason] = useState<string | undefined>();
 
   // Determine current lesson from URL param or default to first incomplete
   const lessonParam = searchParams.get('lesson');
@@ -272,6 +280,10 @@ export default function FoundationCourseContent({
   useEffect(() => {
     setOpeningAnswered(false);
     setOpeningUserAnswer(null);
+    setInteractiveAILoading(false);
+    setInteractiveAIText(null);
+    setInteractiveAIError(null);
+    setInteractiveAIFallbackReason(undefined);
   }, [currentLesson?.id]);
 
   // Sync lesson param if not set
@@ -323,6 +335,31 @@ export default function FoundationCourseContent({
       setAiSummaryError(e instanceof Error ? e.message : 'AI 总结请求失败');
     } finally {
       setAiSummaryLoading(false);
+    }
+  };
+
+  const handleInteractiveAskAI = async () => {
+    setInteractiveAILoading(true);
+    setInteractiveAIError(null);
+    setInteractiveAIText(null);
+    setInteractiveAIFallbackReason(undefined);
+    try {
+      const questionText = currentLesson.guidedQuestions?.length
+        ? currentLesson.guidedQuestions.map((q, index) => `${index + 1}. ${q.prompt}`).join('\n')
+        : currentLesson.openingQuestion?.prompt || currentLesson.title;
+
+      const result = await aiService.askTutor({
+        algorithm,
+        pagePosition: `基础课互动练习 - ${currentLesson.title}`,
+        userQuestion: `我刚完成了"${currentLesson.title}"这一节的互动练习。请结合本节目标，用初学者能听懂的话解释这个互动练习在考什么、正确思路是什么、我应该记住哪 2-3 个要点。\n\n互动题目：\n${questionText}`,
+      });
+      setInteractiveAIText(result.data);
+      setInteractiveAIMode(result.mode);
+      setInteractiveAIFallbackReason(result.fallbackReason);
+    } catch (e) {
+      setInteractiveAIError(e instanceof Error ? e.message : 'AI 解释请求失败，请稍后重试');
+    } finally {
+      setInteractiveAILoading(false);
     }
   };
 
@@ -476,9 +513,7 @@ export default function FoundationCourseContent({
                         );
                       }
                     }}
-                    onAskAI={() => {
-                      /* AI tutor is in sidebar */
-                    }}
+                    onAskAI={handleInteractiveAskAI}
                     fallbackQuestions={
                       currentLesson.guidedQuestions?.length
                         ? currentLesson.guidedQuestions
@@ -487,6 +522,39 @@ export default function FoundationCourseContent({
                           : undefined
                     }
                   />
+                  {(interactiveAILoading || interactiveAIText || interactiveAIError) && (
+                    <div className="mt-4 rounded-xl border border-purple-100 bg-purple-50/50 p-4">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <h4 className="flex items-center gap-1.5 text-xs font-bold text-purple-700">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          AI 互动题讲解
+                        </h4>
+                        {interactiveAIText && (
+                          <AIModeBadge mode={interactiveAIMode} fallbackReason={interactiveAIFallbackReason} />
+                        )}
+                      </div>
+                      {interactiveAILoading && (
+                        <div className="flex items-center gap-2 text-sm text-purple-600">
+                          <Sparkles className="h-4 w-4 animate-pulse" />
+                          AI 正在解释这道互动题...
+                        </div>
+                      )}
+                      {interactiveAIError && (
+                        <div className="space-y-2">
+                          <p className="text-sm text-red-600">{interactiveAIError}</p>
+                          <button
+                            onClick={handleInteractiveAskAI}
+                            className="text-xs font-semibold text-red-600 underline hover:text-red-800"
+                          >
+                            重试
+                          </button>
+                        </div>
+                      )}
+                      {interactiveAIText && (
+                        <AITextRenderer text={interactiveAIText} compact />
+                      )}
+                    </div>
+                  )}
                 </Section>
               )}
 

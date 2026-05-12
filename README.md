@@ -116,7 +116,7 @@ npm run build        # 生产构建
 
 ## AI Agent 开发指引
 
-项目内置 19 个 Claude Code Skills（`.claude/skills/`），覆盖前端开发、数据可视化、后端 API、代码审查、测试、UI 设计、学术写作、文档处理。
+项目内置 22 个 Claude Code Skills（`.claude/skills/`），覆盖前端开发、数据可视化、后端 API、代码审查、测试、UI 设计、学术写作、文档处理。
 
 > 新 Agent 加入开发前，请先阅读 **[SKILLS.md](./SKILLS.md)** 了解全部技能清单。
 

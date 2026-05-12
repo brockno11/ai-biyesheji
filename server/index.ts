@@ -74,7 +74,7 @@ app.get('/api/admin/health', (_req, res) => {
   res.json({
     ok: true,
     service: 'ml-teaching-platform-admin',
-    version: '3.1.0',
+    version: '3.1.1',
     storage: 'server-json',
     uptime: process.uptime(),
   });

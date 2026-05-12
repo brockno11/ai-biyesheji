@@ -1,6 +1,6 @@
 # 项目 Skills 清单
 
-> 本项目内置 19 个 Claude Code Skills，位于 `.claude/skills/`。新 Agent 加入开发时自动加载，无需额外下载。
+> 本项目内置 22 个 Claude Code Skills，位于 `.claude/skills/`。新 Agent 加入开发时自动加载，无需额外下载。
 
 ## Skills 清单一览
 
@@ -25,6 +25,9 @@
 | 17 | academic-writing | 学术 | 学术写作、研究设计、论文表达 |
 | 18 | markitdown | 文档转换 | PDF/DOCX/PPTX/XLSX → Markdown |
 | 19 | latex-thesis-zh | 论文 | 中文 LaTeX 学位论文辅助 |
+| 20 | ml-paper-writing | 论文写作 | ML/AI 顶会论文写作：结构框架、引用验证、审稿标准、LaTeX模板 |
+| 21 | humanizer | 语言润色 | 去 AI 写作痕迹、识别人工/AI模式、注入自然表达风格 |
+| 22 | canvas-design | 设计 | 概念图/架构图/示意图/流程图的生成与设计 |
 
 ## v3.1.0 本轮使用的 Skills
 
@@ -71,7 +74,7 @@ npx -y @lobehub/market-cli skills install anthropics-skills-pptx --agent claude-
 | Monaco Editor | senior-frontend (组件开发) |
 | 教学功能 | add-educational-comments |
 | 测试 | senior-qa |
-| 学术写作 | academic-writing, docx, latex-thesis-zh |
+| 学术写作 | academic-writing, docx, latex-thesis-zh, ml-paper-writing, humanizer |
 | 文档处理 | pdf, markitdown, pptx |
 | 图解/互动 | data-viz-2025, frontend-design, frontend-ui-ux |
 | 代码审查 | frontend-code-review |

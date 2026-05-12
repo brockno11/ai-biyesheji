@@ -21,3 +21,8 @@ Thumbs.db
 .idea/
 
 .claude/settings.local.json
+
+# Thesis files (not uploaded)
+file4thesis/
+tmp/
+docs/

@@ -11,6 +11,7 @@ import type { PythonRunResult, PythonRuntimeEvent } from './aiTypes';
 // ── Constants ──
 
 const DEFAULT_TIMEOUT_MS = 15000;
+const BOOTSTRAP_TIMEOUT_MS = 120000;
 let nextRequestId = 0;
 
 // ── Worker Management ──
@@ -146,7 +147,7 @@ export async function runPythonExercise(
   progress.push('booting', '正在准备 Python 运行环境...');
 
   const startedAt = performance.now();
-  const timeoutMs = runtimeSpec.timeoutMs || DEFAULT_TIMEOUT_MS;
+  const timeoutMs = Math.max(runtimeSpec.timeoutMs || DEFAULT_TIMEOUT_MS, BOOTSTRAP_TIMEOUT_MS);
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   let settled = false;
 

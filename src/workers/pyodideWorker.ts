@@ -46,6 +46,7 @@ type ResultMessage = {
 
 const PYODIDE_URL = '/pyodide/pyodide.js';
 const PYODIDE_INDEX_URL = '/pyodide/';
+const PYODIDE_PACKAGE_BASE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.29.4/full/';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let pyodide: any = null;
@@ -96,7 +97,10 @@ async function ensurePyodide(): Promise<void> {
         throw new Error('Pyodide 加载失败：loadPyodide 未定义。请检查 pyodide.js 是否能正常访问。');
       }
 
-      pyodide = await loadPyodideFn({ indexURL: PYODIDE_INDEX_URL });
+      pyodide = await loadPyodideFn({
+        indexURL: PYODIDE_INDEX_URL,
+        packageBaseUrl: PYODIDE_PACKAGE_BASE_URL,
+      });
       postProgress('booting', 'Pyodide 运行时已就绪', 0);
     })();
   }
@@ -105,8 +109,9 @@ async function ensurePyodide(): Promise<void> {
 }
 
 async function installPackages(packages: string[], requestId: number): Promise<void> {
-  const toInstall = packages.filter((pkg) => !loadedPackages.has(pkg));
-  if (toInstall.length === 0) return;
+  const uniquePackages = [...new Set(packages)];
+  if (uniquePackages.length === 0) return;
+  const toInstall = uniquePackages;
 
   postProgress(
     'loading-packages',
@@ -115,7 +120,7 @@ async function installPackages(packages: string[], requestId: number): Promise<v
   );
 
   try {
-    await pyodide.loadPackage(toInstall, {
+    await pyodide.loadPackage(uniquePackages, {
       messageCallback: (msg: string) => {
         postProgress('loading-packages', msg, requestId);
       },
@@ -123,20 +128,21 @@ async function installPackages(packages: string[], requestId: number): Promise<v
         postProgress('loading-packages', `⚠ ${msg}`, requestId);
       },
     });
-    toInstall.forEach((pkg) => loadedPackages.add(pkg));
+    uniquePackages.forEach((pkg) => loadedPackages.add(pkg));
     postProgress('loading-packages', `包安装完成: ${toInstall.join(', ')}`, requestId);
   } catch (err) {
     // Reset so failed packages can be retried next time
-    toInstall.forEach((pkg) => loadedPackages.delete(pkg));
+    uniquePackages.forEach((pkg) => loadedPackages.delete(pkg));
     throw new Error(
       `包安装失败 (${toInstall.join(', ')}): ${err instanceof Error ? err.message : String(err)}`
     );
   }
 }
 
-function setupStdio() {
-  const stdoutLines: string[] = [];
-  const stderrLines: string[] = [];
+function setupStdio(stdoutLines: string[], stderrLines: string[]) {
+  if (!pyodide) {
+    throw new Error('Pyodide 尚未初始化，无法捕获输出');
+  }
 
   pyodide.setStdout({
     batched: (text: string) => {
@@ -148,8 +154,6 @@ function setupStdio() {
       stderrLines.push(text);
     },
   });
-
-  return { stdoutLines, stderrLines };
 }
 
 function extractVariables(
@@ -172,7 +176,8 @@ async function executePython(
   requestId: number
 ): Promise<void> {
   const startedAt = performance.now();
-  const { stdoutLines, stderrLines } = setupStdio();
+  const stdoutLines: string[] = [];
+  const stderrLines: string[] = [];
   const tests: string[] = [];
   let executedSetup = false;
   let executedUser = false;
@@ -181,6 +186,7 @@ async function executePython(
   try {
     // 1. Load Pyodide if not already loaded
     await ensurePyodide();
+    setupStdio(stdoutLines, stderrLines);
 
     // 2. Install required packages
     const packages = spec.packages || ['numpy', 'scikit-learn'];

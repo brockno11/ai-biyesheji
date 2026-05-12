@@ -1151,7 +1151,7 @@ npx tsc --noEmit && npx vite build
 - **`.env` 已 gitignore**，新 Agent 需自行创建。
 - **前端 Vite 代理**：`/api` 请求由 Vite 转发到 `http://localhost:8787`（Express 后端），无需手动配置 CORS。
 - **Mock 覆盖范围**：所有 13 种 AI 操作类型都有 Mock 兜底，无 API Key 时仍可完整演示。
-- **19 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
+- **22 个 Skills** 已内置于 `.claude/skills/`，Claude Code 自动加载。
 - **代码练习验证** 已加入 Pyodide 真运行（`pythonRuntimeService.ts` → `pyodideWorker.ts` Web Worker），覆盖全部 6 门算法（线性回归/KNN/决策树/K-Means）。非 Web Worker 环境自动降级。
 - **Pyodide 资源** 不在 Git 中（`public/pyodide/` 已 gitignore），`npm install` 后自动执行 `sync:pyodide` 脚本同步。
 - **K-Means** 视频已配置 B站 BV号（BV1V44y1u7mJ），**随机森林** 视频已配置（BV1H5411e73F），**决策树** 视频已更新为（BV1Ne411y7wW）。
@@ -1232,7 +1232,7 @@ npm run test:watch # 监听模式
 | **v2.2.0** | AI 工作流横幅 + 后端安全加固（频率限制/Key 脱敏/统一错误码/JSON 修复） |
 | **v2.3.0** | 14 个 Vitest 测试 + Zod 数据校验 + 管理面板增强（预览/导入导出/恢复默认） |
 | **v2.4.0** | Pyodide Web Worker 全算法真运行 + React.lazy 代码拆分（主包 86KB） + Bundle 分析 |
-| **v2.5.0** | 首页沉浸式重制：粒子动态背景 + 鼠标交互 + 毛玻璃统一风格 + 19 个 Skills |
+| **v2.5.0** | 首页沉浸式重制：粒子动态背景 + 鼠标交互 + 毛玻璃统一风格 + 22 个 Skills |
 | **v2.5.3** | AI 可信度 + 内页视觉统一 + K-Means 视频 + ProgressPage 学习诊断 |
 | **v2.6.0** | 2 门基础概念课 + 3 个交互演示 + CoursePage 改造 + 17 道新测验题 |
 | **v2.7.0** | 基础课微课化：14 个 lesson + 二级 Sidebar + InteractiveTask + LessonTimeline + 进度存储 |
